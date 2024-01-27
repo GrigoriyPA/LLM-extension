@@ -1,34 +1,47 @@
-import { exec } from 'child_process';
-import { text } from 'stream/consumers';
+import net from 'node:net';
 
 import * as vscode from 'vscode';
+import {
+    LanguageClient,
+    LanguageClientOptions,
+    StreamInfo
+} from 'vscode-languageclient/node';
 
 export async function activate(context: vscode.ExtensionContext) {
-    vscode.languages.registerCompletionItemProvider('python', {
-        provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
-            const complitionItem = new vscode.CompletionItem(
-                'MyCompletionItem',
-                vscode.CompletionItemKind.User
-            );
-            return [complitionItem];
+    const outputChannel = vscode.window.createOutputChannel("LLM python extension");
+    outputChannel.appendLine(`Initialization of LLM Python extension`);
+
+    const serverConnectionInfo = { port: 8089, host: "127.0.0.1" };
+
+    const serverOptions = () => {
+        const socket = net.connect(serverConnectionInfo);
+        const result: StreamInfo = {
+            writer: socket,
+            reader: socket
+        };
+        return Promise.resolve(result);
+    };
+
+    const clientOptions: LanguageClientOptions = {
+        documentSelector: [{ scheme: 'file', language: 'python' }],
+        synchronize: {
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/.py')
         }
-    });
+    };
 
-    vscode.languages.registerHoverProvider('python', {
-        async provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken) {
-            const range = document.getWordRangeAtPosition(position);
-            const word = document.getText(range);
-            const { stdout } = exec(`python -c "print(${word}.__doc__)"`);
+    try {
+        const client = new LanguageClient(
+            'llmLanguageServer',
+            'LLM language server',
+            serverOptions,
+            clientOptions
+        );
 
-            if (stdout === null) {
-                throw new Error('Could not fetch hover data');
-            }
-
-            return {
-                contents: [await text(stdout)]
-            };
-        }
-    });
+        client.start();
+        outputChannel.appendLine(`Connected to Jedi LS`);
+    } catch (e) {
+        outputChannel.appendLine(`Failed to connect language client to Jedi LS:\n${e}`);
+    }
 
     let disposable = vscode.commands.registerCommand('llm-extension.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from LLM-extension!');
