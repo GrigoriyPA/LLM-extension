@@ -1,5 +1,5 @@
 # llm-extension README
 
-## Requirements
+## Требования
 
-Required jedi-language-server reachable by system variables (can be installed by command `pip install -U jedi-language-server`)
+Требуется установленный jedi-language-server (может быть установлен командой `pip install -U jedi-language-server`)

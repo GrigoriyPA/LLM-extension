@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import net from 'node:net';
 
 import * as vscode from 'vscode';
+
 import {
     HoverRequest,
     Hover,
@@ -14,12 +15,17 @@ import {
     MarkupContent
 } from 'vscode-languageclient/node';
 
+import {
+    printToExtentionChannel,
+    initializeExtention
+} from './utils/extention_utils';
+
+
 let client: LanguageClient;
-let outputChannel: vscode.OutputChannel;
+
 
 export async function activate(context: vscode.ExtensionContext) {
-    outputChannel = vscode.window.createOutputChannel("LLM python extension");
-    printToExtentionChannel(`Initialization of LLM Python extension`);
+    initializeExtention();
 
     const serverConnectionInfo = { port: 8089, host: "127.0.0.1" };
 
@@ -108,15 +114,4 @@ export function deactivate() {
         return undefined;
     }
     return client.stop();
-}
-
-export const printToExtentionChannel = (content: string, reval = true): void => {
-    outputChannel.appendLine(content);
-    if (reval) {
-        outputChannel.show(true);
-    }
-};
-
-async function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
