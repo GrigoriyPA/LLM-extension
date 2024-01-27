@@ -8,10 +8,11 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
+let outputChannel: vscode.OutputChannel;
 
 export async function activate(context: vscode.ExtensionContext) {
-    let outputChannel = vscode.window.createOutputChannel("LLM python extension");
-    outputChannel.appendLine(`Initialization of LLM Python extension`);
+    outputChannel = vscode.window.createOutputChannel("LLM python extension");
+    printToExtentionChannel(`Initialization of LLM Python extension`);
 
     const serverConnectionInfo = { port: 8089, host: "127.0.0.1" };
 
@@ -47,7 +48,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 });
 
                 for (let entry of stats.entries()) {
-                    outputChannel.appendLine(`${entry[0]}: ${entry[1]}`);
+                    printToExtentionChannel(`${entry[0]}: ${entry[1]}`);
                 }
                 
                 return result;
@@ -64,9 +65,9 @@ export async function activate(context: vscode.ExtensionContext) {
         );
 
         client.start();
-        outputChannel.appendLine(`Connected to Jedi LS`);
+        printToExtentionChannel(`Connected to Jedi LS`);
     } catch (e) {
-        outputChannel.appendLine(`Failed to connect language client to Jedi LS:\n${e}`);
+        printToExtentionChannel(`Failed to connect language client to Jedi LS:\n${e}`);
     }
 
     let disposable = vscode.commands.registerCommand('llm-extension.helloWorld', () => {
@@ -82,3 +83,10 @@ export function deactivate() {
     }
     return client.stop();
 }
+
+export const printToExtentionChannel = (content: string, reval = true): void => {
+    outputChannel.appendLine(content);
+    if (reval) {
+        outputChannel.show(true);
+    }
+};
