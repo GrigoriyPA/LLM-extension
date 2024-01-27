@@ -7,15 +7,17 @@ import {
     StreamInfo
 } from 'vscode-languageclient/node';
 
+let client: LanguageClient;
+
 export async function activate(context: vscode.ExtensionContext) {
-    const outputChannel = vscode.window.createOutputChannel("LLM python extension");
+    let outputChannel = vscode.window.createOutputChannel("LLM python extension");
     outputChannel.appendLine(`Initialization of LLM Python extension`);
 
     const serverConnectionInfo = { port: 8089, host: "127.0.0.1" };
 
     const serverOptions = () => {
-        const socket = net.connect(serverConnectionInfo);
-        const result: StreamInfo = {
+        let socket = net.connect(serverConnectionInfo);
+        let result: StreamInfo = {
             writer: socket,
             reader: socket
         };
@@ -26,11 +28,35 @@ export async function activate(context: vscode.ExtensionContext) {
         documentSelector: [{ scheme: 'file', language: 'python' }],
         synchronize: {
             fileEvents: vscode.workspace.createFileSystemWatcher('**/.py')
+        },
+        middleware: {
+            provideCompletionItem: async (document, position, context, token, next) => {
+                const result = await next(document, position, context, token);
+                const completionList = result as vscode.CompletionList;
+                const stats: Map<string, number> = new Map();
+                completionList.items.forEach(item => {
+                    if (!item.kind) {
+                        return;
+                    }
+
+                    let current_value = stats.get(vscode.CompletionItemKind[item.kind]) || 0;
+                    stats.set(
+                        vscode.CompletionItemKind[item.kind],
+                        ++current_value
+                    );
+                });
+
+                for (let entry of stats.entries()) {
+                    outputChannel.appendLine(`${entry[0]}: ${entry[1]}`);
+                }
+                
+                return result;
+            },
         }
     };
 
     try {
-        const client = new LanguageClient(
+        client = new LanguageClient(
             'llmLanguageServer',
             'LLM language server',
             serverOptions,
@@ -50,4 +76,9 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
-export function deactivate() {}
+export function deactivate() {
+    if (!client) {
+        return undefined;
+    }
+    return client.stop();
+}
