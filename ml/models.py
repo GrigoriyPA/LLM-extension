@@ -17,7 +17,6 @@ class MyLLM:
 
     def generate(self, text):
         model_inputs = self.tokenizer(text, return_tensors='pt').to(self.torch_device)
-    
 
 
 codellama_instruct_model = MyLLM("codellama/CodeLlama-7b-Instruct-hf")
