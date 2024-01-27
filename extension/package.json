@@ -20,15 +20,23 @@
   "contributes": {
     "commands": [
       {
-        "command": "llm-extension.helloWorld",
-        "title": "Hello World"
+        "command": "llm-extension.documentFunction",
+        "title": "Document function"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+           "command": "llm-extension.documentFunction",
+           "when": "editorTextFocus && textInputFocus && editorLangId == python"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ..",
-    "watch": "tsc -watch -p ..",
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test"
