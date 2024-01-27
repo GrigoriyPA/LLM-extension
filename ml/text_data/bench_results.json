@@ -1,0 +1,66 @@
+[
+    {
+        "model": "codellama/CodeLlama-7b-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Checks if the dictionary contains all the keys from the set.\n    :param dic: dictionary to check\n    :param need: set of keys to check\n    :return: True if all keys are in the dictionary, False otherwise\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None",
+        "score": 1,
+        "time": "2024-01-27 20:04:15.850045"
+    },
+    {
+        "model": "codellama/CodeLlama-7b-Python-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Check if the dictionary contains all the keys from the set.\n    :param dic: dictionary to check\n    :param need: set of keys to check\n    :return: True if the dictionary contains all the keys, False otherwise\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None",
+        "score": 1,
+        "time": "2024-01-27 20:05:27.637307"
+    },
+    {
+        "model": "codellama/CodeLlama-7b-Instruct-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "check(dic, need)\nChecks if the dictionary dic contains all the keys from the set need.\n\nParameters:\ndic: dictionary to check\nneed: set of keys to check\n\nReturns:\nTrue, None if all keys from need are in dic\nFalse, missing_key if not all keys from need are in dic\n\nMissing_key is the first key from need that is not in dic.\n\nExample:\n>>> dic = {'a': 1, 'b': 2, 'c': 3}\n>>> check(dic, {'a', 'b', 'c'})\n(True, None)\n>>> check(dic, {'a', 'b', 'c', 'd'})\n(False, 'd')\n>>> check(dic, {'a', 'b', 'd'})\n(False, 'd')\n>>> check(dic, {'",
+        "score": 1,
+        "time": "2024-01-27 20:07:14.406853"
+    },
+    {
+        "model": "codellama/CodeLlama-7b-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Checks if the dictionary contains all the keys from the set.\n    :param dic: dictionary to check\n    :param need: set of keys to check\n    :return: True if all keys are in the dictionary, False otherwise\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None",
+        "score": 1,
+        "time": "2024-01-27 20:13:18.673841"
+    },
+    {
+        "model": "codellama/CodeLlama-7b-Python-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Check if the dictionary contains all the keys from the set.\n    :param dic: dictionary to check\n    :param need: set of keys to check\n    :return: True if the dictionary contains all the keys, False otherwise\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None",
+        "score": 1,
+        "time": "2024-01-27 20:14:29.012731"
+    },
+    {
+        "model": "codellama/CodeLlama-7b-Instruct-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "check(dic, need)\nChecks if the dictionary dic contains all the keys from the set need.\n\nParameters:\ndic: dictionary to check\nneed: set of keys to check\n\nReturns:\nTrue, None if all keys from need are in dic\nFalse, missing_key if not all keys from need are in dic\n\nMissing_key is the first key from need that is not in dic.\n\nExample:\n>>> dic = {'a': 1, 'b': 2, 'c': 3}\n>>> check(dic, {'a', 'b', 'c'})\n(True, None)\n>>> check(dic, {'a', 'b', 'c', 'd'})\n(False, 'd')\n>>> check(dic, {'a', 'b', 'd'})\n(False, 'd')\n>>> check(dic, {'",
+        "score": 1,
+        "time": "2024-01-27 20:16:15.737470"
+    },
+    {
+        "model": "codellama/CodeLlama-13b-Python-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Check if all items in need are in dic.\n    If some item is missing, return missing item, else return None.\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None\n\n\ndef check(dic, need):\n    \"\"\"\n    Check if all items in need are in dic.\n    If some item is missing, return missing item, else return None.\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None\n\n\ndef check(dic, need):\n    \"\"\"\n    Check if all items in need are",
+        "score": 1,
+        "time": "2024-01-27 20:38:23.793122"
+    },
+    {
+        "model": "codellama/CodeLlama-13b-Instruct-hf",
+        "query": "def check(dic, need):\n                    dicSet = set(dic.keys())\n                    if dicSet != need:\n                        missing = need.difference(dicSet)\n                        return False, missing.pop()\n                    return True, None",
+        "prompt": "\nGenerate a docstring by the given declaration, definition (optional) and context (optional) of the function. Docstring must include detailed and extensive description of the function,it's parameters and return value. Docstring must follow accurate format:{a few sentences describing what function do}{description of each argument}{description of a return value}.Here is the body of the function, for which you will have to write a docstring: \ndef check(dic, need):\n            dicSet = set(dic.keys())\n            if dicSet != need:\n                missing = need.difference(dicSet)\n                return False, missing.pop()\n            return True, None\nDocstring for that function:",
+        "answer": "def check(dic, need):\n    \"\"\"\n    Checks if the dictionary contains all the keys from the set.\n    If the dictionary contains all the keys, returns True and None.\n    If the dictionary doesn't contain all the keys, returns False and the first missing key.\n    :param dic: dictionary to check\n    :param need: set of keys to check\n    :return: tuple (True, None) if the dictionary contains all the keys,\n    (False, missing_key) if the dictionary doesn't contain all the keys\n    \"\"\"\n    dicSet = set(dic.keys())\n    if dicSet != need:\n        missing = need.difference(dicSet)\n        return False, missing.pop()\n    return True, None",
+        "score": 1,
+        "time": "2024-01-27 20:47:55.912426"
+    }
+]
