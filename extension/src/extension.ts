@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import net from 'node:net';
 
 import * as vscode from 'vscode';
@@ -70,8 +71,11 @@ export async function activate(context: vscode.ExtensionContext) {
         printToExtentionChannel(`Failed to connect language client to Jedi LS:\n${e}`);
     }
 
-    let disposable = vscode.commands.registerCommand('llm-extension.helloWorld', () => {
-        vscode.window.showInformationMessage('Hello World from LLM-extension!');
+    let disposable = vscode.commands.registerTextEditorCommand('llm-extension.documentFunction', (textEditor: vscode.TextEditor, edit: vscode.TextEditorEdit) => {
+        const position = textEditor.selection.active;
+        const range = textEditor.document.getWordRangeAtPosition(position);
+        const world = textEditor.document.getText(range);
+        vscode.window.showInformationMessage(`Hello World from LLM-extension! Current world: ${world}`);
     });
 
     context.subscriptions.push(disposable);
@@ -90,3 +94,7 @@ export const printToExtentionChannel = (content: string, reval = true): void => 
         outputChannel.show(true);
     }
 };
+
+async function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
