@@ -1,7 +1,7 @@
 {
   "name": "llm-extension",
   "displayName": "LLM-extension",
-  "description": "An extension for automatic generation of tests and documentation.",
+  "description": "An extension for automatic generation of tests and documentation",
   "version": "0.0.1",
 	"repository": {
 		"type": "git",
@@ -37,9 +37,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p .",
     "watch": "tsc -watch -p .",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "lint": "eslint src --ext ts"
   },
 	"dependencies": {
 		"vscode-languageclient": "^9.0.1"
