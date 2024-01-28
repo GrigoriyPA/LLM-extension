@@ -5,10 +5,11 @@ import torch
 import time
 from typing import Optional
 from textwrap import dedent
-import pandas as pd
+import json
 import datetime
 
 from text_data.prompts import DOCSTRING_PROMPT
+from colourful_cmd import print_green, print_cyan, print_red
 
 
 class IdeLLM:
@@ -17,13 +18,13 @@ class IdeLLM:
         self._tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
         start = time.time()
-        print(f'Starting to load model {checkpoint}')
+        print_cyan(f'Starting to load model {checkpoint}')
         self._model: transformers.PreTrainedModel = AutoModelForCausalLM.from_pretrained(checkpoint,
-                                                                             low_cpu_mem_usage=True,
-                                                                             torch_dtype="auto",
-                                                                             device_map="auto")
+                                                                                         low_cpu_mem_usage=True,
+                                                                                         torch_dtype="auto",
+                                                                                         device_map="auto")
         finish = time.time()
-        print(f'Finished loading model {checkpoint}, it took {round(finish - start, 1)} seconds')
+        print_green(f'Finished loading model {checkpoint}, it took {round(finish - start, 1)} seconds')
 
         self._generation_config = GenerationConfig.from_pretrained(
             self._checkpoint,
@@ -57,40 +58,71 @@ class IdeLLM:
         Docstring for that function:''')
 
         model_inputs = self._tokenizer(full_prompt, return_tensors='pt')
-        generated_ids = self._model.generate(**model_inputs, generation_config=self._generation_config)
+        generated_ids = self._model.generate(**model_inputs,
+                                             generation_config=self._generation_config,
+                                             **generation_params)
+
         generated_docstring = self._tokenizer.batch_decode(
             generated_ids[:, model_inputs["input_ids"].shape[1]:],
-            skip_special_tokens=True
-        )[0].strip("\n").strip("")
+            skip_special_tokens=True)[0].strip("\n").strip("")
 
         return full_prompt, generated_docstring
 
 
 def launch_models(model_names, dst_path, query):
-    try:
-        df = pd.read_csv(dst_path, sep=';')
-    except FileNotFoundError:
-        open(dst_path)
-        df = pd.read_csv(dst_path, sep=';')
+    with open(dst_path) as f:
+        text = f.read()
+        if not text:
+            text = '[]'
+        data = json.loads(text)
+
+    total_time = time.time()
+    print_cyan("Starting testing models")
 
     for model_name in model_names:
-        model = IdeLLM(model_name)
-        prompt, model_answer = model.generate_docstring(query)
-        df = df._append({
-            'model': model_name,
-            'query': query,
-            'prompt': prompt,
-            'answer': model_answer,
-            'gpt_score': 1,
-            'time': str(datetime.datetime.now()),
-        }, ignore_index=True)
-        print(prompt, model_answer)
+        try:
+            model = IdeLLM(model_name)
 
-    df.to_csv(dst_path, sep=";")
+            cur_time = time.time()
+            print_cyan(f"Testing model {model_name} now")
+            prompt, model_answer = model.generate_docstring(query)
+            data.append({
+                'model': model_name,
+                'query': query,
+                'prompt': prompt,
+                'answer': model_answer,
+                'score': 1,
+                'time': str(datetime.datetime.now()),
+            })
+            print_green(f"Finished testing model {model_name}, it took {round(time.time() - cur_time, 1)} seconds")
+        except:
+            print_red(f"There was a mistake while processing model {model_name}")
+
+    with open(dst_path, 'w') as f:
+        json.dump(data, f, indent=4)
+
+    print_green(f"Finished testing models, it took {round(time.time() - total_time, 1)} seconds")
 
 
-model_names = ["codellama/CodeLlama-7b-hf", "codellama/CodeLlama-7b-Python-hf", "codellama/CodeLlama-7b-Instruct-hf"]
-dst_path = "text_data/bench_results.csv"
+def print_results(dst_path):
+    with open(dst_path) as f:
+        data = json.load(f)
+
+    for el in data:
+        print_green(el['model'])
+        print(el['answer'])
+        print()
+
+
+model_names = [
+    "codellama/CodeLlama-7b-hf",
+    "codellama/CodeLlama-7b-Python-hf",
+    "codellama/CodeLlama-7b-Instruct-hf",
+    "codellama/CodeLlama-13b-Python-hf",
+    "codellama/CodeLlama-13b-Instruct-hf",
+]
+
+dst_path = "text_data/bench_results.json"
 query = """def check(dic, need):
                     dicSet = set(dic.keys())
                     if dicSet != need:
@@ -98,5 +130,5 @@ query = """def check(dic, need):
                         return False, missing.pop()
                     return True, None"""
 
-
-launch_models(model_names, dst_path, query)
+# launch_models(model_names, dst_path, query)
+print_results(dst_path)

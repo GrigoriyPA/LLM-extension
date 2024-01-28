@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 DOCSTRING_PROMPT = """Generate a docstring by the given declaration, 
 definition (optional) and context (optional) of the function. 
 Docstring must include detailed and extensive description of the function,
@@ -10,25 +12,25 @@ Here is the body of the function,
 for which you will have to write a docstring: """
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", "")
 
-
-"""
-
-def find_maximum(arr):
-    max_el = -1
-    for el in arr:
-        max_el = max(max_el, el)
-    return max_el"
-->
-Function find_maximum finds the biggest element in the list 
-
-Parameters
-----------
-arr: list[int]
-    List of numbers
-
-Returns
--------
-int
-    The maximum element from the array
+DOCSTRING_EXAMPLES = [
+    dedent("""
+    def find_maximum(arr):
+        max_el = -1
+        for el in arr:
+            max_el = max(max_el, el)
+        return max_el"
+    ->
+    Function find_maximum finds the biggest element in the list 
     
-"""
+    Parameters
+    ----------
+    arr: list[int]
+        List of numbers
+    
+    Returns
+    -------
+    int
+        The maximum element from the array
+        
+    """),
+]
