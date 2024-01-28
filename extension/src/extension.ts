@@ -1,6 +1,3 @@
-import { exec } from 'child_process';
-import net from 'node:net';
-
 import * as vscode from 'vscode';
 
 import {
@@ -10,7 +7,6 @@ import {
     TextDocumentIdentifier,
     LanguageClient,
     LanguageClientOptions,
-    StreamInfo,
     HoverParams,
     MarkupContent
 } from 'vscode-languageclient/node';
@@ -20,52 +16,23 @@ import {
     initializeExtention
 } from './utils/extention_utils';
 
+import {
+    initializeServer,
+    serverProcess
+} from './utils/server_utils';
+
 
 let client: LanguageClient;
 
 
 export async function activate(context: vscode.ExtensionContext) {
     initializeExtention();
-
-    const serverConnectionInfo = { port: 8089, host: "127.0.0.1" };
-
-    const serverOptions = () => {
-        let socket = net.connect(serverConnectionInfo);
-        let result: StreamInfo = {
-            writer: socket,
-            reader: socket
-        };
-        return Promise.resolve(result);
-    };
+    await initializeServer();
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'python' }],
         synchronize: {
             fileEvents: vscode.workspace.createFileSystemWatcher('**/.py')
-        },
-        middleware: {
-            provideCompletionItem: async (document, position, context, token, next) => {
-                const result = await next(document, position, context, token);
-                const completionList = result as vscode.CompletionList;
-                const stats: Map<string, number> = new Map();
-                completionList.items.forEach(item => {
-                    if (!item.kind) {
-                        return;
-                    }
-
-                    let current_value = stats.get(vscode.CompletionItemKind[item.kind]) || 0;
-                    stats.set(
-                        vscode.CompletionItemKind[item.kind],
-                        ++current_value
-                    );
-                });
-
-                for (let entry of stats.entries()) {
-                    printToExtentionChannel(`${entry[0]}: ${entry[1]}`);
-                }
-                
-                return result;
-            },
         }
     };
 
@@ -73,11 +40,11 @@ export async function activate(context: vscode.ExtensionContext) {
         client = new LanguageClient(
             'llmLanguageServer',
             'LLM language server',
-            serverOptions,
+            serverProcess.options,
             clientOptions
         );
 
-        client.start();
+        await client.start();
         printToExtentionChannel(`Connected to Jedi LS`);
     } catch (e) {
         printToExtentionChannel(`Failed to connect language client to Jedi LS:\n${e}`);
@@ -110,6 +77,9 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+    if (serverProcess) {
+        serverProcess.stop();
+    }
     if (!client) {
         return undefined;
     }
