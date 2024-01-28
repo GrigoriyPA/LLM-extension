@@ -8,9 +8,7 @@ import {
     exec
 } from 'child_process';
 
-import {
-    StreamInfo
-} from 'vscode-languageclient/node';
+import { StreamInfo } from 'vscode-languageclient/node';
 
 import {
     printToExtentionChannel,
@@ -27,9 +25,9 @@ class ServerProcess {
 
     private createOptions(): () => Promise<StreamInfo> {
         return () => {
-            let connetcOptions: NetConnectOpts = { port: this.port, host: this.host };
-            let socket = connect(connetcOptions);
-            let result: StreamInfo = {
+            const connetcOptions: NetConnectOpts = { port: this.port, host: this.host };
+            const socket = connect(connetcOptions);
+            const result: StreamInfo = {
                 writer: socket,
                 reader: socket
             };
