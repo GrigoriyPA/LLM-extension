@@ -24,4 +24,3 @@ def print_cyan(text):
 
 def print_red(text):
     _print(CmdColors.FAIL, text)
-
