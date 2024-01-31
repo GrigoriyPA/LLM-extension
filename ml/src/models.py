@@ -5,7 +5,7 @@ import typing as tp
 from textwrap import dedent
 
 import transformers
-from colourful_cmd import print_cyan, print_green, print_red
+from src.colourful_cmd import print_cyan, print_green, print_error
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
 from text_data.prompts import DOCSTRING_PROMPT
@@ -111,16 +111,21 @@ def launch_models(model_names, dst_path, query):
                 'time': str(datetime.datetime.now()),
             })
             print_green(
-                f"Finished testing model {model_name}, it took {round(time.time() - cur_time, 1)} seconds")
+                f"Finished testing model {model_name},"
+                f" it took {round(time.time() - cur_time, 1)} seconds"
+            )
         except BaseException:
-            print_red(
-                f"There was a mistake while processing model {model_name}")
+            print_error(
+                f"There was a mistake while processing model {model_name}"
+            )
 
     with open(dst_path, 'w') as f:
         json.dump(data, f, indent=4)
 
     print_green(
-        f"Finished testing models, it took {round(time.time() - total_time, 1)} seconds")
+        f"Finished testing models,"
+        f" it took {round(time.time() - total_time, 1)} seconds"
+    )
 
 
 def print_results(dst_path):
@@ -128,26 +133,4 @@ def print_results(dst_path):
         data = json.load(f)
 
     for el in data:
-        print_green(el['model'])
-        print(el['answer'])
-        print()
-
-
-model_names = [
-    "codellama/CodeLlama-7b-hf",
-    "codellama/CodeLlama-7b-Python-hf",
-    "codellama/CodeLlama-7b-Instruct-hf",
-    "codellama/CodeLlama-13b-Python-hf",
-    "codellama/CodeLlama-13b-Instruct-hf",
-]
-
-dst_path = "text_data/bench_results.json"
-query = """def check(dic, need):
-                    dicSet = set(dic.keys())
-                    if dicSet != need:
-                        missing = need.difference(dicSet)
-                        return False, missing.pop()
-                    return True, None"""
-
-# launch_models(model_names, dst_path, query)
-print_results(dst_path)
+        print_green(el['model'], el['answer'], sep='\n')
