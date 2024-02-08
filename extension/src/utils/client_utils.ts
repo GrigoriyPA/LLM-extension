@@ -4,7 +4,7 @@ import * as vscodelc from "vscode-languageclient/node";
 
 import { printToExtentionChannel } from "./extention_utils";
 
-import { serverProcess } from "./server_utils";
+import { serverOptions } from "./server_utils";
 
 export let languageClient: vscodelc.LanguageClient;
 
@@ -24,7 +24,7 @@ export async function initializeLanguageClient() {
         languageClient = new vscodelc.LanguageClient(
             "llmExtentionLanguageClient",
             "LLM extention language client",
-            serverProcess.options,
+            serverOptions,
             createOptions()
         );
 
