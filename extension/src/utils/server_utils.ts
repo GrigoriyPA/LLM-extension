@@ -1,35 +1,28 @@
-import {
-    NetConnectOpts,
-    connect
-} from 'node:net';
+import { NetConnectOpts, connect } from "node:net";
 
-import {
-    ChildProcess,
-    exec
-} from 'child_process';
+import { ChildProcess, exec } from "child_process";
 
-import { StreamInfo } from 'vscode-languageclient/node';
+import * as vscodelc from "vscode-languageclient/node";
 
-import {
-    printToExtentionChannel,
-    sleep
-} from './extention_utils';
-
+import { printToExtentionChannel, sleep } from "./extention_utils";
 
 class ServerProcess {
     private process: ChildProcess | undefined;
     private host: string;
     private port: number;
 
-    options: () => Promise<StreamInfo>;
+    options: () => Promise<vscodelc.StreamInfo>;
 
-    private createOptions(): () => Promise<StreamInfo> {
+    private createOptions(): () => Promise<vscodelc.StreamInfo> {
         return () => {
-            const connetcOptions: NetConnectOpts = { port: this.port, host: this.host };
+            const connetcOptions: NetConnectOpts = {
+                port: this.port,
+                host: this.host,
+            };
             const socket = connect(connetcOptions);
-            const result: StreamInfo = {
+            const result: vscodelc.StreamInfo = {
                 writer: socket,
-                reader: socket
+                reader: socket,
             };
             return Promise.resolve(result);
         };
@@ -45,11 +38,15 @@ class ServerProcess {
 
     async start() {
         if (!this.process) {
-            this.process = exec(`jedi-language-server --tcp --host ${this.host} --port ${this.port}`);
+            this.process = exec(
+                `jedi-language-server --tcp --host ${this.host} --port ${this.port}`
+            );
 
             await sleep(1000);
 
-            printToExtentionChannel(`LS started on host ${this.host}, port ${this.port} with pid ${this.process.pid}`);
+            printToExtentionChannel(
+                `LS started on host ${this.host}, port ${this.port} with pid ${this.process.pid}`
+            );
         }
     }
 
@@ -60,9 +57,7 @@ class ServerProcess {
     }
 }
 
-
 export let serverProcess: ServerProcess;
-
 
 export async function initializeServer() {
     printToExtentionChannel(`Initialization of Jedi LS`);
