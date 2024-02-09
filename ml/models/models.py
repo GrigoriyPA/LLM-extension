@@ -1,20 +1,23 @@
-import datetime
-import json
 import time
+import torch
 import typing as tp
 from textwrap import dedent
 
 import transformers
-from src.colourful_cmd import print_cyan, print_green, print_error
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
-from text_data.prompts import DOCSTRING_PROMPT
+from configs.colourful_cmd import print_cyan, print_green, print_red
+from datasets.prompts import DOCSTRING_PROMPT
 
 
 class IdeLLM:
     def __init__(self, checkpoint_path: str):
         self._checkpoint: str = checkpoint_path
-        self._tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            checkpoint_path,
+            device_map="auto",
+            trust_remote_code=True,
+        )
 
         start = time.time()
         print_cyan(f'Starting to load model {checkpoint_path}')
@@ -22,8 +25,9 @@ class IdeLLM:
             AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=checkpoint_path,
                 low_cpu_mem_usage=True,
-                torch_dtype="auto",
-                device_map="auto"
+                torch_dtype=torch.float32,
+                device_map="auto",
+                trust_remote_code=True,
             )
         )
         finish = time.time()
@@ -38,7 +42,6 @@ class IdeLLM:
         )
 
         self._docstring_prompt = DOCSTRING_PROMPT
-        # TODO there must be some fewshot examples after that prompt
 
     def generate_docstring(self,
                            function: str,
@@ -83,54 +86,3 @@ class IdeLLM:
             skip_special_tokens=True)[0].strip("\n").strip("")
 
         return full_prompt, generated_docstring
-
-
-def launch_models(model_names, dst_path, query):
-    with open(dst_path) as f:
-        text = f.read()
-        if not text:
-            text = '[]'
-        data = json.loads(text)
-
-    total_time = time.time()
-    print_cyan("Starting testing models")
-
-    for model_name in model_names:
-        try:
-            model = IdeLLM(model_name)
-
-            cur_time = time.time()
-            print_cyan(f"Testing model {model_name} now")
-            prompt, model_answer = model.generate_docstring(query)
-            data.append({
-                'model': model_name,
-                'query': query,
-                'prompt': prompt,
-                'answer': model_answer,
-                'score': 1,
-                'time': str(datetime.datetime.now()),
-            })
-            print_green(
-                f"Finished testing model {model_name},"
-                f" it took {round(time.time() - cur_time, 1)} seconds"
-            )
-        except BaseException:
-            print_error(
-                f"There was a mistake while processing model {model_name}"
-            )
-
-    with open(dst_path, 'w') as f:
-        json.dump(data, f, indent=4)
-
-    print_green(
-        f"Finished testing models,"
-        f" it took {round(time.time() - total_time, 1)} seconds"
-    )
-
-
-def print_results(dst_path):
-    with open(dst_path) as f:
-        data = json.load(f)
-
-    for el in data:
-        print_green(el['model'], el['answer'], sep='\n')

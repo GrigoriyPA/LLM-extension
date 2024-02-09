@@ -18,7 +18,7 @@ DOCSTRING_EXAMPLES = [
         max_el = -1
         for el in arr:
             max_el = max(max_el, el)
-        return max_el"
+        return max_el
     ->
     Function find_maximum finds the biggest element in the list 
     
