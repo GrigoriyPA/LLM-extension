@@ -1,10 +1,16 @@
 import sqlite3
 
-from typing import List
-from abc import abstractmethod, ABC
+from typing import List, get_type_hints, Union, NamedTuple
 
 
-class BaseDatabase:
+class Database:
+    MAPPING = {
+        str: "TEXT",
+        float: "REAL",
+        int: "INTEGER",
+    }
+    EL_TYPES = Union[str, float, int]
+
     def __init__(self, database_name: str):
         self.database_name = database_name
         self.connection = sqlite3.connect(self.database_name)
@@ -13,16 +19,15 @@ class BaseDatabase:
     def __del__(self):
         self.connection.close()
 
-    def create_table(self, table_name: str, columns: List[tuple[str, str]]):
-        for a, b in columns:
-            assert b in ['TEXT', 'REAL', 'INTEGER']
-        field_text = ", ".join([f"{a} {b}" for a, b in columns])
+    def create_table(self, table_name: str, columns: List[tuple[str, type]]):
+        field_text = ", ".join([f"{a} {self.MAPPING[b]}" for a, b in columns])
 
         request = f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY, {field_text})"
+
         self.cursor.execute(request)
         self.connection.commit()
 
-    def write_data(self, table_name: str, columns: List[str], data: List[str]):
+    def write(self, table_name: str, columns: List[EL_TYPES], data: List[EL_TYPES]):
         tmp = ', '.join(['?' for _ in range(len(data))])
         request = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({tmp})"
         self.cursor.execute(request, data)
@@ -39,66 +44,46 @@ class BaseDatabase:
         self.cursor.execute(request)
         self.connection.commit()
 
-    def get_data(self, table_name: str) -> List[str]:
+    def read(self, table_name: str) -> List[str]:
         request = f"SELECT * FROM {table_name}"
         self.cursor.execute(request)
         res = self.cursor.fetchall()
         return res
 
 
-class AbstractDataset(ABC):
-    @abstractmethod
-    def write_el(self, *args, **kwargs):
-        pass
-
-    @abstractmethod
-    def get_data(self, *args, **kwargs):
-        pass
-
-    @abstractmethod
-    def clear(self):
-        pass
-
-
-class FunctionsDataset(AbstractDataset):
-    table_name = "functions_docstrings"
-    columns = ["function", "docstring", "docstring_score", "context"]
-    columns_type = ["TEXT", "TEXT", "INTEGER", "TEXT"]
-
-    def __init__(self, db):
+class Dataset:
+    def __init__(self, db, table_name, row_type):
         self.db = db
-        self.db.create_table(self.table_name, [(a, b) for a, b in zip(self.columns, self.columns_type)])
+        self.table_name = table_name
+        self.row_type = row_type
+        self.columns = get_type_hints(self.row_type).keys()
+        self.columns_types = get_type_hints(self.row_type).values()
+        self.db.create_table(self.table_name, get_type_hints(self.row_type).items())
 
-    def write_el(self, function: str, docstring: str, docstring_score: int, context: str = ""):
-        data = [function, docstring, docstring_score, context]
-        self.db.write_data(self.table_name, self.columns, data)
+    def write(self, el):
+        data = [getattr(el, col) for col in self.columns]
+        self.db.write(self.table_name, self.columns, data)
 
-    def get_data(self):
-        return self.db.get_data(self.table_name)
+    def read(self):
+        data = self.db.read(self.table_name)
+        res = [self.row_type(*el[1:]) for el in data]
+        return res
 
     def clear(self):
         self.db.clear(self.table_name)
 
 
-class ModelsResultsDataset(AbstractDataset):
-    table_name = "models_results"
-    columns = ["model_name", "prompt", "function", "docstring", "docstring_score", "context"]
-    columns_type = ["TEXT", "TEXT", "TEXT", "TEXT", "INTEGER", "TEXT"]
+class FunctionDatasetRow(NamedTuple):
+    function: str
+    docstring: str
+    docstring_score: int
+    context: str
 
-    def __init__(self, db):
-        self.db = db
-        self.db.create_table(self.table_name, [(a, b) for a, b in zip(self.columns, self.columns_type)])
 
-    def write_el(self, model_name: str, prompt: str, function: str, docstring: str, docstring_score: int, context: str):
-        data = [model_name, prompt, function, docstring, docstring_score, context]
-        self.db.write_data(self.table_name, self.columns, data)
-
-    def get_data(self):
-        return self.db.get_data(self.table_name)
-
-    def clear(self):
-        self.db.clear(self.table_name)
-
-# func_ds = FunctionsDataset('main.db')
-# func_ds.write_el("def sum(a: int, b: int) -> int:\n\treturn a + b",
-#  "calculates sum of two given numbers a + b and returns it", 10, "z = sum(x, y)")
+class ModelsResultsRow(NamedTuple):
+    model_name: str
+    prompt: str
+    function: str
+    docstring: str
+    docstring_score: int
+    context: str

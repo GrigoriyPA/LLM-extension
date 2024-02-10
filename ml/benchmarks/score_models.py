@@ -1,14 +1,22 @@
 import time
 
-from configs.colourful_cmd import *
+from configs.colourful_cmd import print_cyan, print_red, print_green
 from models.models import IdeLLM
+from datasets.database_utils import ModelsResultsRow
 
 from typing import List
 
 
 def _get_model_prediction(model, model_name, dst, function, context=""):
     res = model.generate_docstring(function, context)
-    dst.write_el(model_name, res[0], function, res[1], -1, context=context)
+    dst.write(ModelsResultsRow(
+        model_name=model_name,
+        prompt=res[0],
+        function=function,
+        docstring=res[1],
+        docstring_score=-1,
+        context=context)
+    )
 
 
 def launch_models(model_names: List[str], src, dst):
@@ -30,9 +38,9 @@ def launch_models(model_names: List[str], src, dst):
             cur_time = time.time()
             print_cyan(f"Testing model {model_name} now")
 
-            dataset = src.get_data()
+            dataset = src.read()
             for el in dataset:
-                _get_model_prediction(model, model_name, dst, el[1], el[4])
+                _get_model_prediction(model, model_name, dst, el.function, el.context)
 
             print_green(
                 f"Finished testing model {model_name},"
