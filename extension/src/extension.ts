@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 
-import { initializeExtention } from "./utils/extention_utils";
+import { initializeExtention } from "./utils/runtime/extention_utils";
 
-import { initializeLanguageClient, languageClient } from "./utils/client_utils";
+import {
+    initializeLanguageClient,
+    languageClient,
+} from "./utils/runtime/client_utils";
 
 import { documentFunction } from "./functions/document_function";
 
