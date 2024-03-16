@@ -33,3 +33,13 @@ export namespace FromVscodelc {
         );
     }
 }
+
+export namespace ToString {
+    export function convertPosition(position: vscode.Position): string {
+        return `${position.line}:${position.character}`;
+    }
+
+    export function convertRange(range: vscode.Range): string {
+        return `[${convertPosition(range.start)} - ${convertPosition(range.end)}]`;
+    }
+}

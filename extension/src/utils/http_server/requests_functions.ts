@@ -1,19 +1,26 @@
-import { printToExtentionChannel } from "../runtime/extention_utils";
+import { RequestInterface, HttpResponse } from "./requests_structures";
 
-import { DocumentFunction } from "./requests_structures";
+import { LogLevel, Components, logEntry } from "../logger";
 
-export async function documentFunctionRequest(
-    request: DocumentFunction.Request
-): Promise<DocumentFunction.Response | undefined> {
-    printToExtentionChannel(
-        `documentFunctionRequest, function content:\n${request.FunctionContent}`
+function logMessage(logLevel: LogLevel, functionName: string, message: string) {
+    logEntry(logLevel, Components.HTTP_GATEWAY, `[${functionName}] ${message}`);
+}
+
+export async function sendRequest(
+    request: RequestInterface
+): Promise<HttpResponse> {
+    logMessage(LogLevel.DEBUG, "SendRequest", `${request.name}`);
+    logMessage(
+        LogLevel.TRACE,
+        "SendRequest",
+        `Request description:\n${request.getDescription()}`
     );
-    for (const reference of request.ReferencesContent) {
-        printToExtentionChannel(`Reference content:\n${reference}`);
-    }
-    printToExtentionChannel(`Request end.`);
 
-    return {
-        FunctionDocumention: "Test function documentation",
-    };
+    // TODO: @dffTu implement request sending
+    const response = new HttpResponse("Test function documentation");
+    response.setSuccess();
+
+    logMessage(LogLevel.TRACE, "SendRequest", `Request successfully finished`);
+
+    return response;
 }

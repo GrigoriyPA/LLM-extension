@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
 
+import { initializeLogger, LogLevel, Components, logEntry } from "../logger";
+
 let outputChannel: vscode.OutputChannel;
 
 export function printToExtentionChannel(
     content: string,
-    reval: boolean = true
+    reval: boolean = false
 ) {
     outputChannel.appendLine(content);
     if (reval) {
@@ -12,11 +14,19 @@ export function printToExtentionChannel(
     }
 }
 
-export function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function initializeExtention() {
+export function initializeExtention(
+    defaultLogLevel: LogLevel,
+    componentsLogLevel: Map<Components, LogLevel> = new Map<
+        Components,
+        LogLevel
+    >()
+) {
     outputChannel = vscode.window.createOutputChannel("LLM python extension");
-    printToExtentionChannel(`Initialization of LLM python extension`);
+    initializeLogger(defaultLogLevel, componentsLogLevel, outputChannel);
+
+    logEntry(
+        LogLevel.INFO,
+        Components.EXTENSION,
+        "Initialization of LLM python extension"
+    );
 }

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 import * as vscodelc from "vscode-languageclient/node";
 
-import { printToExtentionChannel } from "./extention_utils";
+import { LogLevel, Components, logEntry } from "../logger";
 
 import { serverOptions } from "./server_utils";
 
@@ -18,7 +18,11 @@ function createOptions(): vscodelc.LanguageClientOptions {
 }
 
 export async function initializeLanguageClient() {
-    printToExtentionChannel(`Initialization of language client`);
+    logEntry(
+        LogLevel.INFO,
+        Components.EXTENSION,
+        "Initialization of language client"
+    );
 
     try {
         languageClient = new vscodelc.LanguageClient(
@@ -29,9 +33,15 @@ export async function initializeLanguageClient() {
         );
 
         await languageClient.start();
-        printToExtentionChannel(`Language client connected to Jedi LS`);
+        logEntry(
+            LogLevel.INFO,
+            Components.EXTENSION,
+            "Language client connected to Jedi LS"
+        );
     } catch (exception) {
-        printToExtentionChannel(
+        logEntry(
+            LogLevel.ALERT,
+            Components.EXTENSION,
             `Failed to connect language client to Jedi LS: ${exception}`
         );
     }
