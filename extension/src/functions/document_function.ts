@@ -171,17 +171,49 @@ async function findFunctionContext(
     );
 }
 
+async function insertFunctionDocumentation(
+    textEditor: vscode.TextEditor,
+    documentation: string
+) {
+    const functionNameLine = textEditor.document.lineAt(
+        textEditor.selection.active.line
+    );
+
+    const indentSize = textEditor.options.indentSize as number | undefined;
+    if (indentSize === undefined) {
+        logMessage(LogLevel.ERROR, "Failed to get text editor indent size");
+        return;
+    }
+
+    const documentationIndent = " ".repeat(
+        functionNameLine.firstNonWhitespaceCharacterIndex + indentSize
+    );
+
+    let documentationContent = documentationIndent + "'''\n";
+    for (const documentationLine of documentation.split("\n")) {
+        documentationContent += documentationIndent + documentationLine + "\n";
+    }
+    documentationContent += documentationIndent + "'''\n\n";
+
+    textEditor.edit((edit: vscode.TextEditorEdit) => {
+        edit.insert(
+            functionNameLine.rangeIncludingLineBreak.end,
+            documentationContent
+        );
+    });
+}
+
 export const documentFunction = async (
     textEditor: vscode.TextEditor,
     edit: vscode.TextEditorEdit
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
-    const request = await findFunctionContext(
-        textEditor.document,
-        textEditor.selection.active
-    );
+    const doucument = textEditor.document;
+    const position = textEditor.selection.active;
+    const request = await findFunctionContext(doucument, position);
     if (request === undefined) {
+        // TODO: @ganvas show this information in pretty window
         logMessage(LogLevel.DEBUG, "Is not a function defenition");
         return;
     }
@@ -201,4 +233,6 @@ export const documentFunction = async (
         LogLevel.TRACE,
         `Function documentation:\n${response.functionDocumention}`
     );
+
+    insertFunctionDocumentation(textEditor, response.functionDocumention);
 };
