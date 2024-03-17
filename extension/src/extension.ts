@@ -14,7 +14,7 @@ import { initializeExtention } from "./utils/runtime/extention_utils";
 import { LogLevel } from "./utils/logger";
 
 export async function activate(context: vscode.ExtensionContext) {
-    initializeExtention(LogLevel.INFO);
+    initializeExtention(LogLevel.TRACE);
     await initializeLanguageClient();
     await initializeHttpGateway();
 
