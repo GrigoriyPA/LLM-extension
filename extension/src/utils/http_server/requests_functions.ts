@@ -9,7 +9,7 @@ function logMessage(logLevel: LogLevel, functionName: string, message: string) {
 export async function sendRequest(
     request: RequestsBase.RequestInterface
 ): Promise<ResponseBase.HttpResponse> {
-    logMessage(LogLevel.DEBUG, "SendRequest", `${request.name}`);
+    logMessage(LogLevel.DEBUG, "SendRequest", `${request.getName()}`);
     logMessage(
         LogLevel.TRACE,
         "SendRequest",
@@ -19,7 +19,7 @@ export async function sendRequest(
     // TODO: @dffTu implement request sending and error message passing
     // TODO: @ganvas show status bar when we wait for http response
     const response = new ResponseBase.HttpResponse(
-        "Test function documentation"
+        `Test response for request ${request.getName()}`
     );
     response.setSuccess();
 

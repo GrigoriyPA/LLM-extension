@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { sendRequest } from "../utils/http_server/requests_functions";
 import { DocumentFunction } from "../utils/http_server/requests_structures";
 
+import { applyIndent } from "../utils/functions";
 import { LogLevel, Components, logEntry } from "../utils/logger";
 
 import { SymbolKind, buildRequestWithSymbolContex } from "./common";
@@ -23,28 +24,24 @@ async function insertFunctionDocumentation(
         textEditor.selection.active.line
     );
 
-    const indentSize = textEditor.options.indentSize as number | undefined;
+    let indentSize = textEditor.options.indentSize as number | undefined;
     if (indentSize === undefined) {
         logMessage(LogLevel.ERROR, "Failed to get text editor indent size");
         return;
     }
+    indentSize += functionNameLine.firstNonWhitespaceCharacterIndex;
 
-    const documentationIndent = " ".repeat(
-        functionNameLine.firstNonWhitespaceCharacterIndex + indentSize
+    const documentationContent = applyIndent(
+        indentSize,
+        "'''\n" + documentation.trimEnd() + "\n'''"
     );
-
-    let documentationContent = documentationIndent + "'''\n";
-    for (const documentationLine of documentation.split("\n")) {
-        documentationContent += documentationIndent + documentationLine + "\n";
-    }
-    documentationContent += documentationIndent + "'''\n\n";
 
     // TODO: @GrigoriyPA insert text in case of multiline function defenition
     // TODO: @GrigoriyPA replace function documentation
     textEditor.edit((edit: vscode.TextEditorEdit) => {
         edit.insert(
             functionNameLine.rangeIncludingLineBreak.end,
-            documentationContent
+            documentationContent + "\n"
         );
     });
 }
@@ -55,11 +52,9 @@ export const documentFunction = async (
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
-    const doucument = textEditor.document;
-    const position = textEditor.selection.active;
     const request = await buildRequestWithSymbolContex(
-        doucument,
-        position,
+        textEditor.document,
+        textEditor.selection.active,
         SymbolKind.FUNCTION
     );
     if (request === undefined) {
@@ -70,7 +65,7 @@ export const documentFunction = async (
 
     // TODO: @GrigoriyPA subscribe on promise instead of wait
     const response = DocumentFunction.Response.deserialize(
-        await sendRequest(request)
+        await sendRequest(new DocumentFunction.Request(request))
     );
     if (!response.isSuccess()) {
         logMessage(
@@ -83,5 +78,5 @@ export const documentFunction = async (
     logMessage(LogLevel.TRACE, `Function documentation:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting documentation
-    insertFunctionDocumentation(textEditor, response.content);
+    await insertFunctionDocumentation(textEditor, response.content);
 };

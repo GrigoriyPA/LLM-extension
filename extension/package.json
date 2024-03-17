@@ -22,12 +22,36 @@
       {
         "command": "llm-extension.documentFunction",
         "title": "Document function"
+      },
+      {
+        "command": "llm-extension.generateTests",
+        "title": "Generate tests"
+      },
+      {
+        "command": "llm-extension.nameSuggestion",
+        "title": "Name suggestion"
+      },
+      {
+        "command": "llm-extension.semanticAnalysisOfSymbol",
+        "title": "Semantic analysis of symbol"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "command": "llm-extension.documentFunction",
+          "when": "editorTextFocus && textInputFocus && editorLangId == python"
+        },
+        {
+          "command": "llm-extension.generateTests",
+          "when": "editorTextFocus && textInputFocus && editorLangId == python"
+        },
+        {
+          "command": "llm-extension.nameSuggestion",
+          "when": "editorTextFocus && textInputFocus && editorLangId == python"
+        },
+        {
+          "command": "llm-extension.semanticAnalysisOfSymbol",
           "when": "editorTextFocus && textInputFocus && editorLangId == python"
         }
       ]

@@ -65,15 +65,24 @@ function findSymbolNameRange(
     return wordRange;
 }
 
-async function findSymbolContentRange(
+export async function findSymbolContentRange(
     document: vscode.TextDocument,
-    functionNameRange: vscode.Range,
+    position: vscode.Position,
     targetSymbol: SymbolKind
 ): Promise<vscode.Range | undefined> {
+    const symbolNameRange = findSymbolNameRange(
+        document,
+        position,
+        targetSymbol
+    );
+    if (symbolNameRange === undefined) {
+        return undefined;
+    }
+
     const documentSymbols = await getSymbolsInformation(document);
     const symbolDescription = findSymbolDescription(
         documentSymbols,
-        functionNameRange
+        symbolNameRange
     );
     if (symbolDescription === undefined) {
         return undefined;
@@ -93,32 +102,6 @@ async function findSymbolContentRange(
     }
 
     return FromVscodelc.getRange(symbolDescription.range);
-}
-
-async function findSymbolContent(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    targetSymbol: SymbolKind
-): Promise<string | undefined> {
-    const symbolNameRange = findSymbolNameRange(
-        document,
-        position,
-        targetSymbol
-    );
-    if (symbolNameRange === undefined) {
-        return undefined;
-    }
-
-    const symbolContentRange = await findSymbolContentRange(
-        document,
-        symbolNameRange,
-        targetSymbol
-    );
-    if (symbolContentRange === undefined) {
-        return undefined;
-    }
-
-    return document.getText(symbolContentRange);
 }
 
 async function findSymbolReferencesContent(
@@ -158,12 +141,12 @@ export async function buildRequestWithSymbolContex(
     position: vscode.Position,
     targetSymbol: SymbolKind
 ): Promise<RequestsBase.RequestWithSymbolContextBase | undefined> {
-    const symbolContent = await findSymbolContent(
+    const symbolContentRange = await findSymbolContentRange(
         document,
         position,
         targetSymbol
     );
-    if (symbolContent === undefined) {
+    if (symbolContentRange === undefined) {
         return undefined;
     }
 
@@ -173,7 +156,7 @@ export async function buildRequestWithSymbolContex(
     );
 
     return new RequestsBase.RequestWithSymbolContextBase(
-        symbolContent,
+        document.getText(symbolContentRange),
         symbolReferencesContent
     );
 }

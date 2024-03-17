@@ -1,20 +1,22 @@
 export namespace RequestsBase {
     export interface RequestInterface {
-        name: string;
-
+        getName(): string;
         getDescription(): string;
         serialize(): string;
     }
 
     export class RequestWithSymbolContextBase implements RequestInterface {
-        name: string = "RequestWithFunctionContext";
-
+        name: string = "RequestWithSymbolContextBase";
         symbolContent: string;
         referencesContent: string[];
 
         constructor(symbolContent: string, referencesContent: string[]) {
             this.symbolContent = symbolContent;
             this.referencesContent = referencesContent;
+        }
+
+        public getName(): string {
+            return this.name;
         }
 
         public getDescription(): string {
@@ -114,7 +116,10 @@ export namespace ResponseBase {
 
 export namespace DocumentFunction {
     export class Request extends RequestsBase.RequestWithSymbolContextBase {
-        name: string = "DocumentFunction";
+        constructor(request: RequestsBase.RequestWithSymbolContextBase) {
+            super(request.symbolContent, request.referencesContent);
+            this.name = "DocumentFunction";
+        }
     }
 
     export class Response extends ResponseBase.SingleStringRequestResponseBase {}
@@ -122,7 +127,10 @@ export namespace DocumentFunction {
 
 export namespace SemanticAnalysisOfSymbol {
     export class Request extends RequestsBase.RequestWithSymbolContextBase {
-        name: string = "SemanticAnalysisOfSymbol";
+        constructor(request: RequestsBase.RequestWithSymbolContextBase) {
+            super(request.symbolContent, request.referencesContent);
+            this.name = "SemanticAnalysisOfSymbol";
+        }
     }
 
     export class Response extends ResponseBase.SingleStringRequestResponseBase {}
@@ -130,7 +138,10 @@ export namespace SemanticAnalysisOfSymbol {
 
 export namespace NameSuggestion {
     export class Request extends RequestsBase.RequestWithSymbolContextBase {
-        name: string = "NameSuggestion";
+        constructor(request: RequestsBase.RequestWithSymbolContextBase) {
+            super(request.symbolContent, request.referencesContent);
+            this.name = "NameSuggestion";
+        }
     }
 
     export class Response extends ResponseBase.SingleStringRequestResponseBase {}
@@ -138,7 +149,10 @@ export namespace NameSuggestion {
 
 export namespace GenerateTests {
     export class Request extends RequestsBase.RequestWithSymbolContextBase {
-        name: string = "GenerateTests";
+        constructor(request: RequestsBase.RequestWithSymbolContextBase) {
+            super(request.symbolContent, request.referencesContent);
+            this.name = "GenerateTests";
+        }
     }
 
     export class Response extends ResponseBase.SingleStringRequestResponseBase {}
@@ -146,7 +160,10 @@ export namespace GenerateTests {
 
 export namespace CompletionSuggestion {
     export class Request extends RequestsBase.RequestWithSymbolContextBase {
-        name: string = "CompletionSuggestion";
+        constructor(request: RequestsBase.RequestWithSymbolContextBase) {
+            super(request.symbolContent, request.referencesContent);
+            this.name = "CompletionSuggestion";
+        }
     }
 
     export class Response extends ResponseBase.MultiStringRequestResponseBase {}
