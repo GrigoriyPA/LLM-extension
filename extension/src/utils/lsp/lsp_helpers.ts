@@ -2,6 +2,12 @@ import * as vscode from "vscode";
 
 import * as vscodelc from "vscode-languageclient/node";
 
+export enum SymbolKind {
+    UNKNOWN,
+    FUNCTION,
+    VARIABLE,
+}
+
 export namespace FromVscode {
     export function getTextDocumentIdentifier(
         document: vscode.TextDocument
@@ -31,6 +37,31 @@ export namespace FromVscodelc {
             getPosition(range.start),
             getPosition(range.end)
         );
+    }
+
+    export function isFunctionSymbol(symbolKind: vscodelc.SymbolKind): boolean {
+        return (
+            symbolKind === vscodelc.SymbolKind.Function ||
+            symbolKind === vscodelc.SymbolKind.Method
+        );
+    }
+
+    export function isVariableSymbol(symbolKind: vscodelc.SymbolKind): boolean {
+        return (
+            symbolKind === vscodelc.SymbolKind.Variable ||
+            symbolKind === vscodelc.SymbolKind.Field ||
+            symbolKind === vscodelc.SymbolKind.Constant
+        );
+    }
+
+    export function getSymbolKind(symbolKind: vscodelc.SymbolKind): SymbolKind {
+        if (isFunctionSymbol(symbolKind)) {
+            return SymbolKind.FUNCTION;
+        }
+        if (isVariableSymbol(symbolKind)) {
+            return SymbolKind.FUNCTION;
+        }
+        return SymbolKind.UNKNOWN;
     }
 }
 

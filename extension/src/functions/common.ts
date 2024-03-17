@@ -4,13 +4,8 @@ import * as vscodelc from "vscode-languageclient/node";
 
 import { RequestsBase } from "../utils/http_server/requests_structures";
 
-import { FromVscodelc } from "../utils/lsp/lsp_helpers";
+import { FromVscodelc, SymbolKind } from "../utils/lsp/lsp_helpers";
 import { getSymbolsInformation, getReferences } from "../utils/lsp/lsp_methods";
-
-export enum SymbolKind {
-    FUNCTION,
-    VARIABLE,
-}
 
 function findSymbolDescription(
     documentSymbols: vscodelc.DocumentSymbol[] | undefined,
@@ -21,15 +16,11 @@ function findSymbolDescription(
     }
 
     for (const documentSymbol of documentSymbols) {
-        const isFinction =
-            documentSymbol.kind === vscodelc.SymbolKind.Function ||
-            documentSymbol.kind === vscodelc.SymbolKind.Method;
-
         const isTargetRange = wordRange.isEqual(
             FromVscodelc.getRange(documentSymbol.selectionRange)
         );
 
-        if (isFinction && isTargetRange) {
+        if (isTargetRange) {
             return documentSymbol;
         }
 
@@ -65,11 +56,11 @@ function findSymbolNameRange(
     return wordRange;
 }
 
-export async function findSymbolContentRange(
+export async function describeSymbolAtPosition(
     document: vscode.TextDocument,
     position: vscode.Position,
     targetSymbol: SymbolKind
-): Promise<vscode.Range | undefined> {
+): Promise<vscodelc.DocumentSymbol | undefined> {
     const symbolNameRange = findSymbolNameRange(
         document,
         position,
@@ -80,9 +71,18 @@ export async function findSymbolContentRange(
     }
 
     const documentSymbols = await getSymbolsInformation(document);
-    const symbolDescription = findSymbolDescription(
-        documentSymbols,
-        symbolNameRange
+    return findSymbolDescription(documentSymbols, symbolNameRange);
+}
+
+export async function findSymbolContentRange(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    targetSymbol: SymbolKind
+): Promise<vscode.Range | undefined> {
+    const symbolDescription = await describeSymbolAtPosition(
+        document,
+        position,
+        targetSymbol
     );
     if (symbolDescription === undefined) {
         return undefined;
@@ -91,12 +91,9 @@ export async function findSymbolContentRange(
     const symbolKind = symbolDescription.kind;
     if (
         (targetSymbol === SymbolKind.FUNCTION &&
-            symbolKind !== vscodelc.SymbolKind.Function &&
-            symbolKind !== vscodelc.SymbolKind.Method) ||
+            !FromVscodelc.isFunctionSymbol(symbolKind)) ||
         (targetSymbol === SymbolKind.VARIABLE &&
-            symbolKind !== vscodelc.SymbolKind.Field &&
-            symbolKind !== vscodelc.SymbolKind.Variable &&
-            symbolKind !== vscodelc.SymbolKind.Constant)
+            !FromVscodelc.isVariableSymbol(symbolKind))
     ) {
         return undefined;
     }

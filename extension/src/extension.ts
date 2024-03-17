@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import { documentFunction } from "./functions/document_function";
 import { generateTests } from "./functions/generate_tests";
+import { nameSuggestion } from "./functions/name_suggestion";
 
 import { initializeHttpGateway } from "./utils/http_server/http_gateway";
 
@@ -29,6 +30,12 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerTextEditorCommand(
             "llm-extension.generateTests",
             generateTests
+        )
+    );
+    context.subscriptions.push(
+        vscode.commands.registerTextEditorCommand(
+            "llm-extension.nameSuggestion",
+            nameSuggestion
         )
     );
 }

@@ -9,7 +9,7 @@ function logMessage(logLevel: LogLevel, functionName: string, message: string) {
 export async function sendRequest(
     request: RequestsBase.RequestInterface
 ): Promise<ResponseBase.HttpResponse> {
-    logMessage(LogLevel.DEBUG, "SendRequest", `${request.getName()}`);
+    logMessage(LogLevel.DEBUG, "Send Request", `${request.getName()}`);
     logMessage(
         LogLevel.TRACE,
         "SendRequest",
