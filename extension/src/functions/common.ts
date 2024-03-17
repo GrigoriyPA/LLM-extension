@@ -36,21 +36,34 @@ function findSymbolDescription(
     return undefined;
 }
 
+function ensureIsFunctionDefenition(
+    document: vscode.TextDocument,
+    wordRange: vscode.Range
+): boolean {
+    if (wordRange.start.character < 4) {
+        return false;
+    }
+
+    const functionDefenition = document.getText(
+        new vscode.Range(wordRange.start.translate(0, -4), wordRange.start)
+    );
+    return functionDefenition === "def ";
+}
+
 function findSymbolNameRange(
     document: vscode.TextDocument,
     position: vscode.Position,
     targetSymbol: SymbolKind
 ): vscode.Range | undefined {
     const wordRange = document.getWordRangeAtPosition(position);
-    if (wordRange === undefined || wordRange.start.character < 4) {
+    if (wordRange === undefined) {
         return undefined;
     }
 
-    const functionDefenition = document.getText(
-        new vscode.Range(wordRange.start.translate(0, -4), wordRange.start)
-    );
-    if (targetSymbol === SymbolKind.FUNCTION && functionDefenition !== "def ") {
-        return undefined;
+    if (targetSymbol === SymbolKind.FUNCTION) {
+        if (!ensureIsFunctionDefenition(document, wordRange)) {
+            return undefined;
+        }
     }
 
     return wordRange;

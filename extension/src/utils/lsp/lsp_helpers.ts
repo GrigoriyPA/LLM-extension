@@ -59,7 +59,7 @@ export namespace FromVscodelc {
             return SymbolKind.FUNCTION;
         }
         if (isVariableSymbol(symbolKind)) {
-            return SymbolKind.FUNCTION;
+            return SymbolKind.VARIABLE;
         }
         return SymbolKind.UNKNOWN;
     }

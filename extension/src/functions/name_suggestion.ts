@@ -33,7 +33,8 @@ async function insertNameSuggestion(
 
     const suggestionContent = applyIndent(
         lineWithSymbol.firstNonWhitespaceCharacterIndex,
-        "# " + suggestion.trimEnd()
+        suggestion.trimEnd(),
+        "# "
     );
 
     textEditor.edit((edit: vscode.TextEditorEdit) => {
@@ -70,6 +71,8 @@ export const nameSuggestion = async (
         );
         return;
     }
+
+    logMessage(LogLevel.TRACE, `Target symbol ${targetSymbol}`);
 
     const request = await buildRequestWithSymbolContex(
         textEditor.document,
