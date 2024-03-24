@@ -28,8 +28,12 @@ export namespace RequestsBase {
         }
 
         public serialize(): string {
-            // TODO: @dffTu implement request serialization
-            return "";
+            const request_data = {
+                "type_of_request": this.name,
+                "symbol_content": this.symbolContent,
+                "references_content": this.referencesContent
+            };
+            return JSON.stringify(request_data);
         }
     }
 }
@@ -88,8 +92,12 @@ export namespace ResponseBase {
                 return result;
             }
 
-            // TODO: @dffTu implement request deserialization
-            result.content = response.content;
+            const response_json = JSON.parse(response.content);
+
+            if (response_json["error_message"]) {
+                result.setError(response_json["error_message"]);
+            }
+            result.content = response_json["single_string"];
 
             return result;
         }
@@ -114,8 +122,12 @@ export namespace ResponseBase {
                 return result;
             }
 
-            // TODO: @dffTu implement request deserialization
-            result.contents.push(response.content);
+            const response_json = JSON.parse(response.content);
+
+            if (response_json["error_message"]) {
+                result.setError(response_json["error_message"]);
+            }
+            result.contents = response_json["multiple_strings"];
 
             return result;
         }
