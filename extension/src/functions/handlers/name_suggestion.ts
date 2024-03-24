@@ -1,17 +1,17 @@
 import * as vscode from "vscode";
 
-import { sendRequest } from "../utils/http_server/requests_functions";
-import { NameSuggestion } from "../utils/http_server/requests_structures";
+import { sendRequest } from "../../utils/http_server/requests_functions";
+import { NameSuggestion } from "../../utils/http_server/requests_structures";
 
-import { SymbolKind, FromVscodelc } from "../utils/lsp/lsp_helpers";
+import { SymbolKind, FromVscodelc } from "../../utils/lsp/lsp_helpers";
 
-import { applyIndent } from "../utils/functions";
-import { LogLevel, Components, logEntry } from "../utils/logger";
+import { applyIndent } from "../../utils/functions";
+import { LogLevel, Components, logEntry } from "../../utils/logger";
 
 import {
     buildRequestWithSymbolContex,
     describeSymbolAtPosition,
-} from "./common";
+} from "../common";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
@@ -47,6 +47,8 @@ export const nameSuggestion = async (
     edit: vscode.TextEditorEdit
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
+
+    // TODO: @GrigoriyPA suggest many names
 
     const document = textEditor.document;
     const position = textEditor.selection.active;

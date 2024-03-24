@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 import { printToExtentionChannel } from "./runtime/extention_utils";
 
 export enum LogLevel {
-    ALERT, // Exceptional situations that are guaranteed to lead to an error
-    ERROR, // Exceptional situations that may lead to an error
+    ALERT, // Extention level fatal errors
+    ERROR, // Request level fatal errors
     WARNING, // Exceptional situations that are guaranteed not to lead to an error
     INFO, // Information about the progress of request computing, only a few messages during the processing of a single request
     DEBUG, // Information about the progress of function execution, only a few messages during the processing of a single function

@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 
 import { initializeLogger, LogLevel, Components, logEntry } from "../logger";
 
+import { completionSuggestionProvider } from "../../functions/handlers/completion_suggestion";
+
+import { supportedFunctions } from "../../functions/functions_description";
+
 let outputChannel: vscode.OutputChannel;
 
 export function printToExtentionChannel(
@@ -15,11 +19,9 @@ export function printToExtentionChannel(
 }
 
 export function initializeExtention(
+    context: vscode.ExtensionContext,
     defaultLogLevel: LogLevel,
-    componentsLogLevel: Map<Components, LogLevel> = new Map<
-        Components,
-        LogLevel
-    >()
+    componentsLogLevel = new Map<Components, LogLevel>()
 ) {
     outputChannel = vscode.window.createOutputChannel("LLM python extension");
     initializeLogger(defaultLogLevel, componentsLogLevel, outputChannel);
@@ -28,5 +30,20 @@ export function initializeExtention(
         LogLevel.INFO,
         Components.EXTENSION,
         "Initialization of LLM python extension"
+    );
+
+    // TODO: @GrigoriyPA add hotkeys
+    for (const [functionName, functionImpl] of supportedFunctions) {
+        context.subscriptions.push(
+            vscode.commands.registerTextEditorCommand(
+                `llm-extension.${functionName}`,
+                functionImpl
+            )
+        );
+    }
+
+    vscode.languages.registerCompletionItemProvider(
+        "python",
+        completionSuggestionProvider
     );
 }

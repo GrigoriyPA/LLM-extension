@@ -1,16 +1,14 @@
 import * as vscode from "vscode";
 
-import * as vscodelc from "vscode-languageclient/node";
-
-import { sendRequest } from "../utils/http_server/requests_functions";
+import { sendRequest } from "../../utils/http_server/requests_functions";
 import {
     RequestsBase,
     CompletionSuggestion,
-} from "../utils/http_server/requests_structures";
+} from "../../utils/http_server/requests_structures";
 
-import { LogLevel, Components, logEntry } from "../utils/logger";
+import { LogLevel, Components, logEntry } from "../../utils/logger";
 
-import { getContextForPosition } from "./common";
+import { getContextForPosition } from "../common";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
@@ -20,25 +18,15 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-export const completionSuggestion = async (
+async function completionSuggestion(
     document: vscode.TextDocument,
     position: vscode.Position,
-    context: vscode.CompletionContext,
     token: vscode.CancellationToken,
-    next: vscodelc.ProvideCompletionItemsSignature
-) => {
+    context: vscode.CompletionContext
+) {
     logMessage(LogLevel.TRACE, "Compute request");
 
-    // TODO: @GrigoriyPA move logic out of normal suggestion
-    // TODO: @GrigoriyPA support cancellation token
-
-    const result = (await next(
-        document,
-        position,
-        context,
-        token
-    )) as vscode.CompletionList;
-
+    // TODO: @GrigoriyPA pass more info for suggestion
     const request = new RequestsBase.RequestWithSymbolContextBase(
         getContextForPosition(document, position),
         []
@@ -61,9 +49,14 @@ export const completionSuggestion = async (
         `Completion suggestions:\n${response.getDescription()}`
     );
 
+    const completionItems: vscode.CompletionItem[] = [];
     for (const suggestion of response.contents) {
-        result.items.push(new vscode.CompletionItem(suggestion));
+        completionItems.push(new vscode.CompletionItem(suggestion));
     }
 
-    return result;
+    return completionItems;
+}
+
+export const completionSuggestionProvider: vscode.CompletionItemProvider = {
+    provideCompletionItems: completionSuggestion,
 };

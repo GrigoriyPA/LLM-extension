@@ -2,11 +2,9 @@ import * as vscode from "vscode";
 
 import * as vscodelc from "vscode-languageclient/node";
 
-import { completionSuggestion } from "../../functions/completion_suggestion";
+import { serverOptions } from "./server_utils";
 
 import { LogLevel, Components, logEntry } from "../logger";
-
-import { serverOptions } from "./server_utils";
 
 export let languageClient: vscodelc.LanguageClient;
 
@@ -15,9 +13,6 @@ function createOptions(): vscodelc.LanguageClientOptions {
         documentSelector: [{ scheme: "file", language: "python" }],
         synchronize: {
             fileEvents: vscode.workspace.createFileSystemWatcher("**/.py"),
-        },
-        middleware: {
-            provideCompletionItem: completionSuggestion,
         },
     };
 }
