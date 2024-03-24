@@ -114,6 +114,26 @@ export async function findSymbolContentRange(
     return FromVscodelc.getRange(symbolDescription.range);
 }
 
+function getContextForRange(
+    document: vscode.TextDocument,
+    range: vscode.Range
+): string {
+    // TODO: @GrigoriyPA | @ZenMan123 extract larger range with context
+    const contextRange = new vscode.Range(
+        range.start.with(undefined, 0),
+        document.lineAt(range.end.line).rangeIncludingLineBreak.end
+    );
+
+    return document.getText(contextRange);
+}
+
+export function getContextForPosition(
+    document: vscode.TextDocument,
+    position: vscode.Position
+): string {
+    return getContextForRange(document, new vscode.Range(position, position));
+}
+
 async function findSymbolReferencesContent(
     document: vscode.TextDocument,
     position: vscode.Position

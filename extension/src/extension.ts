@@ -21,6 +21,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await initializeLanguageClient();
     await initializeHttpGateway();
 
+    // TODO: @GrigoriyPA add hotkeys
     context.subscriptions.push(
         vscode.commands.registerTextEditorCommand(
             "llm-extension.documentFunction",

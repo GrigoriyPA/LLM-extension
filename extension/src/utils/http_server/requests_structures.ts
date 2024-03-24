@@ -98,6 +98,14 @@ export namespace ResponseBase {
     export class MultiStringRequestResponseBase extends RequestResponseBase {
         contents: string[] = [];
 
+        public getDescription(): string {
+            let description = "";
+            for (const content of this.contents) {
+                description += `${content}\n`;
+            }
+            return description;
+        }
+
         public static deserialize(
             response: ResponseBase.HttpResponse
         ): MultiStringRequestResponseBase {
