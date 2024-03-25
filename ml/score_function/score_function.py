@@ -20,7 +20,6 @@ class SessionInfo:
     
     def add_content(self, action: tp.Dict[str, str]):
         self.history.append(action)
-        print(action)
         self.current_length += len(action["content"]) if action['content'] is not None else 0
         self.trim_history()
 
@@ -75,14 +74,12 @@ class ScoreFunction:
             user_input: str, 
             use_history: bool, 
     ) -> str:
-        print(use_history)
         content = {"role": "user", "content": user_input}
         self.__session_info.add_content(content)
         try:
             history = self.__session_info.get_history() \
                     if use_history else [content]
             model_response = await self.__model.get_answer(history)
-            print(f"{self.__model.get_provider_name()}:")
         except Exception as e:
             print(f"{self.__model.get_provider_name()}:", e)
             model_response = None
