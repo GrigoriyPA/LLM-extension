@@ -1,13 +1,20 @@
 import base64
 import requests
 import scripts.code_reader as code_reader
+from utils.colourful_cmd import print_cyan
 import time
 import typing as tp
+from os.path import expanduser
 
-
-AUTHORIZATION_TOKEN = ''
-
+GITHUB_TOKEN_PATH = expanduser('~/.llm_hse/github_token')
 SEARCH_URL = 'https://api.github.com/search/code'
+
+try:
+    with open(GITHUB_TOKEN_PATH, 'r') as file:
+        AUTHORIZATION_TOKEN = file.read().strip()
+except FileNotFoundError:
+    print_cyan(f"You must specify you github api token in {GITHUB_TOKEN_PATH}")
+    raise
 
 
 def search_files_with_definitions(
