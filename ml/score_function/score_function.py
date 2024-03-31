@@ -73,13 +73,11 @@ class ScoreFunction:
             use_history: bool, 
     ) -> str:
         content = {"role": "user", "content": user_input}
-        print(user_input)
         self.__session_info.add_content(content)
         try:
             history = self.__session_info.get_history() \
                     if use_history else [content]
             model_response = await self.__model.get_answer(history)
-            print(model_response)
         except Exception as e:
             print(f"{self.__model.get_provider_name()}:", e)
             model_response = None
