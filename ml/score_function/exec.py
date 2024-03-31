@@ -5,12 +5,11 @@ import asyncio
 from score_function import GenerativeModel, ScoreFunction
 import g4f 
 
-with open('config.json') as f:
-    config = json.load(f)
+from consts import SCORE_FUNCTION, PROMPTS
 
-provider_name = config["score_function"]["provider_name"]
-model_name = config["score_function"]["model_name"]
-prompts = config["prompts"]
+provider_name = SCORE_FUNCTION["provider_name"]
+model_name = SCORE_FUNCTION["model_name"]
+prompts = PROMPTS
 
 df = pd.DataFrame({
 'defin': [

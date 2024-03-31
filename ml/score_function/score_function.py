@@ -5,6 +5,7 @@ import re
 
 from models_names import GPTModelName, GPTProviderName
 
+from consts import SCORE_FUNCTION, PROMPTS
 
 
 class SessionInfo:
@@ -30,8 +31,8 @@ class SessionInfo:
 class GenerativeModel():
     def __init__(
             self, 
-            model: tp.Union[g4f.models.Model, str], 
-            provider: tp.Union[g4f.providers.types.ProviderType, str, None] = None
+            model: tp.Union[g4f.models.Model, str] = getattr(g4f.models, GPTModelName[SCORE_FUNCTION["model_name"]].value),
+            provider: tp.Union[g4f.providers.types.ProviderType, str, None] = getattr(g4f.Provider, GPTProviderName[SCORE_FUNCTION["provider_name"]].value)
     ):
         self.__chat_completion = g4f.ChatCompletion
         self.__model = model
@@ -52,11 +53,8 @@ class GenerativeModel():
 class ScoreFunction:
     def __init__(
             self,
-            prompt: str = "",
-            model: GenerativeModel = GenerativeModel(
-                getattr(g4f.models, GPTModelName["default"].value),
-                getattr(g4f.Provider, GPTProviderName["default"].value)
-            ),
+            prompt: str = PROMPTS[0],
+            model: GenerativeModel = GenerativeModel()
     ):
         self.__session_info: SessionInfo = SessionInfo()
         self.__model: GenerativeModel = model
@@ -75,11 +73,13 @@ class ScoreFunction:
             use_history: bool, 
     ) -> str:
         content = {"role": "user", "content": user_input}
+        print(user_input)
         self.__session_info.add_content(content)
         try:
             history = self.__session_info.get_history() \
                     if use_history else [content]
             model_response = await self.__model.get_answer(history)
+            print(model_response)
         except Exception as e:
             print(f"{self.__model.get_provider_name()}:", e)
             model_response = None

@@ -8,4 +8,4 @@ class GPTModelName(enum.Enum):
 
 @enum.unique
 class GPTProviderName(enum.Enum):
-    default = "FreeGpt"
+    default = "Liaobots"
