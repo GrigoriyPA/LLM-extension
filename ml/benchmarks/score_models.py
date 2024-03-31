@@ -1,6 +1,6 @@
 import time
 
-from utils.colourful_cmd import print_cyan, print_red, print_green
+from src.colourful_cmd import print_cyan, print_red, print_green
 from models.models import IdeLLM
 from datasets.database_utils import ModelsResultsRow
 

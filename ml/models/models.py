@@ -6,7 +6,7 @@ from textwrap import dedent
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
-from utils.colourful_cmd import print_cyan, print_green, print_red
+from src.colourful_cmd import print_cyan, print_green, print_red
 from datasets.prompts import DOCSTRING_PROMPT
 
 
