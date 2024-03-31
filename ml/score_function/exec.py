@@ -24,15 +24,10 @@ df = pd.DataFrame({
         ]
 })
 
-model = GenerativeModel(
-    getattr(g4f.models, GPTModelName[model_name].value),
-    getattr(g4f.Provider, GPTProviderName[provider_name].value)
-)
-
 async def main():
     datas = pd.DataFrame()
     for i, prompt in enumerate(prompts):
-        score_function = ScoreFunction(prompt, model)
+        score_function = ScoreFunction(prompt)
         result = await score_function.exec(df.copy(deep=True))
         result['prompt no.'] = i + 1
         datas = pd.concat([datas, result])

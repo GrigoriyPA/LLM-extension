@@ -87,7 +87,7 @@ class ScoreFunction:
 
     def extract_score(self, answer: str) -> float:
         if answer is None:
-            return 0
+            return None
         numbers = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
         if not numbers:
             return None
