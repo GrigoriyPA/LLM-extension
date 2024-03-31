@@ -3,7 +3,7 @@ import enum
 
 @enum.unique
 class GPTModelName(enum.Enum):
-    default = "gpt_4"
+    default = "gpt_35_turbo"
 
 
 @enum.unique

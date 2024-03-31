@@ -5,12 +5,11 @@ import asyncio
 from score_function import GenerativeModel, ScoreFunction
 import g4f 
 
-with open('config.json') as f:
-    config = json.load(f)
+from consts import SCORE_FUNCTION, PROMPTS
 
-provider_name = config["score_function"]["provider_name"]
-model_name = config["score_function"]["model_name"]
-prompts = config["prompts"]
+provider_name = SCORE_FUNCTION["provider_name"]
+model_name = SCORE_FUNCTION["model_name"]
+prompts = PROMPTS
 
 df = pd.DataFrame({
 'defin': [
@@ -25,15 +24,10 @@ df = pd.DataFrame({
         ]
 })
 
-model = GenerativeModel(
-    getattr(g4f.models, GPTModelName[model_name].value),
-    getattr(g4f.Provider, GPTProviderName[provider_name].value)
-)
-
 async def main():
     datas = pd.DataFrame()
     for i, prompt in enumerate(prompts):
-        score_function = ScoreFunction(prompt, model)
+        score_function = ScoreFunction(prompt)
         result = await score_function.exec(df.copy(deep=True))
         result['prompt no.'] = i + 1
         datas = pd.concat([datas, result])
