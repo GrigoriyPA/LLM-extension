@@ -1,10 +1,13 @@
-from benchmarks.score_models import launch_models
-from configs.models_names import LanguageModelName
-from datasets.database_utils import Database, Dataset, FunctionDatasetRow, ModelsResultsRow
+from benchmarks.docstrings import test_models_on_docstring
+from datasets.entities import Function, ModelDocstringResult
+from configs.models_list import LanguageModel
+from datasets.database_utils import Database, Dataset
+from score_function.score_function import ScoreFunction
 
-database = Database('datasets/main.db')
-FUNCTION_DATASET = Dataset(database, "functions_docstrings", FunctionDatasetRow)
-MODELS_RESULTS_DATASET = Dataset(database, "models_results", ModelsResultsRow)
 
-models_names = [el.value for el in LanguageModelName]
-launch_models(models_names, FUNCTION_DATASET, MODELS_RESULTS_DATASET)
+database = Database('data/github_data')
+FUNCTION_DATASET = Dataset(database, "default_github_functions", Function)
+MODELS_RESULTS_DATASET = Dataset(database, "models_results", ModelDocstringResult)
+
+models = [el.value for el in LanguageModel]
+test_models_on_docstring(models, ScoreFunction(), FUNCTION_DATASET, MODELS_RESULTS_DATASET)

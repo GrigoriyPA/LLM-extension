@@ -10,7 +10,7 @@ Docstring must follow accurate format:
 {description of a return value}.
 Here is the body of the function, 
 for which you will have to write a docstring: """
-DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", "")
+DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
 DOCSTRING_EXAMPLES = [
     dedent("""
