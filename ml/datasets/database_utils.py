@@ -16,16 +16,13 @@ class Database:
     }
     EL_TYPES = tp.Union[str, float, int]
 
-    def __init__(self, database_name: str, temporary: bool = False):
+    def __init__(self, database_name: str):
         self.database_name = database_name
         self.connection = sqlite3.connect(self.database_name)
         self.cursor = self.connection.cursor()
-        self.temporary = temporary
 
     def __del__(self):
         self.connection.close()
-        if self.temporary:
-            os.remove(self.database_name)
 
     def create_table(self, table_name: str, columns: tp.List[tp.Tuple[str, type]]):
         field_text = ", ".join([f"{a} {self.MAPPING[b]}" for a, b in columns])
@@ -96,7 +93,7 @@ class Dataset:
 
 
 def get_tmp_dataset(row_type: tp.Type[T]):
-    db = Database("tmp_database.db", True)
+    db = Database("tmp_database.db")
     tmp_table_name = f"tmp_table_{random.getrandbits(60)}"
     dataset = Dataset(db, tmp_table_name, row_type, True)
     return dataset

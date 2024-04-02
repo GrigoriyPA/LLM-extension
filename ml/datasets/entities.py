@@ -21,3 +21,9 @@ class ModelDocstringResult(tp.NamedTuple):
     scorer_prompt: str
     docstring_score: float
     scorer_response: str
+
+
+class BenchmarkResult(tp.NamedTuple):
+    model_name: str
+    benchmark_name: str
+    score: float

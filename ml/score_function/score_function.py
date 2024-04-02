@@ -104,7 +104,7 @@ class ScoreFunction:
         score = self.extract_score(output)
 
         result = ModelDocstringResult(
-            **function.__dict__,
+            **function._asdict(),
             model_name="",  # shall be overwritten in the outer code
             prompt="",  # shall be overwritten in the outer code
             scorer_prompt=text,

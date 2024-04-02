@@ -1,3 +1,4 @@
 __pycache__/
 venv/
 data/
+tmp_database.db

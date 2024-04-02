@@ -38,7 +38,7 @@ for repo in tqdm(config['repos']):
         row = data[func_name]
         dst_dataset.write(Function(
             function_name=row['name'],
-            function=row['code'],
+            code=row['code'],
             docstring=row['docstring'],
             context=CONTEXT_USAGES_SPLITTER.join(row['usages']),
         ))
