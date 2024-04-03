@@ -5,7 +5,7 @@ from src.colourful_cmd import print_cyan, print_green
 
 from datasets.entities import Function
 from configs.prompts import DOCSTRING_PROMPT
-from .base_model import BaseModel
+from models.base_model import BaseModel
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig

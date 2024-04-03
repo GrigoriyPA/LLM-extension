@@ -23,15 +23,7 @@ def test_models_on_docstring(models: tp.List[BaseModel],
                 function = function._replace(docstring=model.generate_docstring(function))
                 tmp_src.write(function)
 
-            tmp_dst = asyncio.run(docstring_score_function.exec(tmp_src))
-            model_results = tmp_dst.read()
-            for i in tqdm(range(len(model_results))):
-                model_results[i] = model_results[i]._replace(
-                    model_name=model.model_name,
-                    prompt=model.get_prompt_for_docstring_generation(model_results[i]),
-                )
-            tmp_dst.clear_and_write_many(model_results)
-            labelled_docstrings.append(tmp_dst)
+            labelled_docstrings.append(asyncio.run(docstring_score_function.exec(tmp_src, model)))
 
         except BaseException as e:
             print_red(f"Error while processing model {model.model_name}. Error: {e}")

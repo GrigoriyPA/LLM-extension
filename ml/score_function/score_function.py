@@ -6,8 +6,9 @@ from .models_names import GPTModelName, GPTProviderName
 
 from .consts import SCORE_FUNCTION, PROMPTS
 
-from datasets.entities import Function, ModelDocstringResult
+from datasets.entities import Function, ScorerModelDocstringResult
 from datasets.database_utils import Dataset, get_tmp_dataset
+from models.base_model import BaseModel
 
 
 class SessionInfo:
@@ -95,7 +96,8 @@ class ScoreFunction:
             return None
         return float(numbers[-1])
 
-    async def exec_one(self, function: Function, use_history: bool = False) -> ModelDocstringResult:
+    async def exec_one(self, function: Function, model: BaseModel,
+                       use_history: bool = False) -> ScorerModelDocstringResult:
         text = self.prepare_prompt(function)
         output = await self.get_model_response(
             user_input=text,
@@ -103,10 +105,10 @@ class ScoreFunction:
         )
         score = self.extract_score(output)
 
-        result = ModelDocstringResult(
+        result = ScorerModelDocstringResult(
             **function._asdict(),
-            model_name="",  # shall be overwritten in the outer code
-            prompt="",  # shall be overwritten in the outer code
+            model_name=model.model_name,
+            prompt=model.get_prompt_for_docstring_generation(function),
             scorer_prompt=text,
             docstring_score=score,
             scorer_response=output,
@@ -114,17 +116,19 @@ class ScoreFunction:
 
         return result
 
-    async def exec(self, src: Dataset, dst: tp.Optional[Dataset] = None, use_history: bool = False) -> Dataset:
+    async def exec(self, src: Dataset, model: BaseModel, dst: tp.Optional[Dataset] = None,
+                   use_history: bool = False) -> Dataset:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
+        :param model: Model which was used for predictions
         :param dst: Dataset of ModelDocstringResult elements, if not passed then tmp table will be created and returned
         :param use_history:
         """
         if not dst:
-            dst = get_tmp_dataset(ModelDocstringResult)
+            dst = get_tmp_dataset(ScorerModelDocstringResult)
         for function in src.read():
-            dst.write(await self.exec_one(function, use_history))
+            dst.write(await self.exec_one(function, model, use_history))
         return dst
 
     def update_prompt(self, prompt: str):

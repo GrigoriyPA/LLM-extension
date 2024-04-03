@@ -8,7 +8,7 @@ class Function(tp.NamedTuple):
     context: str
 
 
-class ModelDocstringResult(tp.NamedTuple):
+class ScorerModelDocstringResult(tp.NamedTuple):
     # from Function
     function_name: str
     code: str

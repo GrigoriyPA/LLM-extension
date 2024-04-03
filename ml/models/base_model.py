@@ -1,5 +1,5 @@
 import abc
-from datasets.entities import Function, ModelDocstringResult
+from datasets.entities import Function, ScorerModelDocstringResult
 import typing as tp
 
 
@@ -14,14 +14,14 @@ class BaseModel(abc.ABC):
 
     @abc.abstractmethod
     def get_prompt_for_docstring_generation(self,
-                                            function: tp.Union[Function, ModelDocstringResult],
+                                            function: tp.Union[Function, ScorerModelDocstringResult],
                                             *args,
                                             **kwargs) -> str:
         """get prompt used for docstring generation"""
 
     @abc.abstractmethod
     def generate_docstring(self,
-                           function: tp.Union[Function, ModelDocstringResult],
+                           function: tp.Union[Function, ScorerModelDocstringResult],
                            *args,
                            **kwargs) -> str:
         """get docstring for the given function"""

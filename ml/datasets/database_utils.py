@@ -3,13 +3,12 @@ from __future__ import annotations
 import sqlite3
 import typing as tp
 import random
-import os
 
 T = tp.TypeVar('T', bound=tp.NamedTuple)
 
 
 class Database:
-    MAPPING = {
+    MAPPING: tp.Dict[type, str] = {
         str: "TEXT",
         float: "REAL",
         int: "INTEGER",
