@@ -1,11 +1,9 @@
 {
-    "github_token": "your_token",
     "context_wide": 4,
     "repos": [
       "pygame/pygame",
       "gitpython-developers/GitPython",
       "stitionai/devika",
       "OpenInterpreter/open-interpreter"
-    ],
-    "data_path": "data/"
+    ]
 }

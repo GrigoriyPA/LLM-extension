@@ -1,2 +1,4 @@
 __pycache__/
-datasets/main.db
+venv/
+data/
+tmp_database.db
