@@ -27,6 +27,7 @@ dst_dataset = Dataset(dst_database, 'default_github_functions', Function)
 
 for repo in tqdm(config['repos']):
     author, repo_name = repo.split('/')
+    print('token is', AUTHORIZATION_TOKEN)
     data = github_searcher.get_functions_in_repo(
         author=author,
         repo=repo_name,

@@ -19,7 +19,7 @@ def get_functions_sources(
                 doc_node = node.body[0].value
                 func_source = "".join(
                     code_by_lines[start_lineno - 1: doc_node.lineno - 1] +
-                    code_by_lines[doc_node.lineno: end_lineno]
+                    code_by_lines[doc_node.end_lineno: end_lineno]
                 )
             else:
                 func_source = "".join(

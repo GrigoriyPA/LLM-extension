@@ -1,4 +1,6 @@
 import base64
+import time
+
 import requests
 import src.code_reader as code_reader
 import typing as tp
@@ -42,6 +44,7 @@ def get_file_content(
         get_url: str,
         token,
 ) -> str:
+    time.sleep(0.1)
     res = requests.get(
         url=get_url,
         headers={
