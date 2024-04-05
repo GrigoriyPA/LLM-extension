@@ -3,10 +3,16 @@ import typing as tp
 
 
 def get_functions_sources(
-        source_code: str
+        source_code: str,
+        ignore_comments: bool = False
 ) -> tp.List[tp.Tuple[str, str, str]]:
     tree = ast.parse(source_code)
     code_by_lines = source_code.splitlines(True)
+    if ignore_comments:
+        code_by_lines = [
+            code_line.split('#')[0]
+            for code_line in code_by_lines
+        ]
     function_sources = []
 
     for node in ast.walk(tree):

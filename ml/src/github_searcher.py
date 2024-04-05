@@ -65,6 +65,7 @@ def get_functions_in_repo(
         repo: str,
         context_wide: int,
         token: str,
+        ignore_comments: bool,
 ) -> tp.Dict[str, tp.Dict[str, tp.Any]]:
     urls = get_all_python_files(
         author=author,
@@ -74,7 +75,10 @@ def get_functions_in_repo(
     data = {}
     for url in urls:
         content = get_file_content(get_url=url, token=token)
-        for name, code, docstring in code_reader.get_functions_sources(content):
+        for name, code, docstring in code_reader.get_functions_sources(
+                content,
+                ignore_comments=ignore_comments
+        ):
             data[name] = {
                 'name': name,
                 'docstring': docstring,
