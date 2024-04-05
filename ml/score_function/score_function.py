@@ -6,8 +6,8 @@ from .models_names import GPTModelName, GPTProviderName
 
 from .consts import SCORE_FUNCTION, PROMPTS
 
-from datasets.entities import Function, ScorerModelDocstringResult
-from datasets.database_utils import Dataset, get_tmp_dataset
+from configs.entities import Function, ScorerModelDocstringResult
+from datasets.database_utils import Table, get_tmp_table
 from models.base_model import BaseModel
 
 
@@ -116,8 +116,9 @@ class ScoreFunction:
 
         return result
 
-    async def exec(self, src: Dataset, model: BaseModel, dst: tp.Optional[Dataset] = None,
-                   use_history: bool = False) -> Dataset:
+    async def exec(self, src: Table[Function], model: BaseModel,
+                   dst: tp.Optional[Table[ScorerModelDocstringResult]] = None,
+                   use_history: bool = False) -> Table[ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
@@ -126,7 +127,7 @@ class ScoreFunction:
         :param use_history:
         """
         if not dst:
-            dst = get_tmp_dataset(ScorerModelDocstringResult)
+            dst = get_tmp_table(ScorerModelDocstringResult)
         for function in src.read():
             dst.write(await self.exec_one(function, model, use_history))
         return dst

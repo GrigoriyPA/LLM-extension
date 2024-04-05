@@ -4,7 +4,10 @@ import sqlite3
 import typing as tp
 import random
 
-T = tp.TypeVar('T', bound=tp.NamedTuple)
+from configs.entities import ENTITY_TYPE
+
+
+T = ENTITY_TYPE
 
 
 class Database:
@@ -54,7 +57,9 @@ class Database:
         return res
 
 
-class Dataset:
+class Table(tp.Generic[T]):
+    LISTS_SPLITTER = "&&&%%%^^^"
+
     def __init__(self, db: Database, table_name: str, row_type: tp.Type[T], temporary: bool = False):
         self.db: Database = db
         self.table_name: str = table_name
@@ -73,9 +78,9 @@ class Dataset:
         for el in els:
             self.write(el)
 
-    def write_datasets(self, datasets: tp.List[Dataset]):
-        for dataset in datasets:
-            for el in dataset.read():
+    def write_tables(self, tables: tp.List[Table]):
+        for table in tables:
+            for el in table.read():
                 self.write(el)
 
     def read(self) -> tp.List[T]:
@@ -91,8 +96,8 @@ class Dataset:
             self.db.drop(self.table_name)
 
 
-def get_tmp_dataset(row_type: tp.Type[T]):
+def get_tmp_table(row_type: tp.Type[T]):
     db = Database("tmp_database.db")
     tmp_table_name = f"tmp_table_{random.getrandbits(60)}"
-    dataset = Dataset(db, tmp_table_name, row_type, True)
-    return dataset
+    table = Table(db, tmp_table_name, row_type, True)
+    return table

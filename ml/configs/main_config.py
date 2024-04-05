@@ -1,4 +1,5 @@
 import enum
+
 from models.local_hf_model import LocalHFModel
 
 
@@ -6,3 +7,8 @@ from models.local_hf_model import LocalHFModel
 class LanguageModel(enum.Enum):
     microsoft_phi2 = LocalHFModel("microsoft/phi-2", "2.7B params")
     stable_code_3b = LocalHFModel("stabilityai/stable-code-3b", "3B params")
+
+
+@enum.unique
+class ExtensionFeature(enum.Enum):
+    docstring_generation = "docstring_generation"

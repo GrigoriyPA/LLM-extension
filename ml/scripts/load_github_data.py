@@ -4,9 +4,8 @@ from tqdm import tqdm
 from src.colourful_cmd import print_cyan
 from os.path import expanduser
 
-from datasets.entities import Function
-from datasets.database_utils import Dataset, Database
-from datasets.datasets_config import CONTEXT_USAGES_SPLITTER
+from configs.entities import Function
+from datasets.database_utils import Table, Database
 
 # token generation: https://github.com/settings/tokens
 
@@ -23,7 +22,7 @@ except FileNotFoundError:
     raise
 
 dst_database = Database('data/github_data')
-dst_dataset = Dataset(dst_database, 'default_github_functions', Function)
+dst_dataset = Table(dst_database, 'default_github_functions', Function)
 
 for repo in tqdm(config['repos']):
     author, repo_name = repo.split('/')
@@ -40,5 +39,5 @@ for repo in tqdm(config['repos']):
             function_name=row['name'],
             code=row['code'],
             docstring=row['docstring'],
-            context=CONTEXT_USAGES_SPLITTER.join(row['usages']),
+            context=Table.LISTS_SPLITTER.join(row['usages']),
         ))
