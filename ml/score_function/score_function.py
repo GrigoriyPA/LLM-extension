@@ -106,7 +106,7 @@ class ScoreFunction:
         score = self.extract_score(output)
 
         result = ScorerModelDocstringResult(
-            **function._asdict(),
+            **function.__dict__,
             model_name=model.model_name,
             prompt=model.get_prompt_for_docstring_generation(function),
             scorer_prompt=text,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import sqlite3
 import typing as tp
 import random
@@ -12,11 +13,9 @@ class Database:
         str: "TEXT",
         float: "REAL",
         int: "INTEGER",
-        # TODO add support for dict and list
-        dict: "TEXT",
-        list: "TEXT",
+        datetime.datetime: "timestamp",
     }
-    EL_TYPES = tp.Union[MAPPING.keys()]
+    EL_TYPES = tp.Union[str, float, int, datetime.datetime]
 
     def __init__(self, database_name: str):
         self.database_name = database_name
@@ -58,8 +57,6 @@ class Database:
 
 
 class Table(tp.Generic[T]):
-    LISTS_SPLITTER = "&&&%%%^^^"
-
     def __init__(self, db: Database, table_name: str, row_type: tp.Type[T], temporary: bool = False):
         self.db: Database = db
         self.table_name: str = table_name
@@ -96,8 +93,8 @@ class Table(tp.Generic[T]):
             self.db.drop(self.table_name)
 
 
-def get_tmp_table(row_type: tp.Type[T]):
-    db = Database("tmp_database.db")
-    tmp_table_name = f"tmp_table_{random.getrandbits(60)}"
+def get_tmp_table(row_type: tp.Type[T], prefix=""):
+    db = Database("data/tmp_database.db")
+    tmp_table_name = f"tmp_table_{prefix}_{random.getrandbits(60)}"
     table = Table(db, tmp_table_name, row_type, True)
     return table

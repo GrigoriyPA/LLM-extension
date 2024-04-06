@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 from configs.entities import Function, ENTITY_TYPE
-from configs.main_config import ExtensionFeature
+from configs.features_config import ExtensionFeature
 import typing as tp
 
 
