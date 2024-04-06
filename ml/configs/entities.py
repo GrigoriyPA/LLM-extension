@@ -1,9 +1,26 @@
+from __future__ import annotations
+
+import abc
 import typing as tp
 
-ENTITY_TYPE = tp.TypeVar('ENTITY_TYPE', bound=tp.NamedTuple)
+
+class BaseEntity(tp.NamedTuple):
+    @abc.abstractmethod
+    def set_prediction(self, prediction: str) -> BaseEntity:
+        """changes prediction field and returns modified object"""
 
 
-class Function(tp.NamedTuple):
+class BaseScoredEntity(tp.NamedTuple):
+    @abc.abstractmethod
+    def get_prediction_score(self) -> str:
+        """returns prediction score"""
+
+
+ENTITY_TYPE = tp.TypeVar('ENTITY_TYPE', bound=BaseEntity)
+SCORED_ENTITY_TYPE = tp.TypeVar('SCORED_ENTITY_TYPE', bound=BaseScoredEntity)
+
+
+class Function(BaseEntity):
     function_name: str
     code: str
     docstring: str
@@ -13,7 +30,7 @@ class Function(tp.NamedTuple):
         return self._replace(docstring=prediction)
 
 
-class ScorerModelDocstringResult(tp.NamedTuple):
+class ScorerModelDocstringResult(BaseScoredEntity):
     # from Function
     function_name: str
     code: str
@@ -36,3 +53,13 @@ class BenchmarkResult(tp.NamedTuple):
     benchmark_name: str
     feature: str
     score: float
+
+
+class ExperimentResult(tp.NamedTuple):
+    models: str
+
+
+import json
+
+p = json.loads('[{"a": 1}]')
+print(type(p))

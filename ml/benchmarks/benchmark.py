@@ -11,20 +11,18 @@ from models.base_model import BaseModel
 from score_function.score_function import ScoreFunction
 from src.colourful_cmd import print_red
 
-T = ENTITY_TYPE
 
-
-class Benchmark(tp.Generic[T]):
-    def __init__(self, tables: tp.List[Table[T]], feature: ExtensionFeature, benchmark_name: str):
+class Benchmark(tp.Generic[ENTITY_TYPE]):
+    def __init__(self, tables: tp.List[Table[ENTITY_TYPE]], feature: ExtensionFeature, benchmark_name: str):
         self.tables = tables
         self.feature = feature
         self.benchmark_name = benchmark_name
 
-    def launch_models(self, models: tp.List[BaseModel]) -> tp.List[tp.Tuple[BaseModel, Table[T]]]:
-        result: tp.List[tp.Tuple[BaseModel, Table[T]]] = []
+    def launch_models(self, models: tp.List[BaseModel]) -> tp.List[tp.Tuple[BaseModel, Table[ENTITY_TYPE]]]:
+        result: tp.List[tp.Tuple[BaseModel, Table[ENTITY_TYPE]]] = []
 
         for model in tqdm(models):
-            labelled_els: Table[T] = get_tmp_table(type(T))
+            labelled_els: Table[ENTITY_TYPE] = get_tmp_table(type(ENTITY_TYPE))
 
             try:
                 for table in self.tables:

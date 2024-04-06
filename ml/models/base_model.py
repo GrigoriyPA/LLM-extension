@@ -6,15 +6,12 @@ from configs.main_config import ExtensionFeature
 import typing as tp
 
 
-T = ENTITY_TYPE
-
-
 class BaseModel(abc.ABC):
     def __init__(self, model_name: str, model_description: str):
         self.model_name: str = model_name
         self.model_description = model_description
 
-    def get_method_for_extension_feature(self, feature: ExtensionFeature) -> tp.Callable[[T], str]:
+    def get_method_for_extension_feature(self, feature: ExtensionFeature) -> tp.Callable[[ENTITY_TYPE], str]:
         """return method for solving particular extension feature
         for example, if feature is docstring_generation,
         then method must return self.generate_docstring"""

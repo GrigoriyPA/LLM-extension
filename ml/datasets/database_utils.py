@@ -4,10 +4,7 @@ import sqlite3
 import typing as tp
 import random
 
-from configs.entities import ENTITY_TYPE
-
-
-T = ENTITY_TYPE
+T = tp.TypeVar('T', bound=tp.NamedTuple)
 
 
 class Database:
@@ -15,8 +12,11 @@ class Database:
         str: "TEXT",
         float: "REAL",
         int: "INTEGER",
+        # TODO add support for dict and list
+        dict: "TEXT",
+        list: "TEXT",
     }
-    EL_TYPES = tp.Union[str, float, int]
+    EL_TYPES = tp.Union[MAPPING.keys()]
 
     def __init__(self, database_name: str):
         self.database_name = database_name

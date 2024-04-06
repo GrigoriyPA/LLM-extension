@@ -1,20 +1,20 @@
 import typing as tp
-from copy import copy
+from datetime import datetime
 
-from configs.entities import ENTITY_TYPE
+from benchmarks.benchmark import Benchmark
+from configs.entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
 from configs.main_config import ExtensionFeature
 from datasets.database_utils import Table
 from models.base_model import BaseModel
-
-T = ENTITY_TYPE
-U = copy(ENTITY_TYPE)
+from score_function.score_function import ScoreFunction
 
 
-class Experiment(tp.Generic[T, U]):
-    def __init__(self, model: BaseModel, task_type: ExtensionFeature, src: Table[T], dst: Table[U]):
-        self.model = model
+class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
+    def __init__(self, models: tp.List[BaseModel], task_type: ExtensionFeature, score_function: ScoreFunction,
+                 benches: tp.List[Benchmark], dst: Table[ExperimentResult]):
+        self.models = models
         self.task_type = task_type
-        self.src = src
+        self.score_function = score_function
+        self.benches = benches
         self.dst = dst
-
-
+        self.creation_time = datetime.now()
