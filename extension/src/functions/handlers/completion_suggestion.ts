@@ -25,7 +25,7 @@ async function completionSuggestion(
     position: vscode.Position,
     token: vscode.CancellationToken,
     context: vscode.CompletionContext
-) {
+): Promise<vscode.CompletionItem[]> {
     logMessage(LogLevel.TRACE, "Compute request");
 
     // TODO: @GrigoriyPA pass more info for suggestion
@@ -34,16 +34,26 @@ async function completionSuggestion(
         []
     );
 
-    // TODO: @GrigoriyPA subscribe on promise instead of wait
-    const response = CompletionSuggestion.Response.deserialize(
-        await sendRequest(new CompletionSuggestion.Request(request))
+    const requestPromise = sendRequest(
+        new CompletionSuggestion.Request(request)
     );
+
+    return requestPromise.then((response) => {
+        return computeResponse(
+            CompletionSuggestion.Response.deserialize(response)
+        );
+    });
+}
+
+function computeResponse(
+    response: CompletionSuggestion.Response
+): vscode.CompletionItem[] {
     if (!response.isSuccess()) {
         logMessage(
             LogLevel.ERROR,
             `Failed to compute request: ${response.getError()}`
         );
-        return;
+        return [];
     }
 
     logMessage(

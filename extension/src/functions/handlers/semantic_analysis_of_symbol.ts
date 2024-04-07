@@ -20,7 +20,57 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-async function insertSemanticAnalysis(
+export const semanticAnalysisOfSymbol = async (
+    textEditor: vscode.TextEditor,
+    edit: vscode.TextEditorEdit
+) => {
+    logMessage(LogLevel.TRACE, "Compute request");
+
+    const buildRequestPromise = buildRequestWithSymbolContex(
+        textEditor.document,
+        textEditor.selection.active,
+        SymbolKind.VARIABLE
+    );
+
+    return buildRequestPromise.then((request) => {
+        if (request === undefined) {
+            // TODO: @ganvas show this information in pretty window
+            logMessage(LogLevel.DEBUG, "Is not a variable defenition");
+            return;
+        }
+
+        const requestPromise = sendRequest(
+            new SemanticAnalysisOfSymbol.Request(request)
+        );
+
+        return requestPromise.then((response) => {
+            return computeResponse(
+                textEditor,
+                SemanticAnalysisOfSymbol.Response.deserialize(response)
+            );
+        });
+    });
+};
+
+function computeResponse(
+    textEditor: vscode.TextEditor,
+    response: SemanticAnalysisOfSymbol.Response
+) {
+    if (!response.isSuccess()) {
+        logMessage(
+            LogLevel.ERROR,
+            `Failed to compute request: ${response.getError()}`
+        );
+        return;
+    }
+
+    logMessage(LogLevel.TRACE, `Got semantic analysis:\n${response.content}`);
+
+    // TODO: @ganvas | @GrigoriyPA show window with information instead of inserting semantic analysis
+    return insertSemanticAnalysis(textEditor, response.content);
+}
+
+function insertSemanticAnalysis(
     textEditor: vscode.TextEditor,
     semanticAnalysis: string
 ) {
@@ -38,38 +88,3 @@ async function insertSemanticAnalysis(
         edit.insert(lineWithSymbol.range.start, suggestionContent);
     });
 }
-
-export const semanticAnalysisOfSymbol = async (
-    textEditor: vscode.TextEditor,
-    edit: vscode.TextEditorEdit
-) => {
-    logMessage(LogLevel.TRACE, "Compute request");
-
-    const request = await buildRequestWithSymbolContex(
-        textEditor.document,
-        textEditor.selection.active,
-        SymbolKind.VARIABLE
-    );
-    if (request === undefined) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(LogLevel.DEBUG, "Is not a variable defenition");
-        return;
-    }
-
-    // TODO: @GrigoriyPA subscribe on promise instead of wait
-    const response = SemanticAnalysisOfSymbol.Response.deserialize(
-        await sendRequest(new SemanticAnalysisOfSymbol.Request(request))
-    );
-    if (!response.isSuccess()) {
-        logMessage(
-            LogLevel.ERROR,
-            `Failed to compute request: ${response.getError()}`
-        );
-        return;
-    }
-
-    logMessage(LogLevel.TRACE, `Got semantic analysis:\n${response.content}`);
-
-    // TODO: @ganvas | @GrigoriyPA show window with information instead of inserting semantic analysis
-    await insertSemanticAnalysis(textEditor, response.content);
-};

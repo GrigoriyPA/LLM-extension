@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+import * as vscodelc from "vscode-languageclient/node";
+
 import { buildRequestWithSymbolContex } from "../request_functions";
 import { describeSymbolAtPosition } from "../find_functions";
 
@@ -21,7 +23,90 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-async function insertNameSuggestion(
+export const nameSuggestion = async (
+    textEditor: vscode.TextEditor,
+    edit: vscode.TextEditorEdit
+) => {
+    logMessage(LogLevel.TRACE, "Compute request");
+
+    // TODO: @GrigoriyPA suggest many names
+
+    const symbolDescriptionPromise = describeSymbolAtPosition(
+        textEditor.document,
+        textEditor.selection.active,
+        SymbolKind.UNKNOWN
+    );
+
+    return symbolDescriptionPromise.then((symbolDescription) => {
+        if (symbolDescription === undefined) {
+            // TODO: @ganvas show this information in pretty window
+            logMessage(LogLevel.DEBUG, "Is not a named symbol");
+            return;
+        }
+
+        return doNameSuggestion(textEditor, symbolDescription);
+    });
+};
+
+async function doNameSuggestion(
+    textEditor: vscode.TextEditor,
+    symbolDescription: vscodelc.DocumentSymbol
+) {
+    const targetSymbol = FromVscodelc.getSymbolKind(symbolDescription.kind);
+    if (targetSymbol === SymbolKind.UNKNOWN) {
+        // TODO: @ganvas show this information in pretty window
+        logMessage(
+            LogLevel.DEBUG,
+            "Name suggestion is not supported for this symbol"
+        );
+        return;
+    }
+
+    logMessage(LogLevel.TRACE, `Target symbol ${targetSymbol}`);
+
+    const buildRequestPromise = buildRequestWithSymbolContex(
+        textEditor.document,
+        textEditor.selection.active,
+        targetSymbol
+    );
+
+    return buildRequestPromise.then((request) => {
+        if (request === undefined) {
+            // TODO: @ganvas show this information in pretty window
+            logMessage(LogLevel.DEBUG, "Is not a named symbol");
+            return;
+        }
+
+        const requestPromise = sendRequest(new NameSuggestion.Request(request));
+
+        return requestPromise.then((response) => {
+            return computeResponse(
+                textEditor,
+                NameSuggestion.Response.deserialize(response)
+            );
+        });
+    });
+}
+
+function computeResponse(
+    textEditor: vscode.TextEditor,
+    response: NameSuggestion.Response
+) {
+    if (!response.isSuccess()) {
+        logMessage(
+            LogLevel.ERROR,
+            `Failed to compute request: ${response.getError()}`
+        );
+        return;
+    }
+
+    logMessage(LogLevel.TRACE, `Got name suggestion:\n${response.content}`);
+
+    // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting name suggestion
+    return insertNameSuggestion(textEditor, response.content);
+}
+
+function insertNameSuggestion(
     textEditor: vscode.TextEditor,
     suggestion: string
 ) {
@@ -41,66 +126,3 @@ async function insertNameSuggestion(
         edit.insert(lineWithSymbol.range.start, suggestionContent);
     });
 }
-
-export const nameSuggestion = async (
-    textEditor: vscode.TextEditor,
-    edit: vscode.TextEditorEdit
-) => {
-    logMessage(LogLevel.TRACE, "Compute request");
-
-    // TODO: @GrigoriyPA suggest many names
-
-    const document = textEditor.document;
-    const position = textEditor.selection.active;
-
-    const symbolDescription = await describeSymbolAtPosition(
-        document,
-        position,
-        SymbolKind.UNKNOWN
-    );
-    if (symbolDescription === undefined) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(LogLevel.DEBUG, "Is not a named symbol");
-        return;
-    }
-
-    const targetSymbol = FromVscodelc.getSymbolKind(symbolDescription.kind);
-    if (targetSymbol === SymbolKind.UNKNOWN) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(
-            LogLevel.DEBUG,
-            "Name suggestion is not supported for this symbol"
-        );
-        return;
-    }
-
-    logMessage(LogLevel.TRACE, `Target symbol ${targetSymbol}`);
-
-    const request = await buildRequestWithSymbolContex(
-        textEditor.document,
-        textEditor.selection.active,
-        targetSymbol
-    );
-    if (request === undefined) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(LogLevel.DEBUG, "Is not a named symbol");
-        return;
-    }
-
-    // TODO: @GrigoriyPA subscribe on promise instead of wait
-    const response = NameSuggestion.Response.deserialize(
-        await sendRequest(new NameSuggestion.Request(request))
-    );
-    if (!response.isSuccess()) {
-        logMessage(
-            LogLevel.ERROR,
-            `Failed to compute request: ${response.getError()}`
-        );
-        return;
-    }
-
-    logMessage(LogLevel.TRACE, `Got name suggestion:\n${response.content}`);
-
-    // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting name suggestion
-    await insertNameSuggestion(textEditor, response.content);
-};

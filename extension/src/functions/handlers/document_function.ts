@@ -20,7 +20,57 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-async function insertFunctionDocumentation(
+export const documentFunction = async (
+    textEditor: vscode.TextEditor,
+    edit: vscode.TextEditorEdit
+) => {
+    logMessage(LogLevel.TRACE, "Compute request");
+
+    const buildRequestPromise = buildRequestWithSymbolContex(
+        textEditor.document,
+        textEditor.selection.active,
+        SymbolKind.FUNCTION
+    );
+
+    return buildRequestPromise.then((request) => {
+        if (request === undefined) {
+            // TODO: @ganvas show this information in pretty window
+            logMessage(LogLevel.DEBUG, "Is not a function defenition");
+            return;
+        }
+
+        const requestPromise = sendRequest(
+            new DocumentFunction.Request(request)
+        );
+
+        return requestPromise.then((response) => {
+            return computeResponse(
+                textEditor,
+                DocumentFunction.Response.deserialize(response)
+            );
+        });
+    });
+};
+
+function computeResponse(
+    textEditor: vscode.TextEditor,
+    response: DocumentFunction.Response
+) {
+    if (!response.isSuccess()) {
+        logMessage(
+            LogLevel.ERROR,
+            `Failed to compute request: ${response.getError()}`
+        );
+        return;
+    }
+
+    logMessage(LogLevel.TRACE, `Function documentation:\n${response.content}`);
+
+    // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting documentation
+    return insertFunctionDocumentation(textEditor, response.content);
+}
+
+function insertFunctionDocumentation(
     textEditor: vscode.TextEditor,
     documentation: string
 ) {
@@ -49,38 +99,3 @@ async function insertFunctionDocumentation(
         );
     });
 }
-
-export const documentFunction = async (
-    textEditor: vscode.TextEditor,
-    edit: vscode.TextEditorEdit
-) => {
-    logMessage(LogLevel.TRACE, "Compute request");
-
-    const request = await buildRequestWithSymbolContex(
-        textEditor.document,
-        textEditor.selection.active,
-        SymbolKind.FUNCTION
-    );
-    if (request === undefined) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(LogLevel.DEBUG, "Is not a function defenition");
-        return;
-    }
-
-    // TODO: @GrigoriyPA subscribe on promise instead of wait
-    const response = DocumentFunction.Response.deserialize(
-        await sendRequest(new DocumentFunction.Request(request))
-    );
-    if (!response.isSuccess()) {
-        logMessage(
-            LogLevel.ERROR,
-            `Failed to compute request: ${response.getError()}`
-        );
-        return;
-    }
-
-    logMessage(LogLevel.TRACE, `Function documentation:\n${response.content}`);
-
-    // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting documentation
-    await insertFunctionDocumentation(textEditor, response.content);
-};

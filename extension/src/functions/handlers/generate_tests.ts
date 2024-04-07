@@ -21,52 +21,40 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-async function insertTests(textEditor: vscode.TextEditor, tests: string) {
-    const document = textEditor.document;
-    const position = textEditor.selection.active;
-
-    const functionContentRange = await findSymbolContentRange(
-        document,
-        position,
-        SymbolKind.FUNCTION
-    );
-    if (functionContentRange === undefined) {
-        logMessage(LogLevel.ERROR, "Failed to find function content");
-        return;
-    }
-
-    const indentSize = document.lineAt(
-        position.line
-    ).firstNonWhitespaceCharacterIndex;
-
-    const testsContent = applyIndent(indentSize, "\n\n" + tests.trimEnd());
-
-    textEditor.edit((edit: vscode.TextEditorEdit) => {
-        edit.insert(functionContentRange.end, testsContent);
-    });
-}
-
 export const generateTests = async (
     textEditor: vscode.TextEditor,
     edit: vscode.TextEditorEdit
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
-    const request = await buildRequestWithSymbolContex(
+    const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
         textEditor.selection.active,
         SymbolKind.FUNCTION
     );
-    if (request === undefined) {
-        // TODO: @ganvas show this information in pretty window
-        logMessage(LogLevel.DEBUG, "Is not a function defenition");
-        return;
-    }
 
-    // TODO: @GrigoriyPA subscribe on promise instead of wait
-    const response = GenerateTests.Response.deserialize(
-        await sendRequest(new GenerateTests.Request(request))
-    );
+    return buildRequestPromise.then((request) => {
+        if (request === undefined) {
+            // TODO: @ganvas show this information in pretty window
+            logMessage(LogLevel.DEBUG, "Is not a function defenition");
+            return;
+        }
+
+        const requestPromise = sendRequest(new GenerateTests.Request(request));
+
+        return requestPromise.then((response) => {
+            return computeResponse(
+                textEditor,
+                GenerateTests.Response.deserialize(response)
+            );
+        });
+    });
+};
+
+async function computeResponse(
+    textEditor: vscode.TextEditor,
+    response: GenerateTests.Response
+) {
     if (!response.isSuccess()) {
         logMessage(
             LogLevel.ERROR,
@@ -78,5 +66,33 @@ export const generateTests = async (
     logMessage(LogLevel.TRACE, `Generated tests:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting tests
-    await insertTests(textEditor, response.content);
-};
+    return insertTests(textEditor, response.content);
+}
+
+async function insertTests(textEditor: vscode.TextEditor, tests: string) {
+    const document = textEditor.document;
+    const position = textEditor.selection.active;
+
+    const functionContentRangePromise = findSymbolContentRange(
+        document,
+        position,
+        SymbolKind.FUNCTION
+    );
+
+    return functionContentRangePromise.then((functionContentRange) => {
+        if (functionContentRange === undefined) {
+            logMessage(LogLevel.ERROR, "Failed to find function content");
+            return;
+        }
+
+        const indentSize = document.lineAt(
+            position.line
+        ).firstNonWhitespaceCharacterIndex;
+
+        const testsContent = applyIndent(indentSize, "\n\n" + tests.trimEnd());
+
+        textEditor.edit((edit: vscode.TextEditorEdit) => {
+            edit.insert(functionContentRange.end, testsContent);
+        });
+    });
+}
