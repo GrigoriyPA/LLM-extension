@@ -13,11 +13,11 @@ import { LogLevel } from "./utils/logger";
 
 export async function activate(context: vscode.ExtensionContext) {
     initializeExtention(context, LogLevel.TRACE);
-    await initializeLanguageClient();
-    await initializeHttpGateway();
+
+    return Promise.all([initializeLanguageClient(), initializeHttpGateway()]);
 }
 
-export function deactivate() {
+export async function deactivate() {
     if (!languageClient) {
         return undefined;
     }

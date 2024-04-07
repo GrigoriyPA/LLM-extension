@@ -31,18 +31,28 @@ export async function initializeLanguageClient() {
             serverOptions,
             createOptions()
         );
-
-        await languageClient.start();
-        logEntry(
-            LogLevel.INFO,
-            Components.EXTENSION,
-            "Language client connected to Jedi LS"
-        );
     } catch (exception) {
         logEntry(
             LogLevel.ALERT,
             Components.EXTENSION,
-            `Failed to connect language client to Jedi LS: ${exception}`
+            `Failed to create language client: ${exception}`
         );
     }
+
+    return languageClient
+        .start()
+        .then(() => {
+            logEntry(
+                LogLevel.INFO,
+                Components.EXTENSION,
+                "Language client connected to Jedi LS"
+            );
+        })
+        .catch((error) => {
+            logEntry(
+                LogLevel.ALERT,
+                Components.EXTENSION,
+                `Failed to connect language client to Jedi LS: ${error}`
+            );
+        });
 }

@@ -1,5 +1,8 @@
 import * as vscode from "vscode";
 
+import { buildRequestWithSymbolContex } from "../request_functions";
+import { findSymbolContentRange } from "../find_functions";
+
 import { sendRequest } from "../../utils/http_server/requests_functions";
 import { GenerateTests } from "../../utils/http_server/requests_structures";
 
@@ -7,11 +10,6 @@ import { SymbolKind } from "../../utils/lsp/lsp_helpers";
 
 import { applyIndent } from "../../utils/functions";
 import { LogLevel, Components, logEntry } from "../../utils/logger";
-
-import {
-    buildRequestWithSymbolContex,
-    findSymbolContentRange,
-} from "../common";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(

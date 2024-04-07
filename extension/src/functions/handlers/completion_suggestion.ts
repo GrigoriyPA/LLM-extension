@@ -8,7 +8,7 @@ import {
 
 import { LogLevel, Components, logEntry } from "../../utils/logger";
 
-import { getContextForPosition } from "../common";
+import { getContextForPosition } from "../find_functions";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
