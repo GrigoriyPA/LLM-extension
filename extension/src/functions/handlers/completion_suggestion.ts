@@ -1,14 +1,16 @@
 import * as vscode from "vscode";
 
+import { getContextForPosition } from "../find_functions";
+
 import { sendRequest } from "../../utils/http_server/requests_functions";
 import {
     RequestsBase,
     CompletionSuggestion,
 } from "../../utils/http_server/requests_structures";
 
-import { LogLevel, Components, logEntry } from "../../utils/logger";
+import { logEntry } from "../../utils/logger";
 
-import { getContextForPosition } from "../find_functions";
+import { LogLevel, Components } from "../../config";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(

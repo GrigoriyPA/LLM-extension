@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { initializeHttpGateway } from "./utils/http_server/http_gateway";
+import { initializeHttpGateway } from "./utils/http_server/requests_functions";
 
 import {
     initializeLanguageClient,
@@ -9,10 +9,8 @@ import {
 
 import { initializeExtention } from "./utils/runtime/extention_utils";
 
-import { LogLevel } from "./utils/logger";
-
 export async function activate(context: vscode.ExtensionContext) {
-    initializeExtention(context, LogLevel.TRACE);
+    initializeExtention(context);
 
     return Promise.all([initializeLanguageClient(), initializeHttpGateway()]);
 }

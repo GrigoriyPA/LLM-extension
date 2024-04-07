@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
 
-import { initializeLogger, LogLevel, Components, logEntry } from "../logger";
+import { logEntry } from "../logger";
 
 import { completionSuggestionProvider } from "../../functions/handlers/completion_suggestion";
 
 import { supportedFunctions } from "../../functions/functions_description";
+
+import { LogLevel, Components } from "../../config";
 
 let outputChannel: vscode.OutputChannel;
 
@@ -18,13 +20,8 @@ export function printToExtentionChannel(
     }
 }
 
-export function initializeExtention(
-    context: vscode.ExtensionContext,
-    defaultLogLevel: LogLevel,
-    componentsLogLevel = new Map<Components, LogLevel>()
-) {
+export function initializeExtention(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel("LLM python extension");
-    initializeLogger(defaultLogLevel, componentsLogLevel, outputChannel);
 
     logEntry(
         LogLevel.INFO,

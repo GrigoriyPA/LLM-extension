@@ -1,11 +1,48 @@
+import fetch from "node-fetch";
+
 import { RequestsBase, ResponseBase } from "./requests_structures";
 
-import { LogLevel, Components, logEntry } from "../logger";
+import { logEntry } from "../logger";
 
-import fetch from "node-fetch";
+import { extensionConfig, LogLevel, Components } from "../../config";
 
 function logMessage(logLevel: LogLevel, functionName: string, message: string) {
     logEntry(logLevel, Components.HTTP_GATEWAY, `[${functionName}] ${message}`);
+}
+
+function getErrorResponse(error: string): ResponseBase.HttpResponse {
+    logEntry(
+        LogLevel.ERROR,
+        Components.HTTP_GATEWAY,
+        `Failed to compute HTTP request with error: ${error}`
+    );
+
+    const response = new ResponseBase.HttpResponse();
+    response.setError(error);
+    return response;
+}
+
+async function computeRawResponse(
+    response_raw: fetch.Response
+): Promise<ResponseBase.HttpResponse> {
+    // TODO: @dffTu set error in case of bad request status
+
+    return response_raw
+        .text()
+        .then((result) => {
+            logMessage(
+                LogLevel.TRACE,
+                "SendRequest",
+                "Request successfully finished"
+            );
+
+            const response = new ResponseBase.HttpResponse(result);
+            response.setSuccess();
+            return response;
+        })
+        .catch((error) => {
+            return getErrorResponse(error);
+        });
 }
 
 export async function sendRequest(
@@ -18,20 +55,24 @@ export async function sendRequest(
         `Request description:\n${request.getDescription()}`
     );
 
-    // TODO: @dffTu implement request sending and error message passing
     // TODO: @ganvas show status bar when we wait for http response
-    const response_raw = await fetch('http://dfftu.pythonanywhere.com', {
+    return fetch(extensionConfig.llmServerUrl, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: request.serialize()
-    });
+        headers: { "Content-Type": "application/json" },
+        body: request.serialize(),
+    })
+        .then(computeRawResponse)
+        .catch((error) => {
+            return getErrorResponse(error);
+        });
+}
 
-    const response = new ResponseBase.HttpResponse(
-        await response_raw.text()
+export async function initializeHttpGateway() {
+    logEntry(
+        LogLevel.INFO,
+        Components.HTTP_GATEWAY,
+        "Initialization of http gateway"
     );
-    response.setSuccess();
 
-    logMessage(LogLevel.TRACE, "SendRequest", `Request successfully finished`);
-
-    return response;
+    // TODO: @dffTu implement http gateway initialization (like access verification)
 }

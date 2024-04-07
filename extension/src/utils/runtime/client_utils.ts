@@ -4,7 +4,9 @@ import * as vscodelc from "vscode-languageclient/node";
 
 import { serverOptions } from "./server_utils";
 
-import { LogLevel, Components, logEntry } from "../logger";
+import { logEntry } from "../logger";
+
+import { LogLevel, Components } from "../../config";
 
 export let languageClient: vscodelc.LanguageClient;
 

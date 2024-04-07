@@ -6,7 +6,9 @@ import { FromVscode } from "./lsp_helpers";
 
 import { languageClient } from "../runtime/client_utils";
 
-import { LogLevel, Components, logEntry } from "../../utils/logger";
+import { logEntry } from "../../utils/logger";
+
+import { LogLevel, Components } from "../../config";
 
 function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
