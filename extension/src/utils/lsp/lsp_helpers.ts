@@ -54,6 +54,18 @@ export namespace FromVscodelc {
         );
     }
 
+    export function isSameSymboKind(
+        firstKind: SymbolKind,
+        secondKind: vscodelc.SymbolKind
+    ): boolean {
+        return (
+            (firstKind === SymbolKind.FUNCTION &&
+                FromVscodelc.isFunctionSymbol(secondKind)) ||
+            (firstKind === SymbolKind.VARIABLE &&
+                FromVscodelc.isVariableSymbol(secondKind))
+        );
+    }
+
     export function getSymbolKind(symbolKind: vscodelc.SymbolKind): SymbolKind {
         if (isFunctionSymbol(symbolKind)) {
             return SymbolKind.FUNCTION;

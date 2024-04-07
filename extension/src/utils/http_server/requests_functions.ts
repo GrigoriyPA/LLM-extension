@@ -27,8 +27,9 @@ async function computeRawResponse(
 ): Promise<ResponseBase.HttpResponse> {
     // TODO: @dffTu set error in case of bad request status
 
-    return response_raw
-        .text()
+    const textPromise = response_raw.text();
+
+    return textPromise
         .then((result) => {
             logMessage(
                 LogLevel.TRACE,
@@ -55,16 +56,16 @@ export async function sendRequest(
         `Request description:\n${request.getDescription()}`
     );
 
-    // TODO: @ganvas show status bar when we wait for http response
-    return fetch(extensionConfig.llmServerUrl, {
+    const fetchPromise = fetch(extensionConfig.llmServerUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: request.serialize(),
-    })
-        .then(computeRawResponse)
-        .catch((error) => {
-            return getErrorResponse(error);
-        });
+    });
+
+    // TODO: @ganvas show status bar when we wait for http response
+    return fetchPromise.then(computeRawResponse).catch((error) => {
+        return getErrorResponse(error);
+    });
 }
 
 export async function initializeHttpGateway() {

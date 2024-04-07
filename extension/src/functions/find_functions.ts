@@ -81,8 +81,11 @@ export async function describeSymbolAtPosition(
         return undefined;
     }
 
-    const documentSymbols = await getSymbolsInformation(document);
-    return findSymbolDescription(documentSymbols, symbolNameRange);
+    const symbolsInformationPromise = getSymbolsInformation(document);
+
+    return symbolsInformationPromise.then((documentSymbols) => {
+        return findSymbolDescription(documentSymbols, symbolNameRange);
+    });
 }
 
 export async function findSymbolContentRange(
@@ -90,26 +93,24 @@ export async function findSymbolContentRange(
     position: vscode.Position,
     targetSymbol: SymbolKind
 ): Promise<vscode.Range | undefined> {
-    const symbolDescription = await describeSymbolAtPosition(
+    const symbolDescriptionPromise = describeSymbolAtPosition(
         document,
         position,
         targetSymbol
     );
-    if (symbolDescription === undefined) {
-        return undefined;
-    }
 
-    const symbolKind = symbolDescription.kind;
-    if (
-        (targetSymbol === SymbolKind.FUNCTION &&
-            !FromVscodelc.isFunctionSymbol(symbolKind)) ||
-        (targetSymbol === SymbolKind.VARIABLE &&
-            !FromVscodelc.isVariableSymbol(symbolKind))
-    ) {
-        return undefined;
-    }
+    return symbolDescriptionPromise.then((symbolDescription) => {
+        if (symbolDescription === undefined) {
+            return undefined;
+        }
 
-    return FromVscodelc.getRange(symbolDescription.range);
+        const symbolKind = symbolDescription.kind;
+        if (!FromVscodelc.isSameSymboKind(targetSymbol, symbolKind)) {
+            return undefined;
+        }
+
+        return FromVscodelc.getRange(symbolDescription.range);
+    });
 }
 
 export function getContextForPosition(
@@ -125,21 +126,25 @@ export function getContextForPosition(
     return document.getText(contextRange);
 }
 
-export async function findSymbolReferencesContent(
-    document: vscode.TextDocument,
-    position: vscode.Position
-): Promise<string[]> {
-    const references = await getReferences(document, position, true);
-    if (references === undefined) {
-        return [];
+function computeReferencesContent(
+    documents: vscode.TextDocument[],
+    references: vscodelc.Location[]
+): string[] {
+    let documentsMap = new Map<string, vscode.TextDocument>();
+    for (const document of documents) {
+        documentsMap.set(document.uri.toString(), document);
     }
 
     const referencesContent: string[] = [];
     for (const reference of references) {
         const referenceRange = FromVscodelc.getRange(reference.range);
-        const referenceDocument = await vscode.workspace.openTextDocument(
-            vscode.Uri.parse(reference.uri)
+        const referenceDocument = documentsMap.get(
+            vscode.Uri.parse(reference.uri).toString()
         );
+
+        if (referenceDocument === undefined) {
+            continue;
+        }
 
         // TODO: @GrigoriyPA | @ZenMan123 extract larger range with context
         const referenceContentRange = new vscode.Range(
@@ -155,4 +160,30 @@ export async function findSymbolReferencesContent(
     }
 
     return referencesContent;
+}
+
+export async function findSymbolReferencesContent(
+    document: vscode.TextDocument,
+    position: vscode.Position
+): Promise<string[]> {
+    const referencesPromise = getReferences(document, position, true);
+
+    return referencesPromise.then((references) => {
+        if (references === undefined) {
+            return [];
+        }
+
+        const referenceDocuments: Thenable<vscode.TextDocument>[] = [];
+        for (const reference of references) {
+            const referenceDocument = vscode.workspace.openTextDocument(
+                vscode.Uri.parse(reference.uri)
+            );
+
+            referenceDocuments.push(referenceDocument);
+        }
+
+        return Promise.all(referenceDocuments).then((documents) => {
+            return computeReferencesContent(documents, references);
+        });
+    });
 }

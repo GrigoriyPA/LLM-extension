@@ -41,8 +41,9 @@ export async function initializeLanguageClient() {
         );
     }
 
-    return languageClient
-        .start()
+    const languageClientPromise = languageClient.start();
+
+    return languageClientPromise
         .then(() => {
             logEntry(
                 LogLevel.INFO,

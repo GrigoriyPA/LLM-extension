@@ -14,7 +14,7 @@ export enum Components {
 }
 
 class ExtensionConfig {
-    defaultLogLevel = LogLevel.DEBUG;
+    defaultLogLevel = LogLevel.TRACE;
     componentsLogLevel = new Map<Components, LogLevel>();
 
     llmServerUrl: string = "http://dfftu.pythonanywhere.com";

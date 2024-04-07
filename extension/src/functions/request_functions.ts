@@ -14,22 +14,26 @@ export async function buildRequestWithSymbolContex(
     position: vscode.Position,
     targetSymbol: SymbolKind
 ): Promise<RequestsBase.RequestWithSymbolContextBase | undefined> {
-    const symbolContentRange = await findSymbolContentRange(
+    const symbolContentRange = findSymbolContentRange(
         document,
         position,
         targetSymbol
     );
-    if (symbolContentRange === undefined) {
-        return undefined;
-    }
-
-    const symbolReferencesContent = await findSymbolReferencesContent(
+    const symbolReferencesContent = findSymbolReferencesContent(
         document,
         position
     );
 
-    return new RequestsBase.RequestWithSymbolContextBase(
-        document.getText(symbolContentRange),
-        symbolReferencesContent
+    return Promise.all([symbolContentRange, symbolReferencesContent]).then(
+        (result) => {
+            if (result[0] === undefined || result[1] === undefined) {
+                return undefined;
+            }
+
+            return new RequestsBase.RequestWithSymbolContextBase(
+                document.getText(result[0]),
+                result[1]
+            );
+        }
     );
 }

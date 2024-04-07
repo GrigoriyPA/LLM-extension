@@ -25,8 +25,12 @@ export async function getSymbolsInformation(
         textDocument: FromVscode.getTextDocumentIdentifier(document),
     };
 
-    return languageClient
-        .sendRequest(vscodelc.DocumentSymbolRequest.method, params)
+    const requestPromise = languageClient.sendRequest(
+        vscodelc.DocumentSymbolRequest.method,
+        params
+    );
+
+    return requestPromise
         .then((response) => {
             if (!response) {
                 return undefined;
@@ -55,8 +59,12 @@ export async function getReferences(
         },
     };
 
-    return languageClient
-        .sendRequest(vscodelc.ReferencesRequest.method, params)
+    const requestPromise = languageClient.sendRequest(
+        vscodelc.ReferencesRequest.method,
+        params
+    );
+
+    return requestPromise
         .then((response) => {
             if (!response) {
                 return undefined;
