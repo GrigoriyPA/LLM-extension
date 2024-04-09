@@ -1,9 +1,9 @@
-import typing as tp
 import time
 from textwrap import dedent
+
 from src.colourful_cmd import print_cyan, print_green
 
-from datasets.entities import Function
+from src.entities import Function
 from configs.prompts import DOCSTRING_PROMPT
 from models.base_model import BaseModel
 import torch
@@ -28,14 +28,15 @@ class LocalHFModel(BaseModel):
             max_new_tokens=200,
         )
         self._docstring_prompt = DOCSTRING_PROMPT
-        self.load_model(self._checkpoint)
+        self._model = None
+        self._load_model()
 
-    def load_model(self, checkpoint_path: str):
+    def _load_model(self) -> None:
         start = time.time()
-        print_cyan(f'Starting to load model {checkpoint_path}')
+        print_cyan(f'Starting to load model {self._checkpoint}')
         self._model: transformers.PreTrainedModel = (
             AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path=checkpoint_path,
+                pretrained_model_name_or_path=self._checkpoint,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float32,
                 device_map="auto",
@@ -44,7 +45,7 @@ class LocalHFModel(BaseModel):
         )
         finish = time.time()
         print_green(
-            f'Finished loading model {checkpoint_path},'
+            f'Finished loading model {self._checkpoint},'
             f' it took {round(finish - start, 1)} seconds'
         )
 

@@ -5,6 +5,9 @@
       "pygame/pygame",
       "gitpython-developers/GitPython",
       "stitionai/devika",
-      "OpenInterpreter/open-interpreter"
+      "OpenInterpreter/open-interpreter",
+      "soimort/you-get",
+      "google/glazier",
+      "google/flax"
     ]
 }

@@ -1,27 +1,31 @@
+from __future__ import annotations
+
 import abc
-from datasets.entities import Function, ScorerModelDocstringResult
+from src.entities import Function, ENTITY_TYPE
+from configs.features_config import ExtensionFeature
 import typing as tp
 
 
 class BaseModel(abc.ABC):
-    def __init__(self, model_name: str, model_description: str, *args, **kwargs):
+    def __init__(self, model_name: str, model_description: str):
         self.model_name: str = model_name
         self.model_description = model_description
 
-    @abc.abstractmethod
-    def predict(self, prompt: str, *args, **kwargs) -> str:
-        """just return the predicted text after the given prompt"""
+    def get_method_for_extension_feature(self, feature: ExtensionFeature) -> tp.Callable[[ENTITY_TYPE], str]:
+        """return method for solving particular extension feature
+        for example, if feature is docstring_generation,
+        then method must return self.generate_docstring"""
+        if feature == ExtensionFeature.docstring_generation:
+            return self.generate_docstring
 
     @abc.abstractmethod
-    def get_prompt_for_docstring_generation(self,
-                                            function: tp.Union[Function, ScorerModelDocstringResult],
-                                            *args,
-                                            **kwargs) -> str:
+    def predict(self, prompt: str, *args, **kwargs) -> str:
+        """return the predicted text after the given prompt"""
+
+    @abc.abstractmethod
+    def get_prompt_for_docstring_generation(self, function: Function) -> str:
         """get prompt used for docstring generation"""
 
     @abc.abstractmethod
-    def generate_docstring(self,
-                           function: tp.Union[Function, ScorerModelDocstringResult],
-                           *args,
-                           **kwargs) -> str:
+    def generate_docstring(self, function: ExtensionFeature.docstring_generation.value.input_data_type) -> str:
         """get docstring for the given function"""

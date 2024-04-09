@@ -14,17 +14,17 @@ class CmdModes(enum.Enum):
     underline = '\033[4m'
 
 
-def _print(*args, color: str, **kwargs):
+def _print(*args, color: str, **kwargs) -> None:
     print(color, ' '.join(map(str, args)) + CmdModes.endc.value, sep='', **kwargs)
 
 
-def print_green(*args, **kwargs):
+def print_green(*args, **kwargs) -> None:
     _print(*args, color=CmdModes.green.value, **kwargs)
 
 
-def print_cyan(*args, **kwargs):
+def print_cyan(*args, **kwargs) -> None:
     _print(*args, color=CmdModes.cyan.value, **kwargs)
 
 
-def print_red(*args, **kwargs):
+def print_red(*args, **kwargs) -> None:
     _print(*args, color=CmdModes.fail.value, **kwargs)
