@@ -2,7 +2,7 @@ import asyncio
 
 from tqdm import tqdm
 
-from configs.entities import ENTITY_TYPE, BenchmarkResult
+from src.entities import ENTITY_TYPE, BenchmarkResult
 from configs.features_config import ExtensionFeature
 import typing as tp
 

@@ -1,12 +1,12 @@
 import json
 
-from configs.entities import MAIN_DATABASE
+from src.entities import MAIN_DATABASE
 from src import github_searcher
 from tqdm import tqdm
 from src.colourful_cmd import print_cyan
 from os.path import expanduser
 
-from configs.entities import Function
+from src.entities import Function
 from datasets.database_utils import Table
 
 # token generation: https://github.com/settings/tokens

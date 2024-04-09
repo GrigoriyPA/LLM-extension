@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from src.colourful_cmd import print_cyan, print_green
 
-from configs.entities import Function
+from src.entities import Function
 from configs.prompts import DOCSTRING_PROMPT
 from models.base_model import BaseModel
 import torch
@@ -28,7 +28,10 @@ class LocalHFModel(BaseModel):
             max_new_tokens=200,
         )
         self._docstring_prompt = DOCSTRING_PROMPT
+        self._model = None
+        self._load_model()
 
+    def _load_model(self) -> None:
         start = time.time()
         print_cyan(f'Starting to load model {self._checkpoint}')
         self._model: transformers.PreTrainedModel = (

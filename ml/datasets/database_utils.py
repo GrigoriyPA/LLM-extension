@@ -25,7 +25,7 @@ class Database:
     def __del__(self):
         self.connection.close()
 
-    def create_table(self, table_name: str, columns: tp.List[tp.Tuple[str, type]]):
+    def create_table(self, table_name: str, columns: tp.List[tp.Tuple[str, type]]) -> None:
         field_text = ", ".join([f"{a} {self.MAPPING[b]}" for a, b in columns])
 
         request = f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY, {field_text})"
@@ -33,18 +33,18 @@ class Database:
         self.cursor.execute(request)
         self.connection.commit()
 
-    def write(self, table_name: str, columns: tp.List[EL_TYPES], data: tp.List[EL_TYPES]):
+    def write(self, table_name: str, columns: tp.List[EL_TYPES], data: tp.List[EL_TYPES]) -> None:
         tmp = ', '.join(['?' for _ in range(len(data))])
         request = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({tmp})"
         self.cursor.execute(request, data)
         self.connection.commit()
 
-    def clear(self, table_name: str):
+    def clear(self, table_name: str) -> None:
         request = f"DELETE FROM {table_name}"
         self.cursor.execute(request)
         self.connection.commit()
 
-    def drop(self, table_name: str):
+    def drop(self, table_name: str) -> None:
         request = f"DROP TABLE {table_name}"
         self.cursor.execute(request)
         self.connection.commit()
@@ -66,16 +66,16 @@ class Table(tp.Generic[T]):
         self.db.create_table(self.table_name, list(type_hints.items()))
         self.temporary: bool = temporary
 
-    def write(self, el: T):
+    def write(self, el: T) -> None:
         data = [getattr(el, col) for col in self.columns]
         self.db.write(self.table_name, self.columns, data)
 
-    def clear_and_write_many(self, els: tp.List[T]):
+    def clear_and_write_many(self, els: tp.List[T]) -> None:
         self.clear()
         for el in els:
             self.write(el)
 
-    def write_tables(self, tables: tp.List[Table]):
+    def write_tables(self, tables: tp.List[Table]) -> None:
         for table in tables:
             for el in table.read():
                 self.write(el)
@@ -85,7 +85,7 @@ class Table(tp.Generic[T]):
         res = [self.row_type(*el[1:]) for el in data]
         return res
 
-    def clear(self):
+    def clear(self) -> None:
         self.db.clear(self.table_name)
 
     def __del__(self):
@@ -93,7 +93,7 @@ class Table(tp.Generic[T]):
             self.db.drop(self.table_name)
 
 
-def get_tmp_table(row_type: tp.Type[T], prefix=""):
+def get_tmp_table(row_type: tp.Type[T], prefix="") -> Table[T]:
     db = Database("data/tmp_database.db")
     tmp_table_name = f"tmp_table_{prefix}_{random.getrandbits(60)}"
     table = Table(db, tmp_table_name, row_type, True)

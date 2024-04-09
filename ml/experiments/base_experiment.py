@@ -3,7 +3,7 @@ import typing as tp
 from datetime import datetime
 
 from benchmarks.base_benchmark import Benchmark
-from configs.entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
+from src.entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
 from configs.features_config import ExtensionFeature
 from datasets.database_utils import Table
 from models.base_model import BaseModel

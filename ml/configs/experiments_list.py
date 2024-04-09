@@ -1,5 +1,5 @@
-from benchmarks.benchmarks_config import DOCSTRING_BENCHMARK_V1
-from configs.entities import Function, ScorerModelDocstringResult, MAIN_DATABASE, ExperimentResult
+from configs.benchmarks_list import DOCSTRING_BENCHMARK_V1
+from src.entities import Function, ScorerModelDocstringResult, MAIN_DATABASE, ExperimentResult
 from configs.models_config import LanguageModel
 from configs.features_config import ExtensionFeature
 from datasets.database_utils import Table

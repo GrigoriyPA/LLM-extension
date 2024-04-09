@@ -1,5 +1,5 @@
 from benchmarks.base_benchmark import Benchmark
-from configs.entities import Function, MAIN_DATABASE
+from src.entities import Function, MAIN_DATABASE
 from configs.features_config import ExtensionFeature
 from datasets.database_utils import Table
 

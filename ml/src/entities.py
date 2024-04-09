@@ -11,13 +11,13 @@ MAIN_DATABASE = Database("data/main_database.db")
 
 class BaseEntity(tp.NamedTuple):
     @abc.abstractmethod
-    def set_prediction(self, prediction: str):
+    def set_prediction(self, prediction: str) -> None:
         """changes prediction field"""
 
 
 class BaseScoredEntity(tp.NamedTuple):
     @abc.abstractmethod
-    def get_prediction_score(self) -> str:
+    def get_prediction_score(self) -> float:
         """returns prediction score"""
 
 
@@ -39,7 +39,7 @@ class Function(BaseEntity):
         self.context = context
         return self
 
-    def set_prediction(self, prediction):
+    def set_prediction(self, prediction) -> None:
         self.docstring = prediction
 
 
@@ -60,7 +60,7 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
         self.scorer_response = scorer_response
         return self
 
-    def get_prediction_score(self):
+    def get_prediction_score(self) -> float:
         return self.docstring_score
 
 

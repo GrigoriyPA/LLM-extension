@@ -6,7 +6,7 @@ from .models_names import GPTModelName, GPTProviderName
 
 from .consts import SCORE_FUNCTION, PROMPTS
 
-from configs.entities import Function, ScorerModelDocstringResult
+from src.entities import Function, ScorerModelDocstringResult
 from datasets.database_utils import Table, get_tmp_table
 from models.base_model import BaseModel
 
@@ -22,7 +22,7 @@ class SessionInfo:
             removed_message = self.history.pop(0)
             self.current_length -= len(removed_message["content"])
 
-    def add_content(self, action: tp.Dict[str, str]):
+    def add_content(self, action: tp.Dict[str, str]) -> None:
         self.history.append(action)
         self.current_length += len(action["content"]) if action['content'] is not None else 0
         self.trim_history()
@@ -132,5 +132,5 @@ class ScoreFunction:
             dst.write(await self.exec_one(function, model, use_history))
         return dst
 
-    def update_prompt(self, prompt: str):
+    def update_prompt(self, prompt: str) -> None:
         self.__prompt = prompt
