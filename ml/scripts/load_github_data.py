@@ -14,7 +14,7 @@ from datasets.database_utils import Table
 with open('scripts/config.json') as f:
     config = json.load(f)
 
-GITHUB_TOKEN_PATH = expanduser('~/.llm_hse/github_token')
+GITHUB_TOKEN_PATH = expanduser(config['github_token_path'])
 
 try:
     with open(GITHUB_TOKEN_PATH, 'r') as file:

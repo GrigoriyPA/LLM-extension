@@ -9,7 +9,7 @@ from models.base_model import BaseModel
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
-
+from configs.device_type import DEVICE
 
 class LocalHFModel(BaseModel):
     def __init__(self,
@@ -20,7 +20,7 @@ class LocalHFModel(BaseModel):
         self._checkpoint: str = model_name
         self._tokenizer = AutoTokenizer.from_pretrained(
             self._checkpoint,
-            device_map="auto",
+            device_map=DEVICE,
             trust_remote_code=True,
         )
         self._generation_config = GenerationConfig.from_pretrained(
@@ -39,7 +39,7 @@ class LocalHFModel(BaseModel):
                 pretrained_model_name_or_path=self._checkpoint,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float32,
-                device_map="auto",
+                device_map=DEVICE,
                 trust_remote_code=True,
             )
         )
@@ -51,6 +51,7 @@ class LocalHFModel(BaseModel):
 
     def predict(self, prompt: str, **generation_kwargs) -> str:
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
+        model_inputs.to(DEVICE)
         generated_ids = self._model.generate(
             **model_inputs,
             generation_config=self._generation_config,

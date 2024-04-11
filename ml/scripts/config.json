@@ -7,5 +7,6 @@
       "gitpython-developers/GitPython",
       "stitionai/devika",
       "OpenInterpreter/open-interpreter"
-    ]
+    ],
+    "github_token_path": "~/.llm_hse/github_token"
 }
