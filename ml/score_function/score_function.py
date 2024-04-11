@@ -91,10 +91,17 @@ class ScoreFunction:
     def extract_score(answer: str) -> tp.Optional[float]:
         if answer is None:
             return None
-        numbers = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
-        if not numbers:
+        match = re.search(r"Degree of correspondence: (\d+\.\d+)", answer)
+
+        if match:
+            return float(match.group(1))
+
+        match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
+        if not match:
             return None
-        return float(numbers[-1])
+        if float(match[-1]) < 0 or float(match[-1]) > 1:
+            return None
+        return float(match[-1])
 
     async def exec_one(self, function: Function, model: BaseModel,
                        use_history: bool = False) -> ScorerModelDocstringResult:

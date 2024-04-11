@@ -2,12 +2,10 @@
     "context_wide": 4,
     "ignore_comments": true,
     "repos": [
+      "google/flax",
       "pygame/pygame",
       "gitpython-developers/GitPython",
       "stitionai/devika",
-      "OpenInterpreter/open-interpreter",
-      "soimort/you-get",
-      "google/glazier",
-      "google/flax"
+      "OpenInterpreter/open-interpreter"
     ]
 }
