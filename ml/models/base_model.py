@@ -27,5 +27,5 @@ class BaseModel(abc.ABC):
         """get prompt used for docstring generation"""
 
     @abc.abstractmethod
-    def generate_docstring(self, function: ExtensionFeature.docstring_generation.value.input_data_type) -> str:
+    def generate_docstring(self, function: Function) -> str:
         """get docstring for the given function"""

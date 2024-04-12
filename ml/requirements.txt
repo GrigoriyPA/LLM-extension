@@ -5,3 +5,4 @@ pandas
 g4f
 tqdm
 accelerate
+replicate
