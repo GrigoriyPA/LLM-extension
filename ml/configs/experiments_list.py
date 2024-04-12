@@ -17,6 +17,6 @@ DOCSTRING_EXPERIMENT_V1: Experiment[Function, ScorerModelDocstringResult] = Expe
     dst=Table(MAIN_DATABASE, "experiment_results", ExperimentResult)
 )
 
-EXPERIMENTS_LIST: tp.List[ENTITY_TYPE, SCORED_ENTITY_TYPE] = [
+EXPERIMENTS_LIST: tp.List[Experiment[ENTITY_TYPE, SCORED_ENTITY_TYPE]] = [
     DOCSTRING_EXPERIMENT_V1
 ]
