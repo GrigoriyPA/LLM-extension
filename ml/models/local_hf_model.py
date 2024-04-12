@@ -1,5 +1,6 @@
 import time
 from textwrap import dedent
+import re
 
 from src.colourful_cmd import print_cyan, print_green
 
@@ -10,6 +11,7 @@ import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 from configs.device_type import DEVICE
+
 
 class LocalHFModel(BaseModel):
     def __init__(self,
@@ -82,5 +84,7 @@ class LocalHFModel(BaseModel):
                            function: Function,
                            **generation_kwargs) -> str:
         prompt = self.get_prompt_for_docstring_generation(function)
-        generated_docstring = self.predict(prompt, **generation_kwargs)
-        return generated_docstring
+        result = self.predict(prompt, **generation_kwargs)
+        regexp_result = re.search('"""(.*?)"""', result, re.DOTALL)
+        docstring = regexp_result.group(1) if regexp_result else result
+        return docstring

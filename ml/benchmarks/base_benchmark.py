@@ -23,12 +23,13 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
         for model in tqdm(models):
             labelled_els: Table[ENTITY_TYPE] = get_tmp_table(self.tables[0].row_type)
 
-            for table in self.tables:
+            pbar = tqdm(self.tables)
+            for table in pbar:
                 els = table.read()
                 for el in tqdm(els):
                     el.set_prediction(model.get_method_for_extension_feature(self.feature)(el))
                     labelled_els.write(el)
-
+                pbar.set_description(f"Processing model {model.model_name} on table {table.table_name}")
             result.append((model, labelled_els))
 
         return result
