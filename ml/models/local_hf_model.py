@@ -72,15 +72,13 @@ class LocalHFModel(BaseModel):
                                             function: Function,
                                             *args,
                                             **kwargs) -> str:
-        context = (
-            f"\nHere you can see examples of"
-            f" usages of such function:\n{function.context}"
-            if function.context else ""
-        )
-        full_prompt = dedent(f'''
-        {self._docstring_prompt}
-        {function.code}{context}
-        Docstring for that function:''')
+        # context = (
+        #     f"\nHere you can see examples of"
+        #     f" usages of such function:\n{function.context}"
+        #     if function.context else ""
+        # )
+        f_head = function.code.split("\n")[0]
+        full_prompt = dedent(f'''{function.code} \n Write docstring for that function. \n {f_head}\n\t"""''')
 
         return full_prompt
 
@@ -88,7 +86,7 @@ class LocalHFModel(BaseModel):
                            function: Function,
                            **generation_kwargs) -> str:
         prompt = self.get_prompt_for_docstring_generation(function)
-        result = self.predict(prompt, **generation_kwargs)
+        result = '"""' + self.predict(prompt, **generation_kwargs)
         regexp_result = re.search('"""(.*?)"""', result, re.DOTALL)
         docstring = regexp_result.group(1) if regexp_result else result
         return docstring

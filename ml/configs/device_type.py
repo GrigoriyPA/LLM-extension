@@ -1,2 +1,1 @@
-DEVICE = "cpu"
-
+DEVICE = "cuda"
