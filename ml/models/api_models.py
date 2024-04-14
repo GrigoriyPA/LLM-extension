@@ -17,7 +17,7 @@ try:
     with open(REPLICATE_TOKEN_PATH, 'r') as file:
         REPLICATE_TOKEN = file.read().strip()
 except FileNotFoundError:
-    print_cyan(f"You must specify you github api token in {REPLICATE_TOKEN_PATH}")
+    print_cyan(f"You must specify you replicate api token in {REPLICATE_TOKEN_PATH}")
     raise
 
 

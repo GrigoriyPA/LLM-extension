@@ -31,7 +31,6 @@ class LocalHFModel(BaseModel):
         )
         self._docstring_prompt = DOCSTRING_PROMPT
         self._model = None
-        self._load_model()
 
     def _load_model(self) -> None:
         start = time.time()
@@ -51,7 +50,12 @@ class LocalHFModel(BaseModel):
             f' it took {round(finish - start, 1)} seconds'
         )
 
+    def _check_model(self):
+        if self._model is None:
+            self._load_model()
+
     def predict(self, prompt: str, **generation_kwargs) -> str:
+        self._check_model()
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
         model_inputs.to(DEVICE)
         generated_ids = self._model.generate(
