@@ -2,6 +2,8 @@ import fetch from "node-fetch";
 
 import { RequestsBase, ResponseBase } from "./requests_structures";
 
+import { createProgressIndicator } from "../runtime/extention_utils";
+
 import { logEntry } from "../logger";
 
 import { extensionConfig, LogLevel, Components } from "../../config";
@@ -62,8 +64,12 @@ export async function sendRequest(
         body: request.serialize(),
     });
 
-    // TODO: @ganvas show status bar when we wait for http response
-    return fetchPromise.then(computeRawResponse).catch((error) => {
+    const fetchProgressPromise = createProgressIndicator(
+        `${request.getName()} request`,
+        fetchPromise
+    );
+
+    return fetchProgressPromise.then(computeRawResponse).catch((error) => {
         return getErrorResponse(error);
     });
 }

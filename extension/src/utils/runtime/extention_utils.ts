@@ -20,6 +20,20 @@ export function printToExtentionChannel(
     }
 }
 
+export async function createProgressIndicator<T>(
+    title: string,
+    promise: Promise<T>
+) {
+    let progressOptions: vscode.ProgressOptions = {
+        location: vscode.ProgressLocation.Window,
+        title: title,
+    };
+
+    return vscode.window.withProgress(progressOptions, () => {
+        return promise;
+    });
+}
+
 export function initializeExtention(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel("LLM python extension");
 
