@@ -1,14 +1,16 @@
-import typing as tp
 import time
 from textwrap import dedent
+import re
+
 from src.colourful_cmd import print_cyan, print_green
 
-from datasets.entities import Function
+from src.entities import Function
 from configs.prompts import DOCSTRING_PROMPT
 from models.base_model import BaseModel
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+from configs.device_type import DEVICE
 
 
 class LocalHFModel(BaseModel):
@@ -20,7 +22,7 @@ class LocalHFModel(BaseModel):
         self._checkpoint: str = model_name
         self._tokenizer = AutoTokenizer.from_pretrained(
             self._checkpoint,
-            device_map="auto",
+            device_map=DEVICE,
             trust_remote_code=True,
         )
         self._generation_config = GenerationConfig.from_pretrained(
@@ -28,28 +30,34 @@ class LocalHFModel(BaseModel):
             max_new_tokens=200,
         )
         self._docstring_prompt = DOCSTRING_PROMPT
-        self.load_model(self._checkpoint)
+        self._model = None
 
-    def load_model(self, checkpoint_path: str):
+    def _load_model(self) -> None:
         start = time.time()
-        print_cyan(f'Starting to load model {checkpoint_path}')
+        print_cyan(f'Starting to load model {self._checkpoint}')
         self._model: transformers.PreTrainedModel = (
             AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path=checkpoint_path,
+                pretrained_model_name_or_path=self._checkpoint,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float32,
-                device_map="auto",
+                device_map=DEVICE,
                 trust_remote_code=True,
             )
         )
         finish = time.time()
         print_green(
-            f'Finished loading model {checkpoint_path},'
+            f'Finished loading model {self._checkpoint},'
             f' it took {round(finish - start, 1)} seconds'
         )
 
+    def _check_model(self):
+        if self._model is None:
+            self._load_model()
+
     def predict(self, prompt: str, **generation_kwargs) -> str:
+        self._check_model()
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
+        model_inputs.to(DEVICE)
         generated_ids = self._model.generate(
             **model_inputs,
             generation_config=self._generation_config,
@@ -80,5 +88,7 @@ class LocalHFModel(BaseModel):
                            function: Function,
                            **generation_kwargs) -> str:
         prompt = self.get_prompt_for_docstring_generation(function)
-        generated_docstring = self.predict(prompt, **generation_kwargs)
-        return generated_docstring
+        result = self.predict(prompt, **generation_kwargs)
+        regexp_result = re.search('"""(.*?)"""', result, re.DOTALL)
+        docstring = regexp_result.group(1) if regexp_result else result
+        return docstring

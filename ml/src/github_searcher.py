@@ -2,6 +2,8 @@ import base64
 import time
 
 import requests
+from tqdm import tqdm
+
 import src.code_reader as code_reader
 import typing as tp
 
@@ -73,7 +75,7 @@ def get_functions_in_repo(
         token=token,
     )
     data = {}
-    for url in urls:
+    for url in tqdm(urls):
         content = get_file_content(get_url=url, token=token)
         for name, code, docstring in code_reader.get_functions_sources(
                 content,
@@ -85,7 +87,7 @@ def get_functions_in_repo(
                 'code': code,
                 'usages': []
             }
-    for url in urls:
+    for url in tqdm(urls):
         content = get_file_content(get_url=url, token=token)
         for name, usage in code_reader.get_functions_calls(content, context_wide=context_wide):
             if name in data:

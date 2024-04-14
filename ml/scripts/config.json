@@ -2,9 +2,11 @@
     "context_wide": 4,
     "ignore_comments": true,
     "repos": [
+      "google/flax",
       "pygame/pygame",
       "gitpython-developers/GitPython",
       "stitionai/devika",
       "OpenInterpreter/open-interpreter"
-    ]
+    ],
+    "github_token_path": "~/.llm_hse/github_token"
 }

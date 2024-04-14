@@ -6,8 +6,8 @@ from .models_names import GPTModelName, GPTProviderName
 
 from .consts import SCORE_FUNCTION, PROMPTS
 
-from datasets.entities import Function, ScorerModelDocstringResult
-from datasets.database_utils import Dataset, get_tmp_dataset
+from src.entities import Function, ScorerModelDocstringResult
+from datasets.database_utils import Table, get_tmp_table
 from models.base_model import BaseModel
 
 
@@ -22,7 +22,7 @@ class SessionInfo:
             removed_message = self.history.pop(0)
             self.current_length -= len(removed_message["content"])
 
-    def add_content(self, action: tp.Dict[str, str]):
+    def add_content(self, action: tp.Dict[str, str]) -> None:
         self.history.append(action)
         self.current_length += len(action["content"]) if action['content'] is not None else 0
         self.trim_history()
@@ -91,10 +91,17 @@ class ScoreFunction:
     def extract_score(answer: str) -> tp.Optional[float]:
         if answer is None:
             return None
-        numbers = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
-        if not numbers:
+        match = re.search(r"Degree of correspondence: (\d+\.\d+)", answer)
+
+        if match:
+            return float(match.group(1))
+
+        match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
+        if not match:
             return None
-        return float(numbers[-1])
+        if float(match[-1]) < 0 or float(match[-1]) > 1:
+            return None
+        return float(match[-1])
 
     async def exec_one(self, function: Function, model: BaseModel,
                        use_history: bool = False) -> ScorerModelDocstringResult:
@@ -106,7 +113,7 @@ class ScoreFunction:
         score = self.extract_score(output)
 
         result = ScorerModelDocstringResult(
-            **function._asdict(),
+            **function.__dict__,
             model_name=model.model_name,
             prompt=model.get_prompt_for_docstring_generation(function),
             scorer_prompt=text,
@@ -116,8 +123,9 @@ class ScoreFunction:
 
         return result
 
-    async def exec(self, src: Dataset, model: BaseModel, dst: tp.Optional[Dataset] = None,
-                   use_history: bool = False) -> Dataset:
+    async def exec(self, src: Table[Function], model: BaseModel,
+                   dst: tp.Optional[Table[ScorerModelDocstringResult]] = None,
+                   use_history: bool = False) -> Table[ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
@@ -126,10 +134,10 @@ class ScoreFunction:
         :param use_history:
         """
         if not dst:
-            dst = get_tmp_dataset(ScorerModelDocstringResult)
+            dst = get_tmp_table(ScorerModelDocstringResult)
         for function in src.read():
             dst.write(await self.exec_one(function, model, use_history))
         return dst
 
-    def update_prompt(self, prompt: str):
+    def update_prompt(self, prompt: str) -> None:
         self.__prompt = prompt

@@ -41,7 +41,8 @@ The assessment of correspondence is based on the following criteria:
 4) The information must be accurate.
 
 Analyzing the provided examples, assess the suitability of the docstring for the function: {function_code}.
-Docstring of the function: {docstring}.
+Docstring of the function: {docstring}
+Write the degree of correspondes.
     """,
     "\nПодходит ли функции описание? \nфункция: \n{function_code}. \nОписание: {docstring}. \n\nВыведи ответ в формате: \nрассуждения: рассуждения \nответ:ТОЛЬКО одно дробное число от 0 до 1 которое характеризует похожесть описания на правду\n",
     "\nПример 1:\nФункция: \ndef add(a, b):\n    return a + b\nОписание:\nФункция складывает два числа и возвращает результат.\nСтепень соответствия: 1\n\nПример 2:\nФункция: \ndef sum_list(l):\n    return sum(l)\nОписание:\nФункция возвращает длину списка.\nСтепень соответствия: 0\n\nТеперь оцени степень соответствия следующей пары.\nФункция: {function_code}. \nОписание: {docstring}.\nРассуждения: ваши рассуждения\nСтепень соответствия: дробное число от 0 до 1\n",
