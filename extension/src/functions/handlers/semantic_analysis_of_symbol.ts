@@ -26,9 +26,11 @@ export const semanticAnalysisOfSymbol = async (
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
+    const position = textEditor.selection.active;
+
     const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
-        textEditor.selection.active,
+        position,
         SymbolKind.VARIABLE
     );
 
@@ -46,6 +48,7 @@ export const semanticAnalysisOfSymbol = async (
         return requestPromise.then((response) => {
             return computeResponse(
                 textEditor,
+                position,
                 SemanticAnalysisOfSymbol.Response.deserialize(response)
             );
         });
@@ -54,6 +57,7 @@ export const semanticAnalysisOfSymbol = async (
 
 function computeResponse(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     response: SemanticAnalysisOfSymbol.Response
 ) {
     if (!response.isSuccess()) {
@@ -67,16 +71,15 @@ function computeResponse(
     logMessage(LogLevel.TRACE, `Got semantic analysis:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show window with information instead of inserting semantic analysis
-    return insertSemanticAnalysis(textEditor, response.content);
+    return insertSemanticAnalysis(textEditor, position, response.content);
 }
 
 function insertSemanticAnalysis(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     semanticAnalysis: string
 ) {
-    const lineWithSymbol = textEditor.document.lineAt(
-        textEditor.selection.active.line
-    );
+    const lineWithSymbol = textEditor.document.lineAt(position.line);
 
     const suggestionContent = applyIndent(
         lineWithSymbol.firstNonWhitespaceCharacterIndex,

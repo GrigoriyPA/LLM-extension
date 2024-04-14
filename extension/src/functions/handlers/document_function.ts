@@ -26,9 +26,11 @@ export const documentFunction = async (
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
+    const position = textEditor.selection.active;
+
     const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
-        textEditor.selection.active,
+        position,
         SymbolKind.FUNCTION
     );
 
@@ -46,6 +48,7 @@ export const documentFunction = async (
         return requestPromise.then((response) => {
             return computeResponse(
                 textEditor,
+                position,
                 DocumentFunction.Response.deserialize(response)
             );
         });
@@ -54,6 +57,7 @@ export const documentFunction = async (
 
 function computeResponse(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     response: DocumentFunction.Response
 ) {
     if (!response.isSuccess()) {
@@ -67,16 +71,15 @@ function computeResponse(
     logMessage(LogLevel.TRACE, `Function documentation:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting documentation
-    return insertFunctionDocumentation(textEditor, response.content);
+    return insertFunctionDocumentation(textEditor, position, response.content);
 }
 
 function insertFunctionDocumentation(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     documentation: string
 ) {
-    const functionNameLine = textEditor.document.lineAt(
-        textEditor.selection.active.line
-    );
+    const functionNameLine = textEditor.document.lineAt(position.line);
 
     let indentSize = textEditor.options.indentSize as number | undefined;
     if (indentSize === undefined) {

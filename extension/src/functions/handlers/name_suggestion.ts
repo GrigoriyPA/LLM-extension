@@ -31,9 +31,11 @@ export const nameSuggestion = async (
 
     // TODO: @GrigoriyPA suggest many names
 
+    const position = textEditor.selection.active;
+
     const symbolDescriptionPromise = describeSymbolAtPosition(
         textEditor.document,
-        textEditor.selection.active,
+        position,
         SymbolKind.UNKNOWN
     );
 
@@ -44,12 +46,13 @@ export const nameSuggestion = async (
             return;
         }
 
-        return doNameSuggestion(textEditor, symbolDescription);
+        return doNameSuggestion(textEditor, position, symbolDescription);
     });
 };
 
 async function doNameSuggestion(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     symbolDescription: vscodelc.DocumentSymbol
 ) {
     const targetSymbol = FromVscodelc.getSymbolKind(symbolDescription.kind);
@@ -66,7 +69,7 @@ async function doNameSuggestion(
 
     const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
-        textEditor.selection.active,
+        position,
         targetSymbol
     );
 
@@ -82,6 +85,7 @@ async function doNameSuggestion(
         return requestPromise.then((response) => {
             return computeResponse(
                 textEditor,
+                position,
                 NameSuggestion.Response.deserialize(response)
             );
         });
@@ -90,6 +94,7 @@ async function doNameSuggestion(
 
 function computeResponse(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     response: NameSuggestion.Response
 ) {
     if (!response.isSuccess()) {
@@ -103,18 +108,17 @@ function computeResponse(
     logMessage(LogLevel.TRACE, `Got name suggestion:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting name suggestion
-    return insertNameSuggestion(textEditor, response.content);
+    return insertNameSuggestion(textEditor, position, response.content);
 }
 
 function insertNameSuggestion(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     suggestion: string
 ) {
     // TODO: @GrigoriyPA refactor symbol name instead of inserting suggestion
 
-    const lineWithSymbol = textEditor.document.lineAt(
-        textEditor.selection.active.line
-    );
+    const lineWithSymbol = textEditor.document.lineAt(position.line);
 
     const suggestionContent = applyIndent(
         lineWithSymbol.firstNonWhitespaceCharacterIndex,

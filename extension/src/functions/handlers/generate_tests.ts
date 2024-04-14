@@ -27,9 +27,11 @@ export const generateTests = async (
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
 
+    const position = textEditor.selection.active;
+
     const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
-        textEditor.selection.active,
+        position,
         SymbolKind.FUNCTION
     );
 
@@ -45,6 +47,7 @@ export const generateTests = async (
         return requestPromise.then((response) => {
             return computeResponse(
                 textEditor,
+                position,
                 GenerateTests.Response.deserialize(response)
             );
         });
@@ -53,6 +56,7 @@ export const generateTests = async (
 
 async function computeResponse(
     textEditor: vscode.TextEditor,
+    position: vscode.Position,
     response: GenerateTests.Response
 ) {
     if (!response.isSuccess()) {
@@ -66,12 +70,15 @@ async function computeResponse(
     logMessage(LogLevel.TRACE, `Generated tests:\n${response.content}`);
 
     // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting tests
-    return insertTests(textEditor, response.content);
+    return insertTests(textEditor, position, response.content);
 }
 
-async function insertTests(textEditor: vscode.TextEditor, tests: string) {
+async function insertTests(
+    textEditor: vscode.TextEditor,
+    position: vscode.Position,
+    tests: string
+) {
     const document = textEditor.document;
-    const position = textEditor.selection.active;
 
     const functionContentRangePromise = findSymbolContentRange(
         document,
