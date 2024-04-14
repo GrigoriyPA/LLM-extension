@@ -4,10 +4,11 @@ from textwrap import dedent
 
 import replicate
 
-from configs.prompts import DOCSTRING_PROMPT
-from models.base_model import BaseModel
-from src.colourful_cmd import print_cyan
-from src.entities import Function
+from configs import prompts
+from models import base_model as base_model_module
+from src import colourful_cmd
+from src import database_entities
+
 
 # register and get token here https://replicate.com/
 
@@ -17,15 +18,17 @@ try:
     with open(REPLICATE_TOKEN_PATH, 'r') as file:
         REPLICATE_TOKEN = file.read().strip()
 except FileNotFoundError:
-    print_cyan(f"You must specify you replicate api token in {REPLICATE_TOKEN_PATH}")
+    colourful_cmd.print_cyan(
+        f"You must specify you replicate api token in {REPLICATE_TOKEN_PATH}"
+    )
     raise
 
 
-class ReplicateModel(BaseModel):
+class ReplicateModel(base_model_module.BaseModel):
     def __init__(self, model_name: str, model_description: str, api_model_path: str):
         super().__init__(model_name, model_description)
 
-        self._docstring_prompt = DOCSTRING_PROMPT
+        self._docstring_prompt = prompts.DOCSTRING_PROMPT
         self.client = replicate.Client(
             api_token=REPLICATE_TOKEN,
         )
@@ -40,7 +43,10 @@ class ReplicateModel(BaseModel):
         )
         return "".join(output)
 
-    def get_prompt_for_docstring_generation(self, function: Function) -> str:
+    def get_prompt_for_docstring_generation(
+            self,
+            function: database_entities.Function
+    ) -> str:
         context = (
             f"\nHere you can see examples of"
             f" usages of such function:\n{function.context}"
@@ -53,7 +59,7 @@ class ReplicateModel(BaseModel):
 
         return full_prompt
 
-    def generate_docstring(self, function: Function) -> str:
+    def generate_docstring(self, function: database_entities.Function) -> str:
         result = self.predict(self.get_prompt_for_docstring_generation(function))
         regexp_result = re.search('"""(.*?)"""', result, re.DOTALL)
         docstring = regexp_result.group(1) if regexp_result else result

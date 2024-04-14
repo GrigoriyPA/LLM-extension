@@ -1,13 +1,14 @@
 import json
-
-from src.entities import MAIN_DATABASE
-from src import github_searcher
-from tqdm import tqdm
-from src.colourful_cmd import print_cyan
 from os.path import expanduser
 
-from src.entities import Function
-from datasets.database_utils import Table
+from tqdm import tqdm
+
+from configs import database as database_config
+from src import colourful_cmd
+from src import database_entities
+from src import database_utils
+from src import github_searcher
+
 
 # token generation: https://github.com/settings/tokens
 
@@ -20,10 +21,16 @@ try:
     with open(GITHUB_TOKEN_PATH, 'r') as file:
         AUTHORIZATION_TOKEN = file.read().strip()
 except FileNotFoundError:
-    print_cyan(f"You must specify you github api token in {GITHUB_TOKEN_PATH}")
+    colourful_cmd.print_cyan(
+        f"You must specify you github api token in {GITHUB_TOKEN_PATH}"
+    )
     raise
 
-dst_dataset = Table(MAIN_DATABASE, 'default_github_functions', Function)
+dst_dataset = database_utils.Table(
+    database_config.MAIN_DATABASE,
+    'default_github_functions',
+    database_entities.Function
+)
 
 for repo in tqdm(config['repos']):
     author, repo_name = repo.split('/')
@@ -37,7 +44,7 @@ for repo in tqdm(config['repos']):
 
     for func_name in data:
         row = data[func_name]
-        dst_dataset.write(Function(
+        dst_dataset.write(database_entities.Function(
             function_name=row['name'],
             code=row['code'],
             docstring=row['docstring'],

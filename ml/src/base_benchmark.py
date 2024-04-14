@@ -2,26 +2,34 @@ import asyncio
 
 from tqdm import tqdm
 
-from src.entities import ENTITY_TYPE, BenchmarkResult
-from configs.features_config import ExtensionFeature
+from src.database_entities import ENTITY_TYPE, BenchmarkResult
+from constants import extension as extension_constants
 import typing as tp
 
-from datasets.database_utils import Table, get_tmp_table
-from models.base_model import BaseModel
-from score_function.score_function import ScoreFunction
+from src import database_utils
+from models import base_model as base_model_module
+from src import score_function as score_function_module
 
 
 class Benchmark(tp.Generic[ENTITY_TYPE]):
-    def __init__(self, tables: tp.List[Table[ENTITY_TYPE]], feature: ExtensionFeature, benchmark_name: str):
+    def __init__(
+            self,
+            tables: tp.List[database_utils.Table[ENTITY_TYPE]],
+            feature: extension_constants.ExtensionFeature,
+            benchmark_name: str
+    ) -> None:
         self.tables = tables
         self.feature = feature
         self.benchmark_name = benchmark_name
 
-    def launch_models(self, models: tp.List[BaseModel]) -> tp.List[tp.Tuple[BaseModel, Table[ENTITY_TYPE]]]:
-        result: tp.List[tp.Tuple[BaseModel, Table[ENTITY_TYPE]]] = []
+    def launch_models(
+            self,
+            models: tp.List[base_model_module.BaseModel]
+    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]]:
+        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]] = []
 
         for model in tqdm(models):
-            labelled_els: Table[ENTITY_TYPE] = get_tmp_table(self.tables[0].row_type)
+            labelled_els: database_utils.Table[ENTITY_TYPE] = database_utils.get_tmp_table(self.tables[0].row_type)
 
             pbar = tqdm(self.tables)
             for table in pbar:
@@ -34,13 +42,13 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
 
         return result
 
-    def score_models(self, models: tp.List[BaseModel],
-                     score_function: ScoreFunction,
-                     dst: tp.Optional[Table[BenchmarkResult]] = None) -> tp.Dict[str, float]:
+    def score_models(self, models: tp.List[base_model_module.BaseModel],
+                     score_function: score_function_module.ScoreFunction,
+                     dst: tp.Optional[database_utils.Table[BenchmarkResult]] = None) -> tp.Dict[str, float]:
         models_predictions = self.launch_models(models)
 
         if not dst:
-            dst = get_tmp_table(BenchmarkResult, self.benchmark_name)
+            dst = database_utils.get_tmp_table(BenchmarkResult, self.benchmark_name)
 
         results: tp.Dict[str, float] = dict()
         for model, predictions in models_predictions:

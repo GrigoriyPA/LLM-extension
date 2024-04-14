@@ -1,7 +1,22 @@
-SCORE_FUNCTION = {
-    "model_name": "default",
-    "provider_name": "default"
-}
+import enum
+
+
+@enum.unique
+class GPTModelName(enum.Enum):
+    gpt_35_turbo = "gpt_35_turbo"
+
+
+@enum.unique
+class GPTProviderName(enum.Enum):
+    FreeGpt = "FreeGpt"
+
+
+DEFAULT_FUNCTION = GPTModelName.gpt_35_turbo
+DEFAULT_PROVIDER = GPTProviderName.FreeGpt
+
+
+DEFAULT_CONTEXT_LENGTH = 4096
+
 
 PROMPTS = [
     """

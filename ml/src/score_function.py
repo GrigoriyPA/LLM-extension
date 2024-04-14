@@ -1,18 +1,19 @@
-import g4f
-import typing as tp
 import re
+import typing as tp
 
-from .models_names import GPTModelName, GPTProviderName
+import g4f
 
-from .consts import SCORE_FUNCTION, PROMPTS
-
-from src.entities import Function, ScorerModelDocstringResult
-from datasets.database_utils import Table, get_tmp_table
-from models.base_model import BaseModel
+from constants import score_functions as score_functions_constants
+from models import base_model as base_model_module
+from src import database_entities
+from src import database_utils
 
 
 class SessionInfo:
-    def __init__(self, max_length: int = 4096):
+    def __init__(
+            self,
+            max_length: int = score_functions_constants.DEFAULT_CONTEXT_LENGTH
+    ):
         self.history: tp.List[tp.Dict[str, str]] = []
         self.max_length: int = max_length
         self.current_length: int = 0
@@ -24,7 +25,9 @@ class SessionInfo:
 
     def add_content(self, action: tp.Dict[str, str]) -> None:
         self.history.append(action)
-        self.current_length += len(action["content"]) if action['content'] is not None else 0
+        self.current_length += (
+            len(action["content"]) if action['content'] is not None else 0
+        )
         self.trim_history()
 
     def get_history(self) -> tp.List[tp.Dict[str, str]]:
@@ -34,10 +37,16 @@ class SessionInfo:
 class GenerativeModel:
     def __init__(
             self,
-            model: tp.Union[g4f.models.Model, str] = getattr(g4f.models,
-                                                             GPTModelName[SCORE_FUNCTION["model_name"]].value),
-            provider: tp.Union[g4f.providers.types.ProviderType, str, None] = getattr(g4f.Provider, GPTProviderName[
-                SCORE_FUNCTION["provider_name"]].value)
+            model: tp.Union[g4f.models.Model, str] = getattr(
+                g4f.models,
+                score_functions_constants.DEFAULT_FUNCTION.value
+            ),
+            provider: tp.Union[g4f.providers.types.ProviderType, str, None] = (
+                    getattr(
+                        g4f.Provider,
+                        score_functions_constants.DEFAULT_FUNCTION.value
+                    )
+            )
     ):
         self.__chat_completion = g4f.ChatCompletion
         self.__model = model
@@ -59,14 +68,14 @@ class GenerativeModel:
 class ScoreFunction:
     def __init__(
             self,
-            prompt: str = PROMPTS[0],
+            prompt: str = score_functions_constants.PROMPTS[0],
             model: GenerativeModel = GenerativeModel()
     ):
         self.__session_info: SessionInfo = SessionInfo()
         self.__model: GenerativeModel = model
         self.__prompt: str = prompt
 
-    def prepare_prompt(self, function: Function) -> str:
+    def prepare_prompt(self, function: database_entities.Function) -> str:
         return self.__prompt.format(docstring=function.docstring, function_code=function.code)
 
     async def get_model_response(
@@ -103,8 +112,12 @@ class ScoreFunction:
             return None
         return float(match[-1])
 
-    async def exec_one(self, function: Function, model: BaseModel,
-                       use_history: bool = False) -> ScorerModelDocstringResult:
+    async def exec_one(
+            self,
+            function: database_entities.Function,
+            model: base_model_module.BaseModel,
+            use_history: bool = False
+    ) -> database_entities.ScorerModelDocstringResult:
         text = self.prepare_prompt(function)
         output = await self.get_model_response(
             user_input=text,
@@ -112,7 +125,7 @@ class ScoreFunction:
         )
         score = self.extract_score(output)
 
-        result = ScorerModelDocstringResult(
+        result = database_entities.ScorerModelDocstringResult(
             **function.__dict__,
             model_name=model.model_name,
             prompt=model.get_prompt_for_docstring_generation(function),
@@ -123,18 +136,25 @@ class ScoreFunction:
 
         return result
 
-    async def exec(self, src: Table[Function], model: BaseModel,
-                   dst: tp.Optional[Table[ScorerModelDocstringResult]] = None,
-                   use_history: bool = False) -> Table[ScorerModelDocstringResult]:
+    async def exec(
+            self,
+            src: database_utils.Table[database_entities.Function],
+            model: base_model_module.BaseModel,
+            dst: tp.Optional[
+                database_utils.Table[database_entities.ScorerModelDocstringResult]
+            ] = None,
+            use_history: bool = False
+        ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
         :param model: Model which was used for predictions
-        :param dst: Dataset of ModelDocstringResult elements, if not passed then tmp table will be created and returned
+        :param dst: Dataset of ModelDocstringResult elements,
+        if not passed then tmp table will be created and returned
         :param use_history:
         """
         if not dst:
-            dst = get_tmp_table(ScorerModelDocstringResult)
+            dst = database_utils.get_tmp_table(database_entities.ScorerModelDocstringResult)
         for function in src.read():
             dst.write(await self.exec_one(function, model, use_history))
         return dst

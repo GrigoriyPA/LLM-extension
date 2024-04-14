@@ -1,13 +1,13 @@
 import json
-import typing as tp
 from datetime import datetime
+import typing as tp
 
-from benchmarks.base_benchmark import Benchmark
-from src.entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
-from configs.features_config import ExtensionFeature
-from datasets.database_utils import Table
+from constants.extension import ExtensionFeature
 from models.base_model import BaseModel
-from score_function.score_function import ScoreFunction
+from src.base_benchmark import Benchmark
+from src.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
+from src.database_utils import Table
+from src.score_function import ScoreFunction
 
 
 class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
