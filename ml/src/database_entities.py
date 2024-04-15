@@ -1,13 +1,8 @@
 from __future__ import annotations
 
 import abc
-import typing as tp
 import datetime
-import os
-
-from datasets.database_utils import Database
-
-MAIN_DATABASE = Database(os.getcwd() + "/data/main_database.db")
+import typing as tp
 
 
 class BaseEntity(tp.NamedTuple):

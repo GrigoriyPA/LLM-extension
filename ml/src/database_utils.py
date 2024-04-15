@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import datetime
+import random
 import sqlite3
 import typing as tp
-import random
+
 
 T = tp.TypeVar('T', bound=tp.NamedTuple)
 

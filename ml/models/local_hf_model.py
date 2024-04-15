@@ -1,42 +1,43 @@
 import time
-from textwrap import dedent
 import re
+from textwrap import dedent
 
-from src.colourful_cmd import print_cyan, print_green
-
-from src.entities import Function
-from configs.prompts import DOCSTRING_PROMPT
-from models.base_model import BaseModel
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+
 from configs.device_type import DEVICE
+from configs import prompts
+from models import base_model as base_model_module
+from src import colourful_cmd
+from src import database_entities
 
 
-class LocalHFModel(BaseModel):
+class LocalHFModel(base_model_module.BaseModel):
     def __init__(self,
                  model_name: str,
                  model_description: str):
         super().__init__(model_name, model_description)
 
         self._checkpoint: str = model_name
-        self._tokenizer = AutoTokenizer.from_pretrained(
+        self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             self._checkpoint,
             device_map=DEVICE,
             trust_remote_code=True,
         )
-        self._generation_config = GenerationConfig.from_pretrained(
+        self._generation_config = transformers.GenerationConfig.from_pretrained(
             self._checkpoint,
             max_new_tokens=200,
         )
-        self._docstring_prompt = DOCSTRING_PROMPT
+        self._docstring_prompt = prompts.DOCSTRING_PROMPT
         self._model = None
 
     def _load_model(self) -> None:
         start = time.time()
-        print_cyan(f'Starting to load model {self._checkpoint}')
+        colourful_cmd.print_cyan(
+            f'Starting to load model {self._checkpoint}'
+        )
         self._model: transformers.PreTrainedModel = (
-            AutoModelForCausalLM.from_pretrained(
+            transformers.AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=self._checkpoint,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float32,
@@ -45,7 +46,7 @@ class LocalHFModel(BaseModel):
             )
         )
         finish = time.time()
-        print_green(
+        colourful_cmd.print_green(
             f'Finished loading model {self._checkpoint},'
             f' it took {round(finish - start, 1)} seconds'
         )
@@ -69,7 +70,7 @@ class LocalHFModel(BaseModel):
         return generated_text
 
     def get_prompt_for_docstring_generation(self,
-                                            function: Function,
+                                            function: database_entities.Function,
                                             *args,
                                             **kwargs) -> str:
         context = (
@@ -85,7 +86,7 @@ class LocalHFModel(BaseModel):
         return full_prompt
 
     def generate_docstring(self,
-                           function: Function,
+                           function: database_entities.Function,
                            **generation_kwargs) -> str:
         prompt = self.get_prompt_for_docstring_generation(function)
         result = self.predict(prompt, **generation_kwargs)

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import abc
-from src.entities import Function, ENTITY_TYPE
-from configs.features_config import ExtensionFeature
+from src import database_entities
+from constants import extension as features_constants
 import typing as tp
 
 
@@ -11,11 +11,14 @@ class BaseModel(abc.ABC):
         self.model_name: str = model_name
         self.model_description = model_description
 
-    def get_method_for_extension_feature(self, feature: ExtensionFeature) -> tp.Callable[[ENTITY_TYPE], str]:
+    def get_method_for_extension_feature(
+            self,
+            feature: features_constants.ExtensionFeature
+    ) -> tp.Callable[[database_entities.ENTITY_TYPE], str]:
         """return method for solving particular extension feature
         for example, if feature is docstring_generation,
         then method must return self.generate_docstring"""
-        if feature == ExtensionFeature.docstring_generation:
+        if feature == features_constants.ExtensionFeature.docstring_generation:
             return self.generate_docstring
 
     @abc.abstractmethod
@@ -23,9 +26,12 @@ class BaseModel(abc.ABC):
         """return the predicted text after the given prompt"""
 
     @abc.abstractmethod
-    def get_prompt_for_docstring_generation(self, function: Function) -> str:
+    def get_prompt_for_docstring_generation(
+            self,
+            function: database_entities.Function
+    ) -> str:
         """get prompt used for docstring generation"""
 
     @abc.abstractmethod
-    def generate_docstring(self, function: Function) -> str:
+    def generate_docstring(self, function: database_entities.Function) -> str:
         """get docstring for the given function"""

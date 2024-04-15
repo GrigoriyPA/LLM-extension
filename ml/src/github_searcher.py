@@ -1,11 +1,12 @@
 import base64
 import time
+import typing as tp
 
 import requests
 from tqdm import tqdm
 
-import src.code_reader as code_reader
-import typing as tp
+from src import code_reader
+
 
 SEARCH_URL = 'https://api.github.com/search/code'
 
