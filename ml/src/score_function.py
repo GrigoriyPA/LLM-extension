@@ -68,7 +68,7 @@ class GenerativeModel:
 class ScoreFunction:
     def __init__(
             self,
-            prompt: str = score_functions_constants.PROMPTS[0],
+            prompt: str = score_functions_constants.PROMPTS[0],  # TODO
             model: GenerativeModel = GenerativeModel()
     ):
         self.__session_info: SessionInfo = SessionInfo()

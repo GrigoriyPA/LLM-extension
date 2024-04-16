@@ -11,8 +11,15 @@ from src.score_function import ScoreFunction
 
 
 class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
-    def __init__(self, exp_name: str, models: tp.List[BaseModel], feature: ExtensionFeature,
-                 score_function: ScoreFunction, benches: tp.List[Benchmark], dst: Table[ExperimentResult]):
+    def __init__(
+            self,
+            exp_name: str,
+            models: tp.List[BaseModel],
+            feature: ExtensionFeature,
+            score_function: ScoreFunction,
+            benches: tp.List[Benchmark],
+            dst: Table[ExperimentResult]
+    ) -> None:
         self.exp_name = exp_name
         self.models = models
         self.feature = feature

@@ -6,9 +6,30 @@ import requests
 from tqdm import tqdm
 
 from src import code_reader
-
+from src import colourful_cmd
+from constants import github_searcher as github_searcher_constants
 
 SEARCH_URL = 'https://api.github.com/search/code'
+
+
+def call_github_api(
+        url: str,
+        headers: tp.Dict[str, str]
+) -> tp.Optional[requests.Response]:
+    for _ in range(github_searcher_constants.API_TRY_COUNT):
+        try:
+            res = requests.get(
+                url=url,
+                headers=headers
+            )
+        except Exception as ex:
+            colourful_cmd.print_red(
+                f'Catch api error %s' % ex
+            )
+            time.sleep(github_searcher_constants.DELAY_TIME_SECONDS)
+            continue
+        return res
+    return None
 
 
 def search_files_with_definitions(
@@ -16,28 +37,38 @@ def search_files_with_definitions(
         repo: str,
         token: str,
 ) -> tp.List[str]:
-    res = requests.get(
-        url=SEARCH_URL + f'?q=def+in:file+language:python+repo:{author}/{repo}&type=code',
+    res = call_github_api(
+        url=(
+            SEARCH_URL
+            + f'?q=def+in:file+language:python+repo:{author}/{repo}&type=code'
+        ),
         headers={
-            "Accept": "application/vnd.github.text-match+json",
+            **github_searcher_constants.DEFAULT_HEADERS,
             "Authorization": f'Bearer {token}',
-            "X-GitHub-Api-Version": "2022-11-28"
         }
     )
+    if not res:
+        return []
     res = res.json()
     paths = {item['path']: item['git_url'] for item in res['items']}
     return list(paths.values())
 
 
-def get_all_python_files(author: str, repo: str, token: str) -> tp.List[str]:
-    res = requests.get(
-        url=f'https://api.github.com/repos/{author}/{repo}/git/trees/main?recursive=1',
+def get_all_python_files(
+        author: str,
+        repo: str,
+        token: str,
+) -> tp.List[str]:
+    res = call_github_api(
+        url=f'https://api.github.com/repos/'
+            f'{author}/{repo}/git/trees/main?recursive=1',
         headers={
-            "Accept": "application/vnd.github.text-match+json",
+            **github_searcher_constants.DEFAULT_HEADERS,
             "Authorization": f'Bearer {token}',
-            "X-GitHub-Api-Version": "2022-11-28"
         }
     )
+    if not res:
+        return []
     res = res.json()
     paths = [node['url'] for node in res['tree'] if node['path'][-3:] == '.py']
     return paths
@@ -47,15 +78,16 @@ def get_file_content(
         get_url: str,
         token,
 ) -> str:
-    time.sleep(0.1)
-    res = requests.get(
+    res = call_github_api(
         url=get_url,
         headers={
-            "Accept": "application/vnd.github.text-match+json",
+            **github_searcher_constants.DEFAULT_HEADERS,
             "Authorization": f'Bearer {token}',
-            "X-GitHub-Api-Version": "2022-11-28"
         }
-    ).json()
+    )
+    if not res:
+        return ''
+    res = res.json()
     if 'content' not in res:
         return ''
     content = res['content']
