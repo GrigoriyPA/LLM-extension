@@ -2,12 +2,15 @@ from flask import Flask, request
 from server_config import REQUIRED_FIELDS
 import json
 
+from src.database_entities import Function
+from constants.language_models import LanguageModel
+from waitress import serve
+
 app = Flask(__name__)
 
-
-def document_function(some_args=None):
+def document_function(function: Function):
     print("Getting document of function...")
-    return "Some document"
+    return LanguageModel.codellama_python_7b.value.generate_docstring(function)
 
 
 def semantic_analysis_of_symbol(some_args=None):
@@ -49,11 +52,11 @@ def handle_request():
     symbol_content = data["symbol_content"]
     references_content = data["references_content"]
 
-    print(request_type)
     try:
         match request_type:
             case "DocumentFunction":
-                response["single_string"] = document_function(symbol_content)
+                f = Function("", symbol_content, references_content[0], "")
+                response["single_string"] = document_function(f)
             case "SemanticAnalysisOfSymbol":
                 response["single_string"] = semantic_analysis_of_symbol(symbol_content)
             case "NameSuggestion":
@@ -69,5 +72,4 @@ def handle_request():
     return json.dumps(response)
 
 
-app.run(port=8081)
-
+serve(app, port=80)
