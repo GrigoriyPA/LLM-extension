@@ -29,33 +29,44 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
         result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]] = []
 
         for model in tqdm(models):
-            labelled_els: database_utils.Table[ENTITY_TYPE] = database_utils.get_tmp_table(self.tables[0].row_type)
+            labelled_elements: database_utils.Table[ENTITY_TYPE] = database_utils.create_new_table(
+                row_type=self.tables[0].row_type,
+                table_name=f'model_{model.model_name}_results'
+            )
 
-            pbar = tqdm(self.tables)
-            for table in pbar:
-                els = table.read()
-                for el in tqdm(els):
-                    el.set_prediction(model.get_method_for_extension_feature(self.feature)(el))
-                    labelled_els.write(el)
-                pbar.set_description(f"Processing model {model.model_name} on table {table.table_name}")
-            result.append((model, labelled_els))
+            progress_bar = tqdm(self.tables)
+            for table in progress_bar:
+                elements = table.read()
+                for element in tqdm(elements):
+                    element.set_prediction(model.get_method_for_extension_feature(self.feature)(element))
+                    labelled_elements.write(element)
+                progress_bar.set_description(
+                    f"Processing model {model.model_name} on table {table.table_name}"
+                )
+            result.append((model, labelled_elements))
 
         return result
 
-    def score_models(self, models: tp.List[base_model_module.BaseModel],
-                     score_function: score_function_module.ScoreFunction,
-                     dst: tp.Optional[database_utils.Table[BenchmarkResult]] = None) -> tp.Dict[str, float]:
+    def score_models(
+            self,
+            models: tp.List[base_model_module.BaseModel],
+            score_function: score_function_module.ScoreFunction,
+            dst: tp.Optional[database_utils.Table[BenchmarkResult]] = None
+    ) -> tp.Dict[str, float]:
         models_predictions = self.launch_models(models)
 
         if not dst:
-            dst = database_utils.get_tmp_table(BenchmarkResult, self.benchmark_name)
+            dst = database_utils.create_new_table(
+                row_type=BenchmarkResult,
+                table_name=f'benchmark_{self.benchmark_name}_results'
+            )
 
         results: tp.Dict[str, float] = dict()
         for model, predictions in models_predictions:
-            scored_predictions = asyncio.run(score_function.exec(predictions, model)).read()
-            tmp = [el.get_prediction_score() for el in scored_predictions]
+            scored_predictions = asyncio.run(score_function.exec(src=predictions, model=model)).read()
+            tmp = [element.get_prediction_score() for element in scored_predictions]
             init_length = len(tmp)
-            tmp = [el for el in tmp if el is not None]
+            tmp = [element for element in tmp if element is not None]
             if len(tmp) != init_length:
                 print('None scores amount is', init_length - len(tmp))
             results[model.model_name] = sum(tmp) / len(tmp)

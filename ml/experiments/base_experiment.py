@@ -33,7 +33,10 @@ class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
         self.start_time = datetime.now()
         results: tp.Dict[str, tp.Dict[str, float]] = {}
         for bench in self.benches:
-            scores = bench.score_models(self.models, self.score_function)
+            scores = bench.score_models(
+                models=self.models,
+                score_function=self.score_function
+            )
             results[bench.benchmark_name] = scores
         self.finish_time = datetime.now()
 

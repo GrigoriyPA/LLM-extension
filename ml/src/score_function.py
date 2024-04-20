@@ -154,9 +154,12 @@ class ScoreFunction:
         :param use_history:
         """
         if not dst:
-            dst = database_utils.get_tmp_table(database_entities.ScorerModelDocstringResult)
-        for function in src.read():
-            dst.write(await self.exec_one(function, model, use_history))
+            dst = database_utils.create_new_table(
+                row_type=database_entities.ScorerModelDocstringResult,
+                table_name=f'scorer_{model.model_name}_results'
+            )
+        for row in src.read():
+            dst.write(await self.exec_one(row, model, use_history))
         return dst
 
     def update_prompt(self, prompt: str) -> None:

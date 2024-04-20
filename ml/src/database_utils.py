@@ -5,6 +5,8 @@ import random
 import sqlite3
 import typing as tp
 
+from configs import database as database_config
+
 
 T = tp.TypeVar('T', bound=tp.NamedTuple)
 
@@ -94,8 +96,10 @@ class Table(tp.Generic[T]):
             self.db.drop(self.table_name)
 
 
-def get_tmp_table(row_type: tp.Type[T], prefix="") -> Table[T]:
-    db = Database("data/tmp_database.db")
-    tmp_table_name = f"tmp_table_{prefix}_{random.getrandbits(60)}"
-    table = Table(db, tmp_table_name, row_type, True)
+def create_new_table(row_type: tp.Type[T], table_name) -> Table[T]:
+    table = Table(
+        db=database_config.MAIN_DATABASE,
+        table_name=table_name,
+        row_type=row_type,
+    )
     return table
