@@ -17,7 +17,7 @@ class ExtensionConfig {
     defaultLogLevel = LogLevel.TRACE;
     componentsLogLevel = new Map<Components, LogLevel>();
 
-    llmServerUrl: string = "http://dfftu.pythonanywhere.com";
+    llmServerUrl: string = "http://84.201.172.146";
 }
 
 export const extensionConfig = new ExtensionConfig();
