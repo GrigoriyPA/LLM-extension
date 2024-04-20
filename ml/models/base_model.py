@@ -11,6 +11,10 @@ class BaseModel(abc.ABC):
         self.model_name: str = model_name
         self.model_description = model_description
 
+    @property
+    def database_name(self) -> str:
+        return self.model_name.replace('/', '_').replace('-', '_')
+
     def get_method_for_extension_feature(
             self,
             feature: features_constants.ExtensionFeature

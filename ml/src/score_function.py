@@ -44,7 +44,7 @@ class GenerativeModel:
             provider: tp.Union[g4f.providers.types.ProviderType, str, None] = (
                     getattr(
                         g4f.Provider,
-                        score_functions_constants.DEFAULT_FUNCTION.value
+                        score_functions_constants.DEFAULT_PROVIDER.value
                     )
             )
     ):

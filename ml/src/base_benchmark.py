@@ -31,7 +31,7 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
         for model in tqdm(models):
             labelled_elements: database_utils.Table[ENTITY_TYPE] = database_utils.create_new_table(
                 row_type=self.tables[0].row_type,
-                table_name=f'model_{model.model_name}_results'
+                table_name=f'model_{model.database_name}_results'
             )
 
             progress_bar = tqdm(self.tables)
