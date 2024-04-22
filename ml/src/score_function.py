@@ -5,8 +5,7 @@ import g4f
 
 from constants import score_functions as score_functions_constants
 from models import base_model as base_model_module
-from src import database_entities
-from src import database_utils
+from src import database_entities, database_utils
 
 
 class SessionInfo:
