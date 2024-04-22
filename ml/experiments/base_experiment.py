@@ -2,23 +2,23 @@ import json
 from datetime import datetime
 import typing as tp
 
-from constants.extension import ExtensionFeature
-from models.base_model import BaseModel
-from src.base_benchmark import Benchmark
-from src.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE, ExperimentResult
-from src.database_utils import Table
-from src.score_function import ScoreFunction
+from constants import extension
+from models import base_model
+from src import base_benchmark
+from src import database_entities
+from src import database_utils
+from src import score_function
 
 
-class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
+class Experiment(tp.Generic[database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE]):
     def __init__(
             self,
             exp_name: str,
-            models: tp.List[BaseModel],
-            feature: ExtensionFeature,
-            score_function: ScoreFunction,
-            benches: tp.List[Benchmark],
-            dst: Table[ExperimentResult]
+            models: tp.List[base_model.BaseModel],
+            feature: extension.ExtensionFeature,
+            score_function: score_function.ScoreFunction,
+            benches: tp.List[base_benchmark.Benchmark],
+            dst: database_utils.Table[database_entities.ExperimentResult]
     ) -> None:
         self.exp_name = exp_name
         self.models = models
@@ -41,7 +41,7 @@ class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
         self.finish_time = datetime.now()
 
         self.dst.write(
-            ExperimentResult(
+            database_entities.ExperimentResult(
                 exp_name=self.exp_name,
                 models_names=json.dumps([el.model_name for el in self.models]),
                 feature=self.feature.value,

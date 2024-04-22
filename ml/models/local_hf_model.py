@@ -5,7 +5,7 @@ from textwrap import dedent
 import torch
 import transformers
 
-from configs.device_type import DEVICE
+from configs import device_type
 from configs import prompts
 from models import base_model as base_model_module
 from src import colourful_cmd
@@ -21,7 +21,7 @@ class LocalHFModel(base_model_module.BaseModel):
         self._checkpoint: str = model_name
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             self._checkpoint,
-            device_map=DEVICE,
+            device_map=device_type.DEVICE,
             trust_remote_code=True,
         )
         self._generation_config = transformers.GenerationConfig.from_pretrained(
@@ -41,7 +41,7 @@ class LocalHFModel(base_model_module.BaseModel):
                 pretrained_model_name_or_path=self._checkpoint,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float32,
-                device_map=DEVICE,
+                device_map=device_type.DEVICE,
                 trust_remote_code=True,
             )
         )
@@ -58,7 +58,6 @@ class LocalHFModel(base_model_module.BaseModel):
     def predict(self, prompt: str, **generation_kwargs) -> str:
         self._check_model()
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
-        model_inputs.to(DEVICE)
         generated_ids = self._model.generate(
             **model_inputs,
             generation_config=self._generation_config,
