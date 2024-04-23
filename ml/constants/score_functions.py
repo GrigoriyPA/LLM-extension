@@ -8,7 +8,7 @@ class GPTModelName(enum.Enum):
 
 @enum.unique
 class GPTProviderName(enum.Enum):
-    FreeGpt = "FreeGpt"
+    FreeGpt = "Liaobots"
 
 
 DEFAULT_FUNCTION = GPTModelName.gpt_35_turbo
