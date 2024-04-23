@@ -10,10 +10,12 @@ class GPTModelName(enum.Enum):
 class GPTProviderName(enum.Enum):
     FreeGpt = "FreeGpt"
     Liaobots = "Liaobots"
+    You = "You"
+    Feedough = "Feedough"
 
 
 DEFAULT_FUNCTION = GPTModelName.gpt_35_turbo
-DEFAULT_PROVIDER = GPTProviderName.Liaobots
+DEFAULT_PROVIDER = GPTProviderName.Feedough
 
 
 DEFAULT_CONTEXT_LENGTH = 4096
