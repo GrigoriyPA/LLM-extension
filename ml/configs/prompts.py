@@ -1,4 +1,4 @@
-from textwrap import dedent
+import textwrap
 
 DOCSTRING_PROMPT = """Generate a docstring by the given declaration, 
 definition (optional) and context (optional) of the function. 
@@ -13,7 +13,7 @@ for which you will have to write a docstring: """
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
 DOCSTRING_EXAMPLES = [
-    dedent("""
+    textwrap.dedent("""
     def find_maximum(arr):
         max_el = -1
         for el in arr:
