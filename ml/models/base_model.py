@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import time
-import re
 
 import torch
 import transformers
@@ -27,7 +26,6 @@ class BaseModel(abc.ABC):
         self._tokenizer = None
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
-            max_new_tokens=model_configs.MAX_NEW_TOKENS,
         )
         self.device = device
         self.weight_type = weight_type
@@ -83,6 +81,10 @@ class BaseModel(abc.ABC):
             skip_special_tokens=True)[0].strip("\n").strip("")
         return generated_text
 
+    @abc.abstractmethod
+    def _get_final_result(self, model_response: str) -> str:
+        """Transform model response"""
+
     def generate_result(
             self,
             data_row: database_entities.BaseEntity,
@@ -90,6 +92,5 @@ class BaseModel(abc.ABC):
     ) -> str:
         prompt = self._get_prompt(data_row)
         model_response = self._predict(prompt, **generation_kwargs)
-        regexp_result = re.search('"""(.*?)"""', model_response, re.DOTALL)
-        result = regexp_result.group(1) if regexp_result else model_response
-        return result
+
+        return self._get_final_result(model_response)

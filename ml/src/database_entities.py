@@ -44,13 +44,25 @@ class UnitTest(BaseEntity):
     code: str
     context: str
     unit_test: str
+    previous_test: str
+    previous_stacktrace: str
 
-    def __new__(cls, function_name: str, code: str, context: str, unit_test: str):
+    def __new__(
+            cls,
+            function_name: str,
+            code: str,
+            context: str,
+            unit_test: str,
+            previous_test: str,
+            previous_stacktrace: str
+    ):
         self = super(BaseEntity, cls).__new__(cls)
         self.function_name = function_name
         self.code = code
         self.context = context
         self.unit_test = unit_test
+        self.previous_test = previous_test
+        self.previous_stacktrace = previous_stacktrace
         return self
 
     def set_prediction(self, prediction) -> None:

@@ -7,7 +7,7 @@ from models import base_model as base_model_module
 from src import database_entities
 
 
-class DocstringModel(base_model_module.BaseModel):
+class TestGenerationModel(base_model_module.BaseModel):
     def __init__(
             self,
             model_name: str,
@@ -23,6 +23,9 @@ class DocstringModel(base_model_module.BaseModel):
             weight_type=weight_type
         )
         self._prompt = prompt
+
+    def _get_final_result(self, model_response: str) -> str:
+        return model_response
 
     def _get_prompt(
             self,

@@ -1,4 +1,5 @@
 from textwrap import dedent
+import re
 import torch
 
 from configs import local_model_settings as model_configs
@@ -23,6 +24,10 @@ class DocstringModel(base_model_module.BaseModel):
             weight_type=weight_type
         )
         self._prompt = prompt
+
+    def _get_final_result(self, model_response: str) -> str:
+        regexp_result = re.search('([\'\"]{3})(.*?)([\'\"]{3})', model_response, re.DOTALL)
+        return regexp_result.group(2) if regexp_result else model_response
 
     def _get_prompt(
             self,
