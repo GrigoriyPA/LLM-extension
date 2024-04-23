@@ -2,11 +2,11 @@ import time
 import re
 from textwrap import dedent
 
-import torch
 import transformers
 
-from configs.device_type import DEVICE
+from configs import device_type
 from configs import prompts
+from configs import local_hf_model_settings as model_configs
 from models import base_model as base_model_module
 from src import colourful_cmd
 from src import database_entities
@@ -18,14 +18,10 @@ class LocalHFModel(base_model_module.BaseModel):
                  model_description: str):
         super().__init__(model_name, model_description)
 
-        self._checkpoint: str = model_name
-        self._tokenizer = transformers.AutoTokenizer.from_pretrained(
-            self._checkpoint,
-            device_map=DEVICE,
-            trust_remote_code=True,
-        )
+        self._model = None
+        self._tokenizer = None
         self._generation_config = transformers.GenerationConfig.from_pretrained(
-            self._checkpoint,
+            self.model_name,
             max_new_tokens=200,
         )
         self._docstring_prompt = prompts.DOCSTRING_PROMPT
@@ -34,20 +30,25 @@ class LocalHFModel(base_model_module.BaseModel):
     def _load_model(self) -> None:
         start = time.time()
         colourful_cmd.print_cyan(
-            f'Starting to load model {self._checkpoint}'
+            f'Starting to load model {self.model_name}'
+        )
+        self._tokenizer = transformers.AutoTokenizer.from_pretrained(
+            pretrained_model_name_or_path=self.model_name,
+            device_map=device_type.DEVICE,
+            trust_remote_code=True,
         )
         self._model: transformers.PreTrainedModel = (
             transformers.AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path=self._checkpoint,
+                pretrained_model_name_or_path=self.model_name,
                 low_cpu_mem_usage=True,
-                torch_dtype=torch.float32,
-                device_map=DEVICE,
+                torch_dtype=model_configs.WEIGHT_TYPE,
+                device_map=device_type.DEVICE,
                 trust_remote_code=True,
             )
         )
         finish = time.time()
         colourful_cmd.print_green(
-            f'Finished loading model {self._checkpoint},'
+            f'Finished loading model {self.model_name},'
             f' it took {round(finish - start, 1)} seconds'
         )
 
@@ -58,7 +59,7 @@ class LocalHFModel(base_model_module.BaseModel):
     def predict(self, prompt: str, **generation_kwargs) -> str:
         self._check_model()
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
-        model_inputs.to(DEVICE)
+        model_inputs = model_inputs.to(device_type.DEVICE)
         generated_ids = self._model.generate(
             **model_inputs,
             generation_config=self._generation_config,
@@ -75,7 +76,7 @@ class LocalHFModel(base_model_module.BaseModel):
                                             **kwargs) -> str:
         context = (
             f"\nHere you can see examples of"
-            f" usages of such function:\n{function.context}"
+            f" usages of such function:\n{function.context[:model_configs.CONTEXT_MAX_LENGTH]}"
             if function.context else ""
         )
         full_prompt = dedent(f'''
