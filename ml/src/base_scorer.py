@@ -42,5 +42,3 @@ class Scorer(tp.Generic[database_entities.SCORED_ENTITY_TYPE]):
             )
         result.append(labelled_elements)
         return result
-
-
