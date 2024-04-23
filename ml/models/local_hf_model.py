@@ -17,12 +17,7 @@ class LocalHFModel(base_model_module.BaseModel):
                  model_name: str,
                  model_description: str):
         super().__init__(model_name, model_description)
-        self._checkpoint: str = model_name
-        self._tokenizer = transformers.AutoTokenizer.from_pretrained(
-            self._checkpoint,
-            device_map=device_type.DEVICE,
-            trust_remote_code=True,
-        )
+        self._tokenizer = None
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
             max_new_tokens=200,
