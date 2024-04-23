@@ -16,6 +16,7 @@ src = [
         row_type=database_entities.Function
     )
 ]
+
 scores = base_scorer_config.Scorer[database_entities.Function](
     src_tables=src, 
     score_function=score_function_module.ScoreFunction()

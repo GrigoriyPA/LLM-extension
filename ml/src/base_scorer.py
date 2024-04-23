@@ -32,13 +32,14 @@ class Scorer(tp.Generic[database_entities.SCORED_ENTITY_TYPE]):
         progress_bar = tqdm(self.src_tables)
         
         for table in progress_bar:
-            labelled_elements: database_utils.Table[database_entities.ScorerModelDocstringResult] = database_utils.create_new_table(
+            dst: database_utils.Table[database_entities.ScorerModelDocstringResult] = database_utils.create_new_table(
                 row_type=database_entities.ScorerModelDocstringResult,
-                table_name=f'scorer_{table.table_name}_results'
+                table_name=f'score_results'
             )
-            asyncio.run(self.score_function.exec(src=table, dst=labelled_elements))
+            dst.clear()
+            asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True))
             progress_bar.set_description(
                 f"Processing scorer on table {table.table_name}"
             )
-        result.append(labelled_elements)
+            result.append(dst)
         return result
