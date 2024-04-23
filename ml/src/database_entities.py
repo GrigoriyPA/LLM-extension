@@ -39,6 +39,52 @@ class Function(BaseEntity):
         self.docstring = prediction
 
 
+class UnitTest(BaseEntity):
+    function_name: str
+    code: str
+    context: str
+    unit_test: str
+    previous_test: str
+    previous_stacktrace: str
+
+    def __new__(
+            cls,
+            function_name: str,
+            code: str,
+            context: str,
+            unit_test: str,
+            previous_test: str,
+            previous_stacktrace: str
+    ):
+        self = super(BaseEntity, cls).__new__(cls)
+        self.function_name = function_name
+        self.code = code
+        self.context = context
+        self.unit_test = unit_test
+        self.previous_test = previous_test
+        self.previous_stacktrace = previous_stacktrace
+        return self
+
+    def set_prediction(self, prediction) -> None:
+        self.unit_test = prediction
+
+
+class SemanticSense(BaseEntity):
+    variable_name: str
+    context: str
+    semantic_sense: str
+
+    def __new__(cls, variable_name: str, context: str, semantic_sense: str):
+        self = super(BaseEntity, cls).__new__(cls)
+        self.variable_name = variable_name
+        self.context = context
+        self.semantic_sense = semantic_sense
+        return self
+
+    def set_prediction(self, prediction) -> None:
+        self.semantic_sense = prediction
+
+
 class ScorerModelDocstringResult(Function, BaseScoredEntity):
     model_name: str
     prompt: str
@@ -63,14 +109,12 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
 class BenchmarkResult(tp.NamedTuple):
     model_name: str
     benchmark_name: str
-    feature: str
     score: float
 
 
 class ExperimentResult(tp.NamedTuple):
     exp_name: str
     models_names: str  # use json
-    feature: str
     score_function: str
     benchmarks_results: str  # use json
     start_time: datetime.datetime

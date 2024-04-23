@@ -3,7 +3,7 @@ import asyncio
 from tqdm import tqdm
 
 from src import database_entities
-from constants import extension as extension_constants
+from src.database_entities import ENTITY_TYPE
 import typing as tp
 
 from src import database_utils
@@ -11,25 +11,23 @@ from models import base_model as base_model_module
 from src import score_function as score_function_module
 
 
-class Benchmark(tp.Generic[database_entities.ENTITY_TYPE]):
+class Benchmark(tp.Generic[ENTITY_TYPE]):
     def __init__(
             self,
-            tables: tp.List[database_utils.Table[database_entities.ENTITY_TYPE]],
-            feature: extension_constants.ExtensionFeature,
+            tables: tp.List[database_utils.Table[ENTITY_TYPE]],
             benchmark_name: str
     ) -> None:
         self.tables = tables
-        self.feature = feature
         self.benchmark_name = benchmark_name
 
     def launch_models(
             self,
             models: tp.List[base_model_module.BaseModel]
-    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[database_entities.ENTITY_TYPE]]]:
-        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[database_entities.ENTITY_TYPE]]] = []
+    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]]:
+        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]] = []
 
         for model in tqdm(models):
-            labelled_elements: database_utils.Table[database_entities.ENTITY_TYPE] = database_utils.create_new_table(
+            labelled_elements: database_utils.Table[ENTITY_TYPE] = database_utils.create_new_table(
                 row_type=self.tables[0].row_type,
                 table_name=f'model_{model.database_name}_results'
             )
@@ -38,7 +36,9 @@ class Benchmark(tp.Generic[database_entities.ENTITY_TYPE]):
             for table in progress_bar:
                 elements = table.read()
                 for element in tqdm(elements):
-                    element.set_prediction(model.get_method_for_extension_feature(self.feature)(element))
+                    element.set_prediction(
+                        model.generate_result(element)
+                    )
                     labelled_elements.write(element)
                 progress_bar.set_description(
                     f"Processing model {model.model_name} on table {table.table_name}"
@@ -74,7 +74,6 @@ class Benchmark(tp.Generic[database_entities.ENTITY_TYPE]):
             dst.write(database_entities.BenchmarkResult(
                 model_name=model.model_name,
                 benchmark_name=self.benchmark_name,
-                feature=self.feature.value,
                 score=results[model.model_name],
             ))
 
