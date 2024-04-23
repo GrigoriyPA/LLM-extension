@@ -27,9 +27,9 @@ except FileNotFoundError:
     raise
 
 dst_dataset = database_utils.Table(
-    database_config.MAIN_DATABASE,
-    'default_github_functions',
-    database_entities.Function
+    db=database_config.MAIN_DATABASE,
+    table_name=database_config.GITHUB_DATA_TABLE,
+    row_type=database_entities.Function
 )
 
 for repo in tqdm(config['repos']):

@@ -1,6 +1,5 @@
 import typing as tp
 
-from constants import extension as extension_constants
 from configs import benchmarks_list, language_models
 from configs import database as database_config
 
@@ -15,8 +14,7 @@ DOCSTRING_EXPERIMENT_V1: base_experiment.Experiment[
     database_entities.ScorerModelDocstringResult
 ] = base_experiment.Experiment(
     exp_name="DOCSTRING_EXPERIMENT_V1",
-    models=[el.value for el in language_models.LanguageModel],
-    feature=extension_constants.ExtensionFeature.docstring_generation,
+    models=[el.value for el in language_models.DocstringModels],
     score_function=score_function_module.ScoreFunction(),
     benches=[benchmarks_list.DOCSTRING_BENCHMARK_V1],
     dst=database_utils.Table(

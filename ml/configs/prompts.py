@@ -12,6 +12,10 @@ Here is the body of the function,
 for which you will have to write a docstring: """
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
+TEST_GENERATION_PROMPT = ""
+
+SEMANTIC_SENSE_PROMPT = ""
+
 DOCSTRING_EXAMPLES = [
     textwrap.dedent("""
     def find_maximum(arr):
