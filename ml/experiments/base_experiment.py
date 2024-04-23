@@ -4,7 +4,10 @@ import typing as tp
 
 from constants import extension
 from models import base_model
-from src import base_benchmark, database_entities, database_utils, score_function
+from src import base_benchmark
+from src import database_entities
+from src import database_utils
+from src import score_function
 
 
 class Experiment(tp.Generic[database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE]):
