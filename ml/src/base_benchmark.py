@@ -2,7 +2,7 @@ import asyncio
 
 from tqdm import tqdm
 
-from src.database_entities import ENTITY_TYPE, BenchmarkResult
+from src import database_entities
 from constants import extension as extension_constants
 import typing as tp
 
@@ -11,10 +11,10 @@ from models import base_model as base_model_module
 from src import score_function as score_function_module
 
 
-class Benchmark(tp.Generic[ENTITY_TYPE]):
+class Benchmark(tp.Generic[database_entities.ENTITY_TYPE]):
     def __init__(
             self,
-            tables: tp.List[database_utils.Table[ENTITY_TYPE]],
+            tables: tp.List[database_utils.Table[database_entities.ENTITY_TYPE]],
             feature: extension_constants.ExtensionFeature,
             benchmark_name: str
     ) -> None:
@@ -25,11 +25,11 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
     def launch_models(
             self,
             models: tp.List[base_model_module.BaseModel]
-    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]]:
-        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]] = []
+    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[database_entities.ENTITY_TYPE]]]:
+        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[database_entities.ENTITY_TYPE]]] = []
 
         for model in tqdm(models):
-            labelled_elements: database_utils.Table[ENTITY_TYPE] = database_utils.create_new_table(
+            labelled_elements: database_utils.Table[database_entities.ENTITY_TYPE] = database_utils.create_new_table(
                 row_type=self.tables[0].row_type,
                 table_name=f'model_{model.database_name}_results'
             )
@@ -51,13 +51,13 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
             self,
             models: tp.List[base_model_module.BaseModel],
             score_function: score_function_module.ScoreFunction,
-            dst: tp.Optional[database_utils.Table[BenchmarkResult]] = None
+            dst: tp.Optional[database_utils.Table[database_entities.BenchmarkResult]] = None
     ) -> tp.Dict[str, float]:
         models_predictions = self.launch_models(models)
 
         if not dst:
             dst = database_utils.create_new_table(
-                row_type=BenchmarkResult,
+                row_type=database_entities.BenchmarkResult,
                 table_name=f'benchmark_{self.benchmark_name}_results'
             )
 
@@ -71,7 +71,7 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 print('None scores amount is', init_length - len(tmp))
             results[model.model_name] = sum(tmp) / len(tmp)
 
-            dst.write(BenchmarkResult(
+            dst.write(database_entities.BenchmarkResult(
                 model_name=model.model_name,
                 benchmark_name=self.benchmark_name,
                 feature=self.feature.value,
