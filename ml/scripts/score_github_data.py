@@ -22,6 +22,3 @@ scores = base_scorer_config.Scorer[database_entities.Function](
 )
 
 scores.score_data()
-
-
-
