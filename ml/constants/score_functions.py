@@ -4,6 +4,7 @@ import enum
 @enum.unique
 class GPTModelName(enum.Enum):
     gpt_35_turbo = "gpt_35_turbo"
+    command_r_plus = "command_r_plus"
 
 
 @enum.unique

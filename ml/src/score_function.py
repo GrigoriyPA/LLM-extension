@@ -1,5 +1,6 @@
 import re
 import typing as tp
+import g4f.client
 from tqdm import tqdm
 import g4f
 
@@ -7,7 +8,7 @@ from constants import score_functions as score_functions_constants
 from models import base_model as base_model_module
 from src import database_entities
 from src import database_utils
-
+import time
 
 class SessionInfo:
     def __init__(
@@ -85,13 +86,16 @@ class ScoreFunction:
     ) -> str:
         content = {"role": "user", "content": user_input}
         self.__session_info.add_content(content)
-        try:
-            history = self.__session_info.get_history() \
-                if use_history else [content]
-            model_response = await self.__model.get_answer(history)
-        except Exception as e:
-            print(f"{self.__model.get_provider_name()}:", e)
-            model_response = None
+        model_response = None
+        while model_response is None:
+            try:
+                history = self.__session_info.get_history() \
+                    if use_history else [content]
+                model_response = await self.__model.get_answer(history)
+            except Exception as e:
+                print(f"{self.__model.get_provider_name()}:", e)
+                model_response = None
+                time.sleep(20)
 
         self.__session_info.add_content({"role": "assistant", "content": model_response})
         return model_response
