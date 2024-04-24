@@ -34,7 +34,7 @@ class Scorer(tp.Generic[database_entities.SCORED_ENTITY_TYPE]):
         for table in progress_bar:
             dst: database_utils.Table[database_entities.ScorerModelDocstringResult] = database_utils.create_new_table(
                 row_type=database_entities.ScorerModelDocstringResult,
-                table_name=f'score_results'
+                table_name=f'score_v4_results'
             )
             dst.clear()
             asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True))
