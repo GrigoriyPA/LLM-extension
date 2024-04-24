@@ -1,6 +1,6 @@
 import re
 import typing as tp
-
+from tqdm import tqdm
 import g4f
 
 from constants import score_functions as score_functions_constants
@@ -21,7 +21,7 @@ class SessionInfo:
     def trim_history(self) -> None:
         while len(self.history) > 1 and self.current_length > self.max_length:
             removed_message = self.history.pop(0)
-            self.current_length -= len(removed_message["content"])
+            self.current_length -= len(removed_message["content"]) if removed_message["content"] is not None else 0
 
     def add_content(self, action: tp.Dict[str, str]) -> None:
         self.history.append(action)
@@ -111,24 +111,34 @@ class ScoreFunction:
         if float(match[-1]) < 0 or float(match[-1]) > 1:
             return None
         return float(match[-1])
-
-    async def exec_one(
-            self,
-            function: database_entities.Function,
-            model: base_model_module.BaseModel,
-            use_history: bool = False
-    ) -> database_entities.ScorerModelDocstringResult:
+    
+    async def get_text_score_and_output(
+        self,
+        function: database_entities.Function,
+        use_history: bool = False
+    ) -> tp.Tuple[float, str]:
+        if function.docstring is None:
+            return None, 0, None
         text = self.prepare_prompt(function)
         output = await self.get_model_response(
             user_input=text,
             use_history=use_history,
         )
         score = self.extract_score(output)
+        return text, score, output
 
+    async def exec_one(
+            self,
+            function: database_entities.Function,
+            model: tp.Optional[base_model_module.BaseModel] = None,
+            use_history: bool = False
+    ) -> database_entities.ScorerModelDocstringResult:
+        
+        text, score, output = await self.get_text_score_and_output(function, use_history)
         result = database_entities.ScorerModelDocstringResult(
             **function.__dict__,
-            model_name=model.model_name,
-            prompt=model.get_prompt_for_docstring_generation(function),
+            model_name=model.model_name if model is not None else "-",
+            prompt=model.get_prompt_for_docstring_generation(function) if model is not None else "-",
             scorer_prompt=text,
             docstring_score=score,
             scorer_response=output,
@@ -139,11 +149,12 @@ class ScoreFunction:
     async def exec(
             self,
             src: database_utils.Table[database_entities.Function],
-            model: base_model_module.BaseModel,
+            model: tp.Optional[base_model_module.BaseModel] = None,
             dst: tp.Optional[
                 database_utils.Table[database_entities.ScorerModelDocstringResult]
             ] = None,
-            use_history: bool = False
+            use_history: bool = False,
+            debug: bool = False
         ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
@@ -156,9 +167,9 @@ class ScoreFunction:
         if not dst:
             dst = database_utils.create_new_table(
                 row_type=database_entities.ScorerModelDocstringResult,
-                table_name=f'scorer_{model.model_name}_results'
+                table_name=f'scorer_{(model.model_name if model is not None else "default")}_results'
             )
-        for row in src.read():
+        for row in src.read() if not debug else tqdm(src.read()):
             dst.write(await self.exec_one(row, model, use_history))
         return dst
 
