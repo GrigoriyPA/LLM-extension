@@ -88,34 +88,40 @@ class ScoreFunction:
         content = {"role": "user", "content": user_input}
         self.__session_info.add_content(content)
         model_response = None
+        ind = 0
         while model_response is None:
             try:
+                if ind > 0:
+                    self.__model = GenerativeModel()
+                ind += 1
                 history = self.__session_info.get_history() \
                     if use_history else [content]
                 model_response = await self.__model.get_answer(history)
+  
             except Exception as e:
                 print(f"{self.__model.get_provider_name()}:", e)
                 model_response = None
-                time.sleep(20)
+                time.sleep(score_functions_constants.SLEEP_TIME_SEC)
 
         self.__session_info.add_content({"role": "assistant", "content": model_response})
         return model_response
 
     @staticmethod
     def extract_score(answer: str) -> tp.Optional[float]:
-        if answer is None:
-            return None
-        match = re.search(r"Degree of correspondence: (\d+\.\d+)", answer)
-
-        if match:
-            return float(match.group(1))
-
-        match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
-        if not match:
-            return None
-        if float(match[-1]) < 0 or float(match[-1]) > 1:
-            return None
-        return float(match[-1])
+        res = 0
+        if answer is not None:
+            match = re.search(r"Score: (\d+\.\d+)", answer)
+            if match and match.lastgroup:
+                res = float(match.lastgroup)
+            else:
+                match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
+                if not match:
+                    res = 0
+                else:
+                    res = float(match[-1])
+        if res < 0 or res > 1:
+            return 0
+        return res
     
     async def get_text_score_and_output(
         self,
@@ -159,7 +165,8 @@ class ScoreFunction:
                 database_utils.Table[database_entities.ScorerModelDocstringResult]
             ] = None,
             use_history: bool = False,
-            debug: bool = False
+            debug: bool = False, 
+            start_index: int = 0
         ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
@@ -174,8 +181,11 @@ class ScoreFunction:
                 row_type=database_entities.ScorerModelDocstringResult,
                 table_name=f'scorer_{(model.model_name if model is not None else "default")}_results'
             )
+        index = 0
         for row in src.read() if not debug else tqdm(src.read()):
-            dst.write(await self.exec_one(row, model, use_history))
+            if index >= start_index:
+                dst.write(await self.exec_one(row, model, use_history))
+            index += 1
         return dst
 
     def update_prompt(self, prompt: str) -> None:

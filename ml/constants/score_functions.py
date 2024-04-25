@@ -5,6 +5,7 @@ import enum
 class GPTModelName(enum.Enum):
     gpt_35_turbo = "gpt_35_turbo"
     command_r_plus = "command_r_plus"
+    llama3_70b_instruct = "llama3_70b_instruct"
 
 
 @enum.unique
@@ -13,14 +14,16 @@ class GPTProviderName(enum.Enum):
     Liaobots = "Liaobots"
     You = "You"
     Feedough = "Feedough"
+    Llama = "Llama"
 
 
-DEFAULT_FUNCTION = GPTModelName.gpt_35_turbo
-DEFAULT_PROVIDER = GPTProviderName.Liaobots
+
+DEFAULT_FUNCTION = GPTModelName.llama3_70b_instruct
+DEFAULT_PROVIDER = GPTProviderName.Llama
 
 
 DEFAULT_CONTEXT_LENGTH = 4096
-
+SLEEP_TIME_SEC = 60
 
 PROMPTS = [
     """
@@ -30,28 +33,28 @@ def multiply(x, y):
     return x * y
 Docstring:
 The function multiply takes two numbers x and y and returns their product.
-Degree of correspondence: 1
+Score: 1
 
 2) Function:
 def divide(x, y):
     return x / y
 Docstring:
 divide is a function that subtracts y from x.
-Degree of correspondence: 0
+Score: 0
 
 3) Function:
 def square(x):
     return x * x
 Docstring:
 The function square raises a number to the cube.
-Degree of correspondence: 0.3
+Score: 0.3
 
 4) Function:
 def say_hello(name):
     return 'Hello, ' + name
 Docstring:
 The function say_hello adds a greeting to the given name.
-Degree of correspondence: 0.7
+Score: 0.7
 
 The assessment of correspondence is based on the following criteria:
 1) There should be a detailed and expanded description of what the function does.
@@ -61,7 +64,7 @@ The assessment of correspondence is based on the following criteria:
 
 Analyzing the provided examples, assess the suitability of the docstring for the function: {function_code}.
 Docstring of the function: {docstring}
-Write the degree of correspondes.
+Write the analysis, and after that degree of correspondes in format "Score: "value - float from 0 to 1".
     """,
     "\nПодходит ли функции описание? \nфункция: \n{function_code}. \nОписание: {docstring}. \n\nВыведи ответ в формате: \nрассуждения: рассуждения \nответ:ТОЛЬКО одно дробное число от 0 до 1 которое характеризует похожесть описания на правду\n",
     "\nПример 1:\nФункция: \ndef add(a, b):\n    return a + b\nОписание:\nФункция складывает два числа и возвращает результат.\nСтепень соответствия: 1\n\nПример 2:\nФункция: \ndef sum_list(l):\n    return sum(l)\nОписание:\nФункция возвращает длину списка.\nСтепень соответствия: 0\n\nТеперь оцени степень соответствия следующей пары.\nФункция: {function_code}. \nОписание: {docstring}.\nРассуждения: ваши рассуждения\nСтепень соответствия: дробное число от 0 до 1\n",

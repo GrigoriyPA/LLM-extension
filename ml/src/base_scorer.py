@@ -7,7 +7,8 @@ from src.database_entities import SCORED_ENTITY_TYPE
 from src import database_utils
 from src import score_function
 from tqdm import tqdm
-
+from constants import score_functions as score_function_constant
+from configs import database as database_config
 
 class Scorer(tp.Generic[SCORED_ENTITY_TYPE]):
     def __init__(
@@ -29,10 +30,9 @@ class Scorer(tp.Generic[SCORED_ENTITY_TYPE]):
         for table in progress_bar:
             dst: database_utils.Table[database_entities.ScorerModelDocstringResult] = database_utils.create_new_table(
                 row_type=database_entities.ScorerModelDocstringResult,
-                table_name=f'score_v4_results'
+                table_name=database_config.SCORER_RESULTS_ON_DATASET_TABLE_NAME
             )
-            dst.clear()
-            asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True))
+            asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True, start_index=0))
             progress_bar.set_description(
                 f"Processing scorer on table {table.table_name}"
             )
