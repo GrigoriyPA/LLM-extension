@@ -50,6 +50,7 @@ class GenerativeModel:
                     )
             )
     ):
+        self.__session_info = SessionInfo()
         self.__chat_completion = g4f.ChatCompletion
         self.__model = model
         self.__provider = provider
@@ -66,22 +67,6 @@ class GenerativeModel:
     def get_provider_name(self):
         return self.__provider.__name__
 
-
-class ScoreFunction:
-    def __init__(
-            self,
-            prompt: str,
-            scored_entity_type: tp.Type[database_entities.SCORED_ENTITY_TYPE],
-            model: GenerativeModel = GenerativeModel(),
-    ):
-        self.__session_info: SessionInfo = SessionInfo()
-        self.__model: GenerativeModel = model
-        self.__prompt: str = prompt
-        self.scored_entity_type = scored_entity_type
-
-    def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
-        return self.__prompt.format(**entity.__dict__)
-
     async def get_model_response(
             self,
             user_input: str,
@@ -94,11 +79,14 @@ class ScoreFunction:
         while model_response is None:
             try:
                 if ind > 0:
-                    self.__model = GenerativeModel()
+                    self.__model = getattr(
+                        g4f.models,
+                        score_functions_constants.DEFAULT_FUNCTION.value
+                    )
                 ind += 1
                 history = self.__session_info.get_history() \
                     if use_history else [content]
-                model_response = await self.__model.get_answer(history)
+                model_response = await self.get_answer(history)
   
             except Exception as e:
                 print(f"{self.__model.get_provider_name()}:", e)
@@ -107,6 +95,28 @@ class ScoreFunction:
 
         self.__session_info.add_content({"role": "assistant", "content": model_response})
         return model_response
+
+
+class ScoreFunction:
+    def __init__(
+            self,
+            prompt: str,
+            scored_entity_type: tp.Type[database_entities.SCORED_ENTITY_TYPE],
+            model: GenerativeModel = GenerativeModel(),
+    ):
+        self.__model: GenerativeModel = model
+        self.__prompt: str = prompt
+        self.scored_entity_type = scored_entity_type
+
+    def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
+        return self.__prompt.format(**entity.__dict__)
+
+    async def get_model_response(
+            self,
+            user_input: str,
+            use_history: bool,
+    ) -> str:
+        return self.__model.get_model_response(user_input, use_history)
 
     @staticmethod
     def extract_score(answer: str) -> tp.Optional[float]:
