@@ -122,12 +122,12 @@ class ScoreFunction:
         if res < 0 or res > 1:
             return 0
         return res
-    
+
     async def get_text_score_and_output(
-        self,
-        function: database_entities.Function,
-        use_history: bool = False
-    ) -> tp.Tuple[float, str]:
+            self,
+            function: database_entities.Function,
+            use_history: bool = False
+    ) -> tp.Tuple[tp.Optional[str], tp.Optional[float], tp.Optional[str]]:
         if function.docstring is None:
             return None, 0, None
         text = self.prepare_prompt(function)
@@ -144,12 +144,12 @@ class ScoreFunction:
             model: tp.Optional[base_model_module.BaseModel] = None,
             use_history: bool = False
     ) -> database_entities.ScorerModelDocstringResult:
-        
+
         text, score, output = await self.get_text_score_and_output(function, use_history)
         result = database_entities.ScorerModelDocstringResult(
             **function.__dict__,
             model_name=model.model_name if model is not None else "-",
-            prompt=model.get_prompt_for_docstring_generation(function) if model is not None else "-",
+            prompt=model.get_prompt(function) if model is not None else "-",
             scorer_prompt=text,
             docstring_score=score,
             scorer_response=output,
@@ -165,9 +165,9 @@ class ScoreFunction:
                 database_utils.Table[database_entities.ScorerModelDocstringResult]
             ] = None,
             use_history: bool = False,
-            debug: bool = False, 
+            debug: bool = False,
             start_index: int = 0
-        ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
+    ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
@@ -175,6 +175,8 @@ class ScoreFunction:
         :param dst: Dataset of ModelDocstringResult elements,
         if not passed then tmp table will be created and returned
         :param use_history:
+        :param debug:
+        :param start_index:
         """
         if not dst:
             dst = database_utils.create_new_table(

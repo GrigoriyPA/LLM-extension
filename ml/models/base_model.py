@@ -64,7 +64,7 @@ class BaseModel(abc.ABC):
             self._load_model()
 
     @abc.abstractmethod
-    def _get_prompt(self, data_row: database_entities.BaseEntity) -> str:
+    def get_prompt(self, data_row: database_entities.BaseEntity) -> str:
         """Generate prompt for specific task"""
 
     def _predict(self, prompt: str, **generation_kwargs) -> str:
@@ -90,7 +90,7 @@ class BaseModel(abc.ABC):
             data_row: database_entities.BaseEntity,
             **generation_kwargs
     ) -> str:
-        prompt = self._get_prompt(data_row)
+        prompt = self.get_prompt(data_row)
         model_response = self._predict(prompt, **generation_kwargs)
 
         return self._get_final_result(model_response)

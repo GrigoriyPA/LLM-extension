@@ -27,7 +27,7 @@ class TestGenerationModel(base_model_module.BaseModel):
     def _get_final_result(self, model_response: str) -> str:
         return model_response
 
-    def _get_prompt(
+    def get_prompt(
             self,
             function: database_entities.Function,
     ) -> str:

@@ -29,7 +29,7 @@ class DocstringModel(base_model_module.BaseModel):
         regexp_result = re.search('([\'\"]{3})(.*?)([\'\"]{3})', model_response, re.DOTALL)
         return regexp_result.group(2) if regexp_result else model_response
 
-    def _get_prompt(
+    def get_prompt(
             self,
             data_row: database_entities.Function,
     ) -> str:
