@@ -43,6 +43,7 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                     f"Processing model {model.model_name} on table {table.table_name}"
                 )
             result.append((model, labelled_elements))
+            model.clear_model()
 
         return result
 

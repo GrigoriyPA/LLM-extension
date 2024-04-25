@@ -26,6 +26,7 @@ class BaseModel(abc.ABC):
         self._tokenizer = None
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
+            max_new_tokens=256
         )
         self.device = device
         self.weight_type = weight_type
@@ -62,6 +63,12 @@ class BaseModel(abc.ABC):
     def _check_model(self):
         if self._model is None:
             self._load_model()
+
+    def clear_model(self) -> None:
+        del self._model
+        del self._tokenizer
+        if self.device == torch.device('cuda:0'):
+            torch.cuda.empty_cache()
 
     @abc.abstractmethod
     def get_prompt(self, data_row: database_entities.BaseEntity) -> str:
