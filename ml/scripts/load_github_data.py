@@ -28,7 +28,7 @@ except FileNotFoundError:
 
 dst_dataset = database_utils.Table(
     database_config.MAIN_DATABASE,
-    'default_github_functions',
+    database_config.GITHUB_DATASET_TABLE_NAME,
     database_entities.Function
 )
 

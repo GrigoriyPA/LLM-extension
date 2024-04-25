@@ -100,7 +100,7 @@ class ScoreFunction:
             except Exception as e:
                 print(f"{self.__model.get_provider_name()}:", e)
                 model_response = None
-                time.sleep(60)
+                time.sleep(score_functions_constants.SLEEP_TIME_SEC)
 
         self.__session_info.add_content({"role": "assistant", "content": model_response})
         return model_response

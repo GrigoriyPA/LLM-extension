@@ -10,7 +10,7 @@ DOCSTRING_BENCHMARK_V1: base_benchmark_config.Benchmark[database_entities.Functi
         tables=[
             database_utils.Table(
                 db=database_config.MAIN_DATABASE,
-                table_name="default_github_functions",
+                table_name=database_config.GITHUB_DATASET_TABLE_NAME,
                 row_type=database_entities.Function
             )
         ],
