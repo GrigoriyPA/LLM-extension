@@ -1,8 +1,7 @@
 from configs import database as database_config
-from src import database_entities
+from constants import score_functions as score_functions_config
+from src import database_entities, base_scorer as base_scorer_config, score_function as score_function_module
 from src import database_utils
-from src import base_scorer as base_scorer_config
-from src import score_function as score_function_module
 
 src = [
     database_utils.Table(
@@ -14,7 +13,10 @@ src = [
 
 scores = base_scorer_config.Scorer[database_entities.Function](
     src_tables=src, 
-    score_function=score_function_module.ScoreFunction()
+    score_function=score_function_module.ScoreFunction(
+        prompt=score_functions_config.DOCSTRING_PROMPTS[0],
+        scored_entity_type=score_function_module.database_entities.ScorerModelDocstringResult,
+    ),
 )
 
 scores.score_data()

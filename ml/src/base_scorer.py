@@ -2,13 +2,12 @@ import asyncio
 from datetime import datetime
 import typing as tp
 
-from src import database_entities
+from src import database_entities, score_function
 from src.database_entities import SCORED_ENTITY_TYPE
 from src import database_utils
-from src import score_function
 from tqdm import tqdm
-from constants import score_functions as score_function_constant
 from configs import database as database_config
+
 
 class Scorer(tp.Generic[SCORED_ENTITY_TYPE]):
     def __init__(

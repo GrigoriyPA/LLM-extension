@@ -3,11 +3,10 @@ from datetime import datetime
 import typing as tp
 
 from models import base_model
-from src import base_benchmark
+from src import base_benchmark, score_function as score_function_module
 from src import database_entities
 from src.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE
 from src import database_utils
-from src import score_function as score_function_module
 
 
 class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
