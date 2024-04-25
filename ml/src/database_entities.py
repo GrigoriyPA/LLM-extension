@@ -24,15 +24,24 @@ SCORED_ENTITY_TYPE = tp.TypeVar('SCORED_ENTITY_TYPE', bound=BaseScoredEntity)
 class Function(BaseEntity):
     function_name: str
     code: str
-    docstring: str
-    context: str
+    docstring: tp.Optional[str]
+    context: tp.Optional[str]
+    unit_test: tp.Optional[str]
 
-    def __new__(cls, function_name: str, code: str, docstring: str, context: str):
+    def __new__(
+            cls,
+            function_name: str,
+            code: str,
+            docstring: tp.Optional[str] = None,
+            context: tp.Optional[str] = None,
+            unit_test: tp.Optional[str] = None
+    ):
         self = super(Function, cls).__new__(cls)
         self.function_name = function_name
         self.code = code
         self.docstring = docstring
         self.context = context
+        self.unit_test = unit_test
         return self
 
     def set_prediction(self, prediction) -> None:
@@ -42,19 +51,19 @@ class Function(BaseEntity):
 class UnitTest(BaseEntity):
     function_name: str
     code: str
-    context: str
-    unit_test: str
-    previous_test: str
-    previous_stacktrace: str
+    context: tp.Optional[str]
+    unit_test: tp.Optional[str]
+    previous_test: tp.Optional[str]
+    previous_stacktrace: tp.Optional[str]
 
     def __new__(
             cls,
             function_name: str,
             code: str,
-            context: str,
-            unit_test: str,
-            previous_test: str,
-            previous_stacktrace: str
+            context: tp.Optional[str] = None,
+            unit_test: tp.Optional[str] = None,
+            previous_test: tp.Optional[str] = None,
+            previous_stacktrace: tp.Optional[str] = None,
     ):
         self = super(BaseEntity, cls).__new__(cls)
         self.function_name = function_name
@@ -92,8 +101,20 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
     docstring_score: float
     scorer_response: str
 
-    def __new__(cls, function_name: str, code: str, docstring: str, context: str, model_name: str,
-                prompt: str, scorer_prompt: str, docstring_score: float, scorer_response: str):
+    def __new__(
+            cls,
+            function_name: str,
+            code: str,
+            docstring: str,
+            context: str,
+            model_name: str,
+            prompt: str,
+            scorer_prompt: str,
+            docstring_score: float,
+            scorer_response: str,
+            *args,
+            **kwargs
+    ):
         self = super(ScorerModelDocstringResult, cls).__new__(cls, function_name, code, docstring, context)
         self.model_name = model_name
         self.prompt = prompt

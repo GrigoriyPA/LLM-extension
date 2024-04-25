@@ -1,7 +1,9 @@
 {
     "context_wide": 4,
     "ignore_comments": true,
+    "ignore_tests": true,
     "repos": [
+      "pallets/flask",
       "google/flax",
       "pygame/pygame",
       "gitpython-developers/GitPython",

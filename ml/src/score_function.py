@@ -10,6 +10,7 @@ from src import database_entities
 from src import database_utils
 import time
 
+
 class SessionInfo:
     def __init__(
             self,

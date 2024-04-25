@@ -39,14 +39,9 @@ for repo in tqdm(config['repos']):
         repo=repo_name,
         context_wide=config['context_wide'],
         token=AUTHORIZATION_TOKEN,
-        ignore_comments=config['ignore_comments']
+        ignore_comments=config['ignore_comments'],
+        ignore_tests=config['ignore_tests']
     )
 
-    for func_name in data:
-        row = data[func_name]
-        dst_dataset.write(database_entities.Function(
-            function_name=row['name'],
-            code=row['code'],
-            docstring=row['docstring'],
-            context=json.dumps(row['usages'])
-        ))
+    for row in data.values():
+        dst_dataset.write(row)

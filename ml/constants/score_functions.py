@@ -16,7 +16,7 @@ class GPTProviderName(enum.Enum):
 
 
 DEFAULT_FUNCTION = GPTModelName.gpt_35_turbo
-DEFAULT_PROVIDER = GPTProviderName.Feedough
+DEFAULT_PROVIDER = GPTProviderName.Liaobots
 
 
 DEFAULT_CONTEXT_LENGTH = 4096

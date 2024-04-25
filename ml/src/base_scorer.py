@@ -1,20 +1,15 @@
 import asyncio
-import json
 from datetime import datetime
 import typing as tp
 
-from constants import extension
-from models import base_model
-from src import base_benchmark
 from src import database_entities
+from src.database_entities import SCORED_ENTITY_TYPE
 from src import database_utils
 from src import score_function
-from models import base_model as base_model_module
-from src import score_function as score_function_module
 from tqdm import tqdm
 
 
-class Scorer(tp.Generic[database_entities.SCORED_ENTITY_TYPE]):
+class Scorer(tp.Generic[SCORED_ENTITY_TYPE]):
     def __init__(
             self,
             src_tables: tp.List[database_utils.Table[database_entities.ENTITY_TYPE]],
