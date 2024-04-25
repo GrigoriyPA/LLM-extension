@@ -7,7 +7,7 @@ from src import score_function as score_function_module
 src = [
     database_utils.Table(
         db=database_config.MAIN_DATABASE,
-        table_name="default_github_functions",
+        table_name=database_config.GITHUB_DATA_TABLE,
         row_type=database_entities.Function
     )
 ]

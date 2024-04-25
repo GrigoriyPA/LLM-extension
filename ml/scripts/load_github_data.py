@@ -27,9 +27,9 @@ except FileNotFoundError:
     raise
 
 dst_dataset = database_utils.Table(
-    database_config.MAIN_DATABASE,
-    'default_github_functions',
-    database_entities.Function
+    db=database_config.MAIN_DATABASE,
+    table_name=database_config.GITHUB_DATA_TABLE,
+    row_type=database_entities.Function
 )
 
 for repo in tqdm(config['repos']):
@@ -39,14 +39,9 @@ for repo in tqdm(config['repos']):
         repo=repo_name,
         context_wide=config['context_wide'],
         token=AUTHORIZATION_TOKEN,
-        ignore_comments=config['ignore_comments']
+        ignore_comments=config['ignore_comments'],
+        ignore_tests=config['ignore_tests']
     )
 
-    for func_name in data:
-        row = data[func_name]
-        dst_dataset.write(database_entities.Function(
-            function_name=row['name'],
-            code=row['code'],
-            docstring=row['docstring'],
-            context=json.dumps(row['usages'])
-        ))
+    for row in data.values():
+        dst_dataset.write(row)

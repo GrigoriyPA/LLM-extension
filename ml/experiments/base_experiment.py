@@ -2,27 +2,25 @@ import json
 from datetime import datetime
 import typing as tp
 
-from constants import extension
 from models import base_model
 from src import base_benchmark
 from src import database_entities
+from src.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE
 from src import database_utils
-from src import score_function
+from src import score_function as score_function_module
 
 
-class Experiment(tp.Generic[database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE]):
+class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
     def __init__(
             self,
             exp_name: str,
             models: tp.List[base_model.BaseModel],
-            feature: extension.ExtensionFeature,
-            score_function: score_function.ScoreFunction,
+            score_function: score_function_module.ScoreFunction,
             benches: tp.List[base_benchmark.Benchmark],
             dst: database_utils.Table[database_entities.ExperimentResult]
     ) -> None:
         self.exp_name = exp_name
         self.models = models
-        self.feature = feature
         self.score_function = score_function
         self.benches = benches
         self.dst = dst
@@ -44,7 +42,6 @@ class Experiment(tp.Generic[database_entities.ENTITY_TYPE, database_entities.SCO
             database_entities.ExperimentResult(
                 exp_name=self.exp_name,
                 models_names=json.dumps([el.model_name for el in self.models]),
-                feature=self.feature.value,
                 score_function=str(self.score_function),  # TODO
                 benchmarks_results=json.dumps(results),
                 start_time=self.start_time,

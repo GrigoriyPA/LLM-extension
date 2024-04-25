@@ -17,9 +17,11 @@ class GPTProviderName(enum.Enum):
     Llama = "Llama"
 
 
+
 DEFAULT_FUNCTION = GPTModelName.llama3_70b_instruct
 DEFAULT_PROVIDER = GPTProviderName.Llama
 DEFAULT_TABLE_NAME = "score_last_result"
+
 
 DEFAULT_CONTEXT_LENGTH = 4096
 
