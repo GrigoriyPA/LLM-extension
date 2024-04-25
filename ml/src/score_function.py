@@ -70,15 +70,17 @@ class GenerativeModel:
 class ScoreFunction:
     def __init__(
             self,
-            prompt: str = score_functions_constants.PROMPTS[0],  # TODO
-            model: GenerativeModel = GenerativeModel()
+            prompt: str,
+            scored_entity_type: tp.Type[database_entities.SCORED_ENTITY_TYPE],
+            model: GenerativeModel = GenerativeModel(),
     ):
         self.__session_info: SessionInfo = SessionInfo()
         self.__model: GenerativeModel = model
         self.__prompt: str = prompt
+        self.scored_entity_type = scored_entity_type
 
-    def prepare_prompt(self, function: database_entities.Function) -> str:
-        return self.__prompt.format(docstring=function.docstring, function_code=function.code)
+    def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
+        return self.__prompt.format(**entity.__dict__)
 
     async def get_model_response(
             self,
@@ -122,15 +124,21 @@ class ScoreFunction:
         if res < 0 or res > 1:
             return 0
         return res
-    
+
+    @staticmethod
+    def check_all_fields(entity: database_entities.ENTITY_TYPE):
+        if entity == database_entities.Function:
+            return bool(entity.docstring)
+        return True
+
     async def get_text_score_and_output(
-        self,
-        function: database_entities.Function,
-        use_history: bool = False
-    ) -> tp.Tuple[float, str]:
-        if function.docstring is None:
+            self,
+            entity: database_entities.ENTITY_TYPE,
+            use_history: bool = False
+    ) -> tp.Tuple[tp.Optional[str], tp.Optional[float], tp.Optional[str]]:
+        if not self.check_all_fields(entity):
             return None, 0, None
-        text = self.prepare_prompt(function)
+        text = self.prepare_prompt(entity)
         output = await self.get_model_response(
             user_input=text,
             use_history=use_history,
@@ -140,45 +148,45 @@ class ScoreFunction:
 
     async def exec_one(
             self,
-            function: database_entities.Function,
+            entity: database_entities.ENTITY_TYPE,
             model: tp.Optional[base_model_module.BaseModel] = None,
             use_history: bool = False
-    ) -> database_entities.ScorerModelDocstringResult:
-        
-        text, score, output = await self.get_text_score_and_output(function, use_history)
-        result = database_entities.ScorerModelDocstringResult(
-            **function.__dict__,
+    ) -> database_entities.SCORED_ENTITY_TYPE:
+        text, score, output = await self.get_text_score_and_output(entity, use_history)
+        result = self.scored_entity_type(
+            **entity.__dict__,
             model_name=model.model_name if model is not None else "-",
-            prompt=model.get_prompt_for_docstring_generation(function) if model is not None else "-",
+            prompt=model.get_prompt(entity) if model is not None else "-",
             scorer_prompt=text,
             docstring_score=score,
             scorer_response=output,
         )
-
         return result
 
     async def exec(
             self,
-            src: database_utils.Table[database_entities.Function],
+            src: database_utils.Table[database_entities.ENTITY_TYPE],
             model: tp.Optional[base_model_module.BaseModel] = None,
             dst: tp.Optional[
-                database_utils.Table[database_entities.ScorerModelDocstringResult]
+                database_utils.Table[database_entities.SCORED_ENTITY_TYPE]
             ] = None,
             use_history: bool = False,
-            debug: bool = False, 
+            debug: bool = False,
             start_index: int = 0
-        ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
+    ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
         :param src: Dataset of Function elements
         :param model: Model which was used for predictions
         :param dst: Dataset of ModelDocstringResult elements,
         if not passed then tmp table will be created and returned
-        :param use_history:
+        :param use_history: use history
+        :param debug: debug mode
+        :param start_index: first row to be scored
         """
         if not dst:
             dst = database_utils.create_new_table(
-                row_type=database_entities.ScorerModelDocstringResult,
+                row_type=self.scored_entity_type,
                 table_name=f'scorer_{(model.model_name if model is not None else "default")}_results'
             )
         index = 0

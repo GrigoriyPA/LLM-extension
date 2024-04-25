@@ -127,6 +127,74 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
         return self.docstring_score
 
 
+class ScorerModelUnitTestResult(UnitTest, BaseScoredEntity):
+    model_name: str
+    prompt: str
+    scorer_prompt: str
+    unittest_score: float
+    scorer_response: str
+
+    def __new__(
+            cls,
+            function_name: str,
+            code: str,
+            context: tp.Optional[str],
+            unit_test: tp.Optional[str],
+            previous_test: tp.Optional[str],
+            previous_stacktrace: tp.Optional[str],
+            model_name: str,
+            prompt: str,
+            scorer_prompt: str,
+            unittest_score: float,
+            scorer_response: str,
+            *args,
+            **kwargs
+    ):
+        self = super(ScorerModelUnitTestResult, cls).__new__(cls, function_name, code, context,
+                                                             unit_test, previous_test, previous_stacktrace)
+        self.model_name = model_name
+        self.prompt = prompt
+        self.scorer_prompt = scorer_prompt
+        self.unittest_score = unittest_score
+        self.scorer_response = scorer_response
+        return self
+
+    def get_prediction_score(self) -> float:
+        return self.unittest_score
+
+
+class ScorerModelSemanticSenseResult(SemanticSense, BaseScoredEntity):
+    model_name: str
+    prompt: str
+    scorer_prompt: str
+    semantic_sense_score: float
+    scorer_response: str
+
+    def __new__(
+            cls,
+            variable_name: str,
+            context: str,
+            semantic_sense: str,
+            model_name: str,
+            prompt: str,
+            scorer_prompt: str,
+            semantic_sense_score: float,
+            scorer_response: str,
+            *args,
+            **kwargs
+    ):
+        self = super(ScorerModelSemanticSenseResult, cls).__new__(cls, variable_name, context, semantic_sense)
+        self.model_name = model_name
+        self.prompt = prompt
+        self.scorer_prompt = scorer_prompt
+        self.semantic_sense_score = semantic_sense_score
+        self.scorer_response = scorer_response
+        return self
+
+    def get_prediction_score(self) -> float:
+        return self.semantic_sense_score
+
+
 class BenchmarkResult(tp.NamedTuple):
     model_name: str
     benchmark_name: str

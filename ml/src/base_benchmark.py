@@ -2,13 +2,12 @@ import asyncio
 
 from tqdm import tqdm
 
-from src import database_entities
+from src import database_entities, score_function as score_function_module
 from src.database_entities import ENTITY_TYPE
 import typing as tp
 
 from src import database_utils
 from models import base_model as base_model_module
-from src import score_function as score_function_module
 
 
 class Benchmark(tp.Generic[ENTITY_TYPE]):
