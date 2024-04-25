@@ -87,15 +87,20 @@ class ScoreFunction:
         content = {"role": "user", "content": user_input}
         self.__session_info.add_content(content)
         model_response = None
+        ind = 0
         while model_response is None:
             try:
+                if ind > 0:
+                    self.__model = GenerativeModel()
+                ind += 1
                 history = self.__session_info.get_history() \
                     if use_history else [content]
                 model_response = await self.__model.get_answer(history)
+  
             except Exception as e:
                 print(f"{self.__model.get_provider_name()}:", e)
                 model_response = None
-                time.sleep(20)
+                time.sleep(60)
 
         self.__session_info.add_content({"role": "assistant", "content": model_response})
         return model_response
@@ -158,7 +163,8 @@ class ScoreFunction:
                 database_utils.Table[database_entities.ScorerModelDocstringResult]
             ] = None,
             use_history: bool = False,
-            debug: bool = False
+            debug: bool = False, 
+            start_index: int = 0
         ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
         Scores every function in src dataset and writes result to dst dataset
@@ -173,8 +179,11 @@ class ScoreFunction:
                 row_type=database_entities.ScorerModelDocstringResult,
                 table_name=f'scorer_{(model.model_name if model is not None else "default")}_results'
             )
+        index = 0
         for row in src.read() if not debug else tqdm(src.read()):
-            dst.write(await self.exec_one(row, model, use_history))
+            if index >= start_index:
+                dst.write(await self.exec_one(row, model, use_history))
+            index += 1
         return dst
 
     def update_prompt(self, prompt: str) -> None:

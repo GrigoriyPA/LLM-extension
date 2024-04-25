@@ -1,16 +1,10 @@
 import asyncio
-import json
 from datetime import datetime
 import typing as tp
 
-from constants import extension
-from models import base_model
-from src import base_benchmark
 from src import database_entities
 from src import database_utils
 from src import score_function
-from models import base_model as base_model_module
-from src import score_function as score_function_module
 from tqdm import tqdm
 
 
@@ -34,10 +28,9 @@ class Scorer(tp.Generic[database_entities.SCORED_ENTITY_TYPE]):
         for table in progress_bar:
             dst: database_utils.Table[database_entities.ScorerModelDocstringResult] = database_utils.create_new_table(
                 row_type=database_entities.ScorerModelDocstringResult,
-                table_name=f'score_v4_results'
+                table_name=f'score_v5_results'
             )
-            dst.clear()
-            asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True))
+            asyncio.run(self.score_function.exec(src=table, dst=dst, debug=True, start_index=0))
             progress_bar.set_description(
                 f"Processing scorer on table {table.table_name}"
             )

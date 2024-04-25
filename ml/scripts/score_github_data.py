@@ -1,8 +1,3 @@
-import json
-from os.path import expanduser
-
-from tqdm import tqdm
-
 from configs import database as database_config
 from src import database_entities
 from src import database_utils
