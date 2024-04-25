@@ -17,11 +17,13 @@ class BaseModel(abc.ABC):
             self,
             model_name: str,
             model_description: str,
+            prompt: str,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         self.model_name: str = model_name
         self.model_description = model_description
+        self.prompt = prompt
         self._model = None
         self._tokenizer = None
         self._generation_config = transformers.GenerationConfig.from_pretrained(

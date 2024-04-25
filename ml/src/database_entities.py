@@ -197,8 +197,11 @@ class ScorerModelSemanticSenseResult(SemanticSense, BaseScoredEntity):
 
 
 class BenchmarkResult(tp.NamedTuple):
-    model_name: str
     benchmark_name: str
+    model_name: str
+    model_prompt: str
+    score_model_name: str
+    score_model_prompt: str
     score: float
 
 

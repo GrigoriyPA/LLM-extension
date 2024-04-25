@@ -13,6 +13,6 @@ DOCSTRING_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
                 row_type=database_entities.Function
             )
         ],
-        benchmark_name="DOCSTRING_BENCHMARK_V1",
+        benchmark_name="docstring",
     )
 )

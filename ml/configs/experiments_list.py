@@ -14,7 +14,7 @@ DOCSTRING_EXPERIMENT_V1: base_experiment.Experiment[
     database_entities.Function,
     database_entities.ScorerModelDocstringResult
 ] = base_experiment.Experiment(
-    exp_name="DOCSTRING_EXPERIMENT_V1",
+    exp_name="docstring",
     models=[el.value for el in language_models.DocstringModels],
     score_function=score_function_module.ScoreFunction(
         prompt=score_functions_config.DOCSTRING_PROMPTS[0],

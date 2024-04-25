@@ -2,6 +2,7 @@ import asyncio
 
 from tqdm import tqdm
 
+from constants import score_functions as score_function_constants
 from src import database_entities, score_function as score_function_module
 from src.database_entities import ENTITY_TYPE
 import typing as tp
@@ -71,10 +72,15 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 print('None scores amount is', init_length - len(tmp))
             results[model.model_name] = sum(tmp) / len(tmp)
 
-            dst.write(database_entities.BenchmarkResult(
-                model_name=model.model_name,
-                benchmark_name=self.benchmark_name,
-                score=results[model.model_name],
-            ))
+            dst.write(
+                database_entities.BenchmarkResult(
+                    model_name=model.model_name,
+                    model_prompt=model.prompt,
+                    score_model_name=score_function_constants.DEFAULT_FUNCTION.value,
+                    score_model_prompt=score_function.prompt,
+                    benchmark_name=self.benchmark_name,
+                    score=results[model.model_name],
+                )
+            )
 
         return results
