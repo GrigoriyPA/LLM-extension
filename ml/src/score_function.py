@@ -107,19 +107,20 @@ class ScoreFunction:
 
     @staticmethod
     def extract_score(answer: str) -> tp.Optional[float]:
-        if answer is None:
-            return None
-        match = re.search(r"Degree of correspondence: (\d+\.\d+)", answer)
-
-        if match:
-            return float(match.group(1))
-
-        match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
-        if not match:
-            return None
-        if float(match[-1]) < 0 or float(match[-1]) > 1:
-            return None
-        return float(match[-1])
+        res = 0
+        if answer is not None:
+            match = re.search(r"Score: (\d+\.\d+)", answer)
+            if match and match.lastgroup:
+                res = float(match.lastgroup)
+            else:
+                match = re.findall(r"[-+]?\d*\.\d+|\d+", answer)
+                if not match:
+                    res = 0
+                else:
+                    res = float(match[-1])
+        if res < 0 or res > 1:
+            return 0
+        return res
     
     async def get_text_score_and_output(
         self,
