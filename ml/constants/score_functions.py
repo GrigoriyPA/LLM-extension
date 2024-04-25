@@ -33,28 +33,28 @@ def multiply(x, y):
     return x * y
 Docstring:
 The function multiply takes two numbers x and y and returns their product.
-Degree of correspondence: 1
+Score: 1
 
 2) Function:
 def divide(x, y):
     return x / y
 Docstring:
 divide is a function that subtracts y from x.
-Degree of correspondence: 0
+Score: 0
 
 3) Function:
 def square(x):
     return x * x
 Docstring:
 The function square raises a number to the cube.
-Degree of correspondence: 0.3
+Score: 0.3
 
 4) Function:
 def say_hello(name):
     return 'Hello, ' + name
 Docstring:
 The function say_hello adds a greeting to the given name.
-Degree of correspondence: 0.7
+Score: 0.7
 
 The assessment of correspondence is based on the following criteria:
 1) There should be a detailed and expanded description of what the function does.
