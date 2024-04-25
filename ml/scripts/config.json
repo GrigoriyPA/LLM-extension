@@ -3,6 +3,11 @@
     "ignore_comments": true,
     "ignore_tests": true,
     "repos": [
+      "TheAlgorithms/Python",
+      "langchain-ai/langchain",
+      "django/django",
+      "tiangolo/fastapi",
+      "openai/whisper",
       "pallets/flask",
       "google/flax",
       "pygame/pygame",
