@@ -34,7 +34,7 @@ The assessment of correspondence is based on the following criteria:
 3) There should be a description of the return value.
 4) The information must be accurate.
 I will give you the code of a function, docstring, then you must write your analysis and final score.
-You must write score in format "Score: {value - float from 0 to 1}".
+You must write score in format "Score: "value - float from 0 to 1"".
 
 Examples:
 Function:
@@ -98,11 +98,11 @@ Score: 1.0
 
 Now I need you to score my function, 
 Function:
-{function_code}
+{code}
 Docstring:
 {docstring}
 
-Now write your analysis and a score in format "Analysis: {your analysis}\nScore: {float from 0 to 1}"
+Now write your analysis and a score in format "Analysis: "your analysis"\nScore: "float from 0 to 1""
 Analysis:
     """,
 ]
@@ -114,7 +114,7 @@ I had a function and wrote unit-tests for it. I need you to score it by the foll
 The assessment of unit-tests is based on the following criteria:
 1) Tests must be a correct Python code with no syntax mistakes
 2) Tests must cover all corner cases of a function
-You must write score in format "Score: {value - float from 0 to 1}".
+You must write score in format "Score: "value - float from 0 to 1"".
 
 Examples:
 Function:
@@ -153,11 +153,11 @@ Analysis:
 Score: 1.0
 
 Function: 
-{function_code}
+{code}
 Unit-tests:
 {unit_test}
 
-Now write your analysis and a score in format "Analysis: {your analysis}\nScore: {float from 0 to 1}"
+Now write your analysis and a score in format "Analysis: "your analysis"\nScore: "float from 0 to 1""
 Analysis:
     """,
 ]

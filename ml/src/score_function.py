@@ -153,7 +153,7 @@ class ScoreFunction:
             use_history: bool = False
     ) -> database_entities.SCORED_ENTITY_TYPE:
         text, score, output = await self.get_text_score_and_output(entity, use_history)
-        result = database_entities.ScorerModelUnitTestResult(
+        result = self.scored_entity_type(
             **entity.__dict__,
             model_name=model.model_name if model is not None else "-",
             prompt=model.get_prompt(entity) if model is not None else "-",
