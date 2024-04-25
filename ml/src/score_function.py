@@ -171,7 +171,7 @@ class ScoreFunction:
                 database_utils.Table[database_entities.SCORED_ENTITY_TYPE]
             ] = None,
             use_history: bool = False,
-            debug: bool = False,
+            debug: bool = True,
             start_index: int = 0
     ) -> database_utils.Table[database_entities.ScorerModelDocstringResult]:
         """
@@ -187,7 +187,7 @@ class ScoreFunction:
         if not dst:
             dst = database_utils.create_new_table(
                 row_type=self.scored_entity_type,
-                table_name=f'scorer_{(model.model_name if model is not None else "default")}_results'
+                table_name=f'scorer_{(model.database_name if model is not None else "default")}_results'
             )
         index = 0
         for row in src.read() if not debug else tqdm(src.read()):

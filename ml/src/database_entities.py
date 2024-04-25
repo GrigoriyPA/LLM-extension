@@ -107,6 +107,7 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
             code: str,
             docstring: str,
             context: str,
+            unit_test: str,
             model_name: str,
             prompt: str,
             scorer_prompt: str,
