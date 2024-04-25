@@ -1,12 +1,15 @@
 import base64
+import collections
 import time
 import typing as tp
+import json
 
 import requests
 from tqdm import tqdm
 
 from src import code_reader
 from src import colourful_cmd
+from src import database_entities
 from constants import github_searcher as github_searcher_constants
 
 SEARCH_URL = 'https://api.github.com/search/code'
@@ -101,28 +104,50 @@ def get_functions_in_repo(
         context_wide: int,
         token: str,
         ignore_comments: bool,
-) -> tp.Dict[str, tp.Dict[str, tp.Any]]:
+        ignore_tests: bool
+) -> tp.Dict[str, database_entities.Function]:
     urls = get_all_python_files(
         author=author,
         repo=repo,
         token=token,
     )
-    data = {}
+    function_usages = collections.defaultdict(list)
+    functions: tp.Dict[str, database_entities.Function] = {}
+    tests: tp.Dict[str, database_entities.Function] = {}
     for url in tqdm(urls):
         content = get_file_content(get_url=url, token=token)
         for name, code, docstring in code_reader.get_functions_sources(
                 content,
                 ignore_comments=ignore_comments
         ):
-            data[name] = {
-                'name': name,
-                'docstring': docstring,
-                'code': code,
-                'usages': []
-            }
+            if code_reader.is_test(name):
+                tests[name] = database_entities.Function(
+                    function_name=name,
+                    docstring=docstring,
+                    code=code,
+                )
+            else:
+                functions[name] = database_entities.Function(
+                    function_name=name,
+                    docstring=docstring,
+                    code=code,
+                )
+
+    for test in tests.values():
+        function_name = code_reader.get_function_name_by_test_name(
+            test_name=test.function_name
+        )
+        if function_name in functions:
+            functions[function_name].unit_test = test.code
+            print("UnitTest was found!", function_name)
+        if not ignore_tests:
+            functions[test.function_name] = test
+
     for url in tqdm(urls):
         content = get_file_content(get_url=url, token=token)
         for name, usage in code_reader.get_functions_calls(content, context_wide=context_wide):
-            if name in data:
-                data[name]['usages'].append(usage)
-    return data
+            if name in functions:
+                function_usages[name].append(usage)
+    for name in function_usages:
+        functions[name].context = json.dumps(function_usages[name])
+    return functions

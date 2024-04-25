@@ -55,3 +55,13 @@ def get_functions_calls(
             name = node.func.id
             function_sources.append((name, context))
     return function_sources
+
+
+def get_function_name_by_test_name(
+        test_name: str
+) -> str:
+    return test_name[:5]
+
+
+def is_test(function_name: str) -> bool:
+    return 'test_' == function_name[:5]

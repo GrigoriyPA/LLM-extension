@@ -16,6 +16,9 @@ class Database:
         str: "TEXT",
         float: "REAL",
         int: "INTEGER",
+        tp.Optional[str]: "TEXT",
+        tp.Optional[float]: "REAL",
+        tp.Optional[int]: "INTEGER",
         datetime.datetime: "timestamp",
     }
     EL_TYPES = tp.Union[str, float, int, datetime.datetime]
@@ -66,8 +69,8 @@ class Table(tp.Generic[T]):
         self.row_type: tp.Type[T] = row_type
         type_hints = tp.get_type_hints(self.row_type)
         self.columns: tp.List[str] = list(type_hints.keys())
-        self.db.create_table(self.table_name, list(type_hints.items()))
         self.temporary: bool = temporary
+        self.db.create_table(self.table_name, list(type_hints.items()))
 
     def write(self, el: T) -> None:
         data = [getattr(el, col) for col in self.columns]

@@ -1,41 +1,96 @@
 from __future__ import annotations
 
 import abc
+import time
+
+import torch
+import transformers
+
+
+from src import colourful_cmd
 from src import database_entities
-from constants import extension as features_constants
-import typing as tp
+from configs import local_model_settings as model_configs
 
 
 class BaseModel(abc.ABC):
-    def __init__(self, model_name: str, model_description: str):
+    def __init__(
+            self,
+            model_name: str,
+            model_description: str,
+            device: torch.device = model_configs.DEVICE,
+            weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+    ):
         self.model_name: str = model_name
         self.model_description = model_description
+        self._model = None
+        self._tokenizer = None
+        self._generation_config = transformers.GenerationConfig.from_pretrained(
+            self.model_name,
+        )
+        self.device = device
+        self.weight_type = weight_type
 
     @property
     def database_name(self) -> str:
         return self.model_name.replace('/', '_').replace('-', '_')
 
-    def get_method_for_extension_feature(
-            self,
-            feature: features_constants.ExtensionFeature
-    ) -> tp.Callable[[database_entities.ENTITY_TYPE], str]:
-        """return method for solving particular extension feature
-        for example, if feature is docstring_generation,
-        then method must return self.generate_docstring"""
-        if feature == features_constants.ExtensionFeature.docstring_generation:
-            return self.generate_docstring
+    def _load_model(self) -> None:
+        start = time.time()
+        colourful_cmd.print_cyan(
+            f'Starting to load model {self.model_name}'
+        )
+        self._tokenizer = transformers.AutoTokenizer.from_pretrained(
+            pretrained_model_name_or_path=self.model_name,
+            device_map=self.device,
+            trust_remote_code=True,
+        )
+        self._model: transformers.PreTrainedModel = (
+            transformers.AutoModelForCausalLM.from_pretrained(
+                pretrained_model_name_or_path=self.model_name,
+                low_cpu_mem_usage=True,
+                torch_dtype=self.weight_type,
+                device_map=self.device,
+                trust_remote_code=True,
+            )
+        )
+        finish = time.time()
+        colourful_cmd.print_green(
+            f'Finished loading model {self.model_name},'
+            f' it took {round(finish - start, 1)} seconds'
+        )
+
+    def _check_model(self):
+        if self._model is None:
+            self._load_model()
 
     @abc.abstractmethod
-    def predict(self, prompt: str, *args, **kwargs) -> str:
-        """return the predicted text after the given prompt"""
+    def _get_prompt(self, data_row: database_entities.BaseEntity) -> str:
+        """Generate prompt for specific task"""
+
+    def _predict(self, prompt: str, **generation_kwargs) -> str:
+        self._check_model()
+        model_inputs = self._tokenizer(prompt, return_tensors='pt')
+        model_inputs = model_inputs.to(self.device)
+        generated_ids = self._model.generate(
+            **model_inputs,
+            generation_config=self._generation_config,
+            **generation_kwargs,
+        )
+        generated_text = self._tokenizer.batch_decode(
+            generated_ids[:, model_inputs["input_ids"].shape[1]:],
+            skip_special_tokens=True)[0].strip("\n").strip("")
+        return generated_text
 
     @abc.abstractmethod
-    def get_prompt_for_docstring_generation(
+    def _get_final_result(self, model_response: str) -> str:
+        """Transform model response"""
+
+    def generate_result(
             self,
-            function: database_entities.Function
+            data_row: database_entities.BaseEntity,
+            **generation_kwargs
     ) -> str:
-        """get prompt used for docstring generation"""
+        prompt = self._get_prompt(data_row)
+        model_response = self._predict(prompt, **generation_kwargs)
 
-    @abc.abstractmethod
-    def generate_docstring(self, function: database_entities.Function) -> str:
-        """get docstring for the given function"""
+        return self._get_final_result(model_response)
