@@ -20,7 +20,9 @@ class TestGenerationModel(base_model_module.BaseModel):
             model_name=model_name,
             model_description=model_description,
             device=device,
-            weight_type=weight_type
+            weight_type=weight_type,
+            prompt=prompt
+
         )
         self._prompt = prompt
 
@@ -38,7 +40,7 @@ class TestGenerationModel(base_model_module.BaseModel):
             if function.context else ""
         )
         full_prompt = dedent(f'''
-        {self._prompt}
+        {self.prompt}
         {function.code}{context}
         Unit test for that function:''')
 

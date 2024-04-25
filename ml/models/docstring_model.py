@@ -21,9 +21,9 @@ class DocstringModel(base_model_module.BaseModel):
             model_name=model_name,
             model_description=model_description,
             device=device,
-            weight_type=weight_type
+            weight_type=weight_type,
+            prompt=prompt
         )
-        self._prompt = prompt
 
     def _get_final_result(self, model_response: str) -> str:
         regexp_result = re.search('([\'\"]{3})(.*?)([\'\"]{3})', model_response, re.DOTALL)
@@ -39,7 +39,7 @@ class DocstringModel(base_model_module.BaseModel):
             if data_row.context else ""
         )
         full_prompt = dedent(f'''
-        {self._prompt}
+        {self.prompt}
         {data_row.code}{context}
         Docstring for that function:''')
 

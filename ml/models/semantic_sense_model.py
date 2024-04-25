@@ -20,7 +20,8 @@ class SemanticSenseModel(base_model_module.BaseModel):
             model_name=model_name,
             model_description=model_description,
             device=device,
-            weight_type=weight_type
+            weight_type=weight_type,
+            prompt=prompt
         )
         self._prompt = prompt
 
@@ -37,7 +38,7 @@ class SemanticSenseModel(base_model_module.BaseModel):
             f"{data_row.context[:model_configs.CONTEXT_MAX_LENGTH]}"
         )
         full_prompt = dedent(f'''
-        {self._prompt}
+        {self.prompt}
         {context}
         Semantic sense for variable:''')
 

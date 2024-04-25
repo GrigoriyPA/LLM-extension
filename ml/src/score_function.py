@@ -105,11 +105,11 @@ class ScoreFunction:
             model: GenerativeModel = GenerativeModel(),
     ):
         self.__model: GenerativeModel = model
-        self.__prompt: str = prompt
+        self.prompt: str = prompt
         self.scored_entity_type = scored_entity_type
 
     def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
-        return self.__prompt.format(**entity.__dict__)
+        return self.prompt.format(**entity.__dict__)
 
     async def get_model_response(
             self,
@@ -207,4 +207,4 @@ class ScoreFunction:
         return dst
 
     def update_prompt(self, prompt: str) -> None:
-        self.__prompt = prompt
+        self.prompt = prompt
