@@ -29,9 +29,9 @@ export namespace RequestsBase {
 
         public serialize(): string {
             const request_data = {
-                "type_of_request": this.name,
-                "symbol_content": this.symbolContent,
-                "references_content": this.referencesContent
+                type_of_request: this.name,
+                symbol_content: this.symbolContent,
+                references_content: this.referencesContent,
             };
             return JSON.stringify(request_data);
         }
@@ -164,7 +164,7 @@ export namespace NameSuggestion {
         }
     }
 
-    export class Response extends ResponseBase.SingleStringRequestResponseBase {}
+    export class Response extends ResponseBase.MultiStringRequestResponseBase {}
 }
 
 export namespace GenerateTests {

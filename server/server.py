@@ -20,7 +20,7 @@ def semantic_analysis_of_symbol(some_args=None):
 
 def name_suggestion(some_args=None):
     print("Getting name suggestion...")
-    return "Some name suggestion"
+    return ["Suggestion_1", "Suggestion_2"]
 
 
 def generate_tests(some_args=None):
@@ -60,7 +60,7 @@ def handle_request():
             case "SemanticAnalysisOfSymbol":
                 response["single_string"] = semantic_analysis_of_symbol(symbol_content)
             case "NameSuggestion":
-                response["single_string"] = name_suggestion(symbol_content)
+                response["multiple_strings"] = name_suggestion(symbol_content)
             case "GenerateTests":
                 response["single_string"] = generate_tests(symbol_content)
             case "CompletionSuggestion":

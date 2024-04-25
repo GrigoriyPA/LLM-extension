@@ -9,8 +9,8 @@ import { sendRequest } from "../../utils/http_server/requests_functions";
 import { NameSuggestion } from "../../utils/http_server/requests_structures";
 
 import { SymbolKind, FromVscodelc } from "../../utils/lsp/lsp_helpers";
+import { renameSymbol } from "../../utils/lsp/lsp_methods";
 
-import { applyIndent } from "../../utils/functions";
 import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
@@ -28,8 +28,6 @@ export const nameSuggestion = async (
     edit: vscode.TextEditorEdit
 ) => {
     logMessage(LogLevel.TRACE, "Compute request");
-
-    // TODO: @GrigoriyPA suggest many names
 
     const position = textEditor.selection.active;
 
@@ -92,7 +90,7 @@ async function doNameSuggestion(
     });
 }
 
-function computeResponse(
+async function computeResponse(
     textEditor: vscode.TextEditor,
     position: vscode.Position,
     response: NameSuggestion.Response
@@ -105,28 +103,58 @@ function computeResponse(
         return;
     }
 
-    logMessage(LogLevel.TRACE, `Got name suggestion:\n${response.content}`);
+    logMessage(
+        LogLevel.TRACE,
+        `Got name suggestion:\n${response.getDescription()}`
+    );
 
-    // TODO: @ganvas | @GrigoriyPA show dialog in separate window before inserting name suggestion
-    return insertNameSuggestion(textEditor, position, response.content);
+    const selectionPromise = vscode.window.showQuickPick(response.contents, {
+        canPickMany: false,
+    });
+
+    return selectionPromise.then((response) => {
+        if (response === undefined) {
+            return;
+        }
+        return insertNameSuggestion(textEditor, position, response);
+    });
 }
 
-function insertNameSuggestion(
+async function insertNameSuggestion(
     textEditor: vscode.TextEditor,
     position: vscode.Position,
     suggestion: string
 ) {
-    // TODO: @GrigoriyPA refactor symbol name instead of inserting suggestion
-
-    const lineWithSymbol = textEditor.document.lineAt(position.line);
-
-    const suggestionContent = applyIndent(
-        lineWithSymbol.firstNonWhitespaceCharacterIndex,
-        suggestion.trimEnd(),
-        "# "
+    const renameSymbolPromise = renameSymbol(
+        textEditor.document,
+        position,
+        suggestion
     );
 
-    textEditor.edit((edit: vscode.TextEditorEdit) => {
-        edit.insert(lineWithSymbol.range.start, suggestionContent);
+    return renameSymbolPromise.then((response) => {
+        if (response === undefined || response.documentChanges === undefined) {
+            return;
+        }
+
+        const renameSymbolEdit = new vscode.WorkspaceEdit();
+        for (const change of response.documentChanges as vscodelc.TextDocumentEdit[]) {
+            const refactorUri = FromVscodelc.getUri(change.textDocument);
+
+            for (const edit of change.edits as vscodelc.TextEdit[]) {
+                renameSymbolEdit.replace(
+                    refactorUri,
+                    FromVscodelc.getRange(edit.range),
+                    edit.newText
+                );
+            }
+        }
+
+        return vscode.workspace.applyEdit(renameSymbolEdit).then((response) => {
+            if (!response) {
+                // TODO: @ganvas show this information in pretty window
+                logMessage(LogLevel.DEBUG, "Failed to rename symbol");
+                return;
+            }
+        });
     });
 }

@@ -39,6 +39,12 @@ export namespace FromVscodelc {
         );
     }
 
+    export function getUri(
+        textDocumentIdentifier: vscodelc.TextDocumentIdentifier
+    ): vscode.Uri {
+        return vscode.Uri.parse(textDocumentIdentifier.uri);
+    }
+
     export function isFunctionSymbol(symbolKind: vscodelc.SymbolKind): boolean {
         return (
             symbolKind === vscodelc.SymbolKind.Function ||

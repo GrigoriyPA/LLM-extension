@@ -139,7 +139,7 @@ function computeReferencesContent(
     for (const reference of references) {
         const referenceRange = FromVscodelc.getRange(reference.range);
         const referenceDocument = documentsMap.get(
-            vscode.Uri.parse(reference.uri).toString()
+            FromVscodelc.getUri(reference).toString()
         );
 
         if (referenceDocument === undefined) {
@@ -176,7 +176,7 @@ export async function findSymbolReferencesContent(
         const referenceDocuments: Thenable<vscode.TextDocument>[] = [];
         for (const reference of references) {
             const referenceDocument = vscode.workspace.openTextDocument(
-                vscode.Uri.parse(reference.uri)
+                FromVscodelc.getUri(reference)
             );
 
             referenceDocuments.push(referenceDocument);

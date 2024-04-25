@@ -28,6 +28,7 @@ async function computeRawResponse(
     response_raw: fetch.Response
 ): Promise<ResponseBase.HttpResponse> {
     // TODO: @dffTu set error in case of bad request status
+    // TODO: @dffTu add retries
 
     const textPromise = response_raw.text();
 

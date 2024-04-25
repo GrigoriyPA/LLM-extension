@@ -80,3 +80,36 @@ export async function getReferences(
             return undefined;
         });
 }
+
+export async function renameSymbol(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    newName: string
+): Promise<vscodelc.WorkspaceEdit | undefined> {
+    let params: vscodelc.RenameParams = {
+        textDocument: FromVscode.getTextDocumentIdentifier(document),
+        position: FromVscode.getPosition(position),
+        newName: newName,
+    };
+
+    const requestPromise = languageClient.sendRequest(
+        vscodelc.RenameRequest.method,
+        params
+    );
+
+    return requestPromise
+        .then((response) => {
+            if (!response) {
+                return undefined;
+            }
+
+            return response as vscodelc.WorkspaceEdit;
+        })
+        .catch((error) => {
+            logMessage(
+                LogLevel.WARNING,
+                `RenameSymbol request failed with error: ${error}`
+            );
+            return undefined;
+        });
+}
