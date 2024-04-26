@@ -35,7 +35,7 @@ export async function initializeLanguageClient() {
         );
     } catch (exception) {
         logEntry(
-            LogLevel.ALERT,
+            LogLevel.CRIT,
             Components.EXTENSION,
             `Failed to create language client: ${exception}`
         );
@@ -53,7 +53,7 @@ export async function initializeLanguageClient() {
         })
         .catch((error) => {
             logEntry(
-                LogLevel.ALERT,
+                LogLevel.CRIT,
                 Components.EXTENSION,
                 `Failed to connect language client to Jedi LS: ${error}`
             );

@@ -79,25 +79,39 @@ function insertFunctionDocumentation(
     position: vscode.Position,
     documentation: string
 ) {
-    const functionNameLine = textEditor.document.lineAt(position.line);
+    const document = textEditor.document;
+
+    // TODO: @GrigoriyPA insert text in case of multiline function defenition
+    let functionNameLineIndex = position.line;
+    while (functionNameLineIndex + 1 < document.lineCount) {
+        const currentLine = document.lineAt(functionNameLineIndex);
+        if (
+            !currentLine.isEmptyOrWhitespace &&
+            !currentLine.text.trimEnd().endsWith(",")
+        ) {
+            break;
+        }
+        functionNameLineIndex += 1;
+    }
 
     let indentSize = textEditor.options.indentSize as number | undefined;
     if (indentSize === undefined) {
         logMessage(LogLevel.ERROR, "Failed to get text editor indent size");
         return;
     }
-    indentSize += functionNameLine.firstNonWhitespaceCharacterIndex;
+    indentSize += document.lineAt(
+        position.line
+    ).firstNonWhitespaceCharacterIndex;
 
     const documentationContent = applyIndent(
         indentSize,
         "'''\n" + documentation.trimEnd() + "\n'''"
     );
 
-    // TODO: @GrigoriyPA insert text in case of multiline function defenition
     // TODO: @GrigoriyPA replace function documentation
     textEditor.edit((edit: vscode.TextEditorEdit) => {
         edit.insert(
-            functionNameLine.rangeIncludingLineBreak.end,
+            document.lineAt(functionNameLineIndex).rangeIncludingLineBreak.end,
             documentationContent + "\n"
         );
     });

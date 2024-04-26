@@ -25,7 +25,7 @@ export function logEntry(
         logLevel >= LogLevel.WARNING
     );
 
-    if (logLevel === LogLevel.ALERT) {
+    if (logLevel === LogLevel.CRIT) {
         vscode.window.showErrorMessage(message);
     } else if (logLevel === LogLevel.ERROR) {
         vscode.window.showWarningMessage(message);

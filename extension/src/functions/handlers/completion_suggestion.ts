@@ -28,7 +28,7 @@ async function completionSuggestion(
 ): Promise<vscode.CompletionItem[]> {
     logMessage(LogLevel.TRACE, "Compute request");
 
-    // TODO: @GrigoriyPA pass more info for suggestion
+    // TODO: @ZenMan123 | @GrigoriyPA pass more info for suggestion
     const request = new RequestsBase.RequestWithSymbolContextBase(
         getContextForPosition(document, position),
         []
@@ -55,6 +55,8 @@ function computeResponse(
         );
         return [];
     }
+
+    // TODO: @ZenMan123 | @GrigoriyPA provide symbol completion continuously
 
     logMessage(
         LogLevel.TRACE,

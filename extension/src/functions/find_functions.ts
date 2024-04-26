@@ -120,6 +120,8 @@ function extractLineContext(
     topLine: number,
     bottomLine: number
 ): vscode.Range {
+    // TODO: @ZenMan123 | @GrigoriyPA pass smarter line context
+
     let lineDelta = 0;
     while (lineDelta < extensionConfig.symbolContentRangeSize && topLine > 0) {
         topLine -= 1;

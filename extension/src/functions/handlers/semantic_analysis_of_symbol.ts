@@ -70,24 +70,20 @@ function computeResponse(
 
     logMessage(LogLevel.TRACE, `Got semantic analysis:\n${response.content}`);
 
-    // TODO: @ganvas | @GrigoriyPA show window with information instead of inserting semantic analysis
-    return insertSemanticAnalysis(textEditor, position, response.content);
+    return showSemanticAnalysis(textEditor, position, response.content);
 }
 
-function insertSemanticAnalysis(
+function showSemanticAnalysis(
     textEditor: vscode.TextEditor,
     position: vscode.Position,
     semanticAnalysis: string
 ) {
-    const lineWithSymbol = textEditor.document.lineAt(position.line);
+    // TODO: @ganvas | @GrigoriyPA show window with information in text editor
 
-    const suggestionContent = applyIndent(
-        lineWithSymbol.firstNonWhitespaceCharacterIndex,
-        semanticAnalysis.trimEnd(),
-        "# "
+    const semanticAnalysisPanel = vscode.window.createWebviewPanel(
+        "markdown.preview",
+        "Semantic analysis",
+        vscode.ViewColumn.Beside
     );
-
-    textEditor.edit((edit: vscode.TextEditorEdit) => {
-        edit.insert(lineWithSymbol.range.start, suggestionContent);
-    });
+    semanticAnalysisPanel.webview.html = semanticAnalysis;
 }

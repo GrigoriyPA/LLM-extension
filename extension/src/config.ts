@@ -1,5 +1,5 @@
 export enum LogLevel {
-    ALERT, // Extention level fatal errors
+    CRIT, // Extention level fatal errors
     ERROR, // Request level fatal errors
     WARNING, // Exceptional situations that are guaranteed not to lead to an error
     INFO, // Information about the progress of request computing, only a few messages during the processing of a single request
