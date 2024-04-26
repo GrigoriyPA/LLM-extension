@@ -13,13 +13,15 @@ class DocstringApiModel(base_model_module.BaseApiModel):
             model_name: str = "synthetic",
             model_type: str = "docstring",
             model_description: str = "llama70b api",
-            prompt: str = prompts.DOCSTRING_PROMPT
+            prompt: str = prompts.DOCSTRING_PROMPT,
+            prompt_desc: str = "",
     ):
         super().__init__(
             model_name=model_name,
             model_type=model_type,
             model_description=model_description,
             prompt=prompt,
+            prompt_desc=prompt_desc,
         )
 
     def _get_final_result(self, model_response: str) -> str:
@@ -46,6 +48,7 @@ class DocstringLocalModel(base_model_module.BaseLocalModel):
             model_description: str,
             model_type: str = "docstring",
             prompt: str = prompts.DOCSTRING_PROMPT,
+            prompt_desc: str = "",
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
@@ -55,7 +58,8 @@ class DocstringLocalModel(base_model_module.BaseLocalModel):
             model_description=model_description,
             device=device,
             weight_type=weight_type,
-            prompt=prompt
+            prompt=prompt,
+            prompt_desc=prompt_desc,
         )
 
     def _get_final_result(self, model_response: str) -> str:

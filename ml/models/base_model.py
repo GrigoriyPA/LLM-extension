@@ -21,18 +21,20 @@ class BaseModel(abc.ABC):
             model_type: str,
             model_description: str,
             prompt: str,
+            prompt_desc: str = "",
     ):
         self.model_name: str = model_name
         self.model_type = model_type
         self.model_description = model_description
         self.prompt = prompt
+        self.prompt_desc = prompt_desc
 
     @property
     def database_name(self) -> str:
         return (
-                self.model_name.replace('/', '_').replace('-', '_')
-                + '_' +
-                self.model_type
+            self.model_name.replace('/', '_').replace('-', '_')
+            + ('_' + self.prompt_desc if self.prompt_desc else '')
+            + '_' + self.model_type
         )
 
     @abc.abstractmethod
@@ -69,26 +71,16 @@ class BaseApiModel(BaseModel, abc.ABC):
             model_type: str,
             model_description: str,
             prompt: str,
+            prompt_desc: str = "",
     ):
         super().__init__(
             model_name=model_name,
             model_type=model_type,
             model_description=model_description,
-            prompt=prompt
+            prompt=prompt,
+            prompt_desc=prompt_desc,
         )
-        self.model_name: str = model_name
-        self.model_type = model_type
-        self.model_description = model_description
-        self.prompt = prompt
         self._model = score_function.GenerativeModel()
-
-    @property
-    def database_name(self) -> str:
-        return (
-                self.model_name.replace('/', '_').replace('-', '_')
-                + '_' +
-                self.model_type
-        )
 
     def _predict(
             self,
@@ -108,6 +100,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
             model_type: str,
             model_description: str,
             prompt: str,
+            prompt_desc: str,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
@@ -115,7 +108,8 @@ class BaseLocalModel(BaseModel, abc.ABC):
             model_name=model_name,
             model_type=model_type,
             model_description=model_description,
-            prompt=prompt
+            prompt=prompt,
+            prompt_desc=prompt_desc,
         )
         self._model = None
         self._tokenizer = None
@@ -131,7 +125,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
 
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
-            max_new_tokens=256
+            max_new_tokens=256,
         )
 
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(

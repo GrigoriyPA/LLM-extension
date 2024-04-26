@@ -12,13 +12,15 @@ class TestGenerationApiModel(base_model_module.BaseApiModel):
             model_name: str = "synthetic",
             model_type: str = "test_generation",
             model_description: str = "llama70b api",
-            prompt: str = prompts.TEST_GENERATION_PROMPT
+            prompt: str = prompts.TEST_GENERATION_PROMPT,
+            prompt_desc: str = "",
     ):
         super().__init__(
             model_name=model_name,
             model_type=model_type,
             model_description=model_description,
             prompt=prompt,
+            prompt_desc=prompt_desc,
         )
 
     def _get_final_result(self, model_response: str) -> str:
@@ -39,6 +41,7 @@ class TestGenerationLocalModel(base_model_module.BaseLocalModel):
             model_description: str,
             model_type: str = 'test_generation',
             prompt: str = prompts.TEST_GENERATION_PROMPT,
+            prompt_desc: str = "",
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
@@ -48,7 +51,8 @@ class TestGenerationLocalModel(base_model_module.BaseLocalModel):
             model_description=model_description,
             device=device,
             weight_type=weight_type,
-            prompt=prompt
+            prompt=prompt,
+            prompt_desc=prompt_desc,
         )
 
     def _get_final_result(self, model_response: str) -> str:

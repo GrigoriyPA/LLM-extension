@@ -34,7 +34,6 @@ class Database:
         field_text = ", ".join([f"{a} {self.MAPPING[b]}" for a, b in columns])
 
         request = f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY, {field_text})"
-
         self.cursor.execute(request)
         self.connection.commit()
 

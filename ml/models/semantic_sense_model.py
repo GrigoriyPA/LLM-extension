@@ -14,6 +14,7 @@ class SemanticSenseModel(base_model_module.BaseModel):
             model_description: str,
             model_type: str = "semantic_sense",
             prompt: str = prompts.SEMANTIC_SENSE_PROMPT,
+            prompt_desc: str = "",
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
@@ -21,11 +22,11 @@ class SemanticSenseModel(base_model_module.BaseModel):
             model_name=model_name,
             model_type=model_type,
             model_description=model_description,
-            device=device,
-            weight_type=weight_type,
-            prompt=prompt
+            prompt=prompt,
+            prompt_desc=prompt_desc,
         )
-        self.prompt = prompt
+        self.device = device
+        self.weight_type = weight_type
 
     def _get_final_result(self, model_response: str) -> str:
         return model_response
