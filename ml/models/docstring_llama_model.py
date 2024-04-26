@@ -1,6 +1,5 @@
 from textwrap import dedent
 import re
-import torch
 
 from configs import local_model_settings as model_configs
 from configs import prompts
@@ -13,11 +12,15 @@ import asyncio
 class DocstringLLamaModel(base_model_module.BaseModel):
     def __init__(
             self,
-            model_name: str = "synthetic",
+            model_name: str,
+            model_description: str,
             prompt: str = prompts.DOCSTRING_PROMPT
     ):
-        self.model_name = model_name
-        self._prompt = prompt
+        super().__init__(
+            model_name=model_name,
+            model_description=model_description,
+            prompt=prompt
+        )
         self._model = score_function.GenerativeModel()
 
 
@@ -35,7 +38,7 @@ class DocstringLLamaModel(base_model_module.BaseModel):
             if data_row.context else ""
         )
         full_prompt = dedent(f'''
-        {self._prompt}
+        {self.prompt}
         {data_row.code}{context}
         Docstring for that function:''')
 

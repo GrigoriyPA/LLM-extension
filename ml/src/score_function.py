@@ -116,7 +116,7 @@ class ScoreFunction:
             user_input: str,
             use_history: bool,
     ) -> str:
-        return self.__model.get_model_response(user_input, use_history)
+        return await self.__model.get_model_response(user_input, use_history)
 
     @staticmethod
     def extract_score(answer: str) -> tp.Optional[float]:

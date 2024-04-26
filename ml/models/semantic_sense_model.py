@@ -23,7 +23,7 @@ class SemanticSenseModel(base_model_module.BaseModel):
             weight_type=weight_type,
             prompt=prompt
         )
-        self._prompt = prompt
+        self.prompt = prompt
 
     def _get_final_result(self, model_response: str) -> str:
         return model_response

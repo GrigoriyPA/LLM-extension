@@ -26,10 +26,7 @@ class BaseModel(abc.ABC):
         self.prompt = prompt
         self._model = None
         self._tokenizer = None
-        self._generation_config = transformers.GenerationConfig.from_pretrained(
-            self.model_name,
-            max_new_tokens=256
-        )
+        self._generation_config = None
         self.device = device
         self.weight_type = weight_type
 
@@ -42,6 +39,12 @@ class BaseModel(abc.ABC):
         colourful_cmd.print_cyan(
             f'Starting to load model {self.model_name}'
         )
+
+        self._generation_config = transformers.GenerationConfig.from_pretrained(
+            self.model_name,
+            max_new_tokens=256
+        )
+
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=self.model_name,
             device_map=self.device,
