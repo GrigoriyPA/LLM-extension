@@ -9,7 +9,9 @@ import transformers
 
 from src import colourful_cmd
 from src import database_entities
+from src import score_function
 from configs import local_model_settings as model_configs
+import asyncio
 
 
 class BaseModel(abc.ABC):
@@ -19,26 +21,107 @@ class BaseModel(abc.ABC):
             model_type: str,
             model_description: str,
             prompt: str,
-            device: torch.device = model_configs.DEVICE,
-            weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         self.model_name: str = model_name
         self.model_type = model_type
         self.model_description = model_description
         self.prompt = prompt
+
+    @property
+    def database_name(self) -> str:
+        return (
+                self.model_name.replace('/', '_').replace('-', '_')
+                + '_' +
+                self.model_type
+        )
+
+    @abc.abstractmethod
+    def get_prompt(self, data_row: database_entities.BaseEntity) -> str:
+        """Generate prompt for specific task"""
+
+    @abc.abstractmethod
+    def _predict(self, prompt: str, **generation_kwargs) -> str:
+        """Generate model response"""
+
+    @abc.abstractmethod
+    def _get_final_result(self, model_response: str) -> str:
+        """Transform model response"""
+
+    @abc.abstractmethod
+    def clear_model(self) -> None:
+        """Clear model"""
+
+    def generate_result(
+            self,
+            data_row: database_entities.BaseEntity,
+            **generation_kwargs
+    ) -> str:
+        prompt = self.get_prompt(data_row)
+        model_response = self._predict(prompt, **generation_kwargs)
+
+        return self._get_final_result(model_response)
+
+
+class BaseApiModel(BaseModel, abc.ABC):
+    def __init__(
+            self,
+            model_name: str,
+            model_type: str,
+            model_description: str,
+            prompt: str,
+    ):
+        super().__init__(
+            model_name=model_name,
+            model_type=model_type,
+            model_description=model_description,
+            prompt=prompt
+        )
+        self.model_name: str = model_name
+        self.model_type = model_type
+        self.model_description = model_description
+        self.prompt = prompt
+        self._model = score_function.GenerativeModel()
+
+    @property
+    def database_name(self) -> str:
+        return (
+                self.model_name.replace('/', '_').replace('-', '_')
+                + '_' +
+                self.model_type
+        )
+
+    def _predict(
+            self,
+            prompt: str,
+            **generation_kwargs,
+    ) -> str:
+        return asyncio.run(self._model.get_model_response(prompt, False))
+
+    def clear_model(self) -> None:
+        pass
+
+
+class BaseLocalModel(BaseModel, abc.ABC):
+    def __init__(
+            self,
+            model_name: str,
+            model_type: str,
+            model_description: str,
+            prompt: str,
+            device: torch.device = model_configs.DEVICE,
+            weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+    ):
+        super().__init__(
+            model_name=model_name,
+            model_type=model_type,
+            model_description=model_description,
+            prompt=prompt
+        )
         self._model = None
         self._tokenizer = None
         self._generation_config = None
         self.device = device
         self.weight_type = weight_type
-
-    @property
-    def database_name(self) -> str:
-        return (
-            self.model_name.replace('/', '_').replace('-', '_')
-            + '_' +
-            self.model_type
-        )
 
     def _load_model(self) -> None:
         start = time.time()
@@ -81,10 +164,6 @@ class BaseModel(abc.ABC):
         if self.device == torch.device('cuda:0'):
             torch.cuda.empty_cache()
 
-    @abc.abstractmethod
-    def get_prompt(self, data_row: database_entities.BaseEntity) -> str:
-        """Generate prompt for specific task"""
-
     def _predict(self, prompt: str, **generation_kwargs) -> str:
         self._check_model()
         model_inputs = self._tokenizer(prompt, return_tensors='pt')
@@ -98,17 +177,3 @@ class BaseModel(abc.ABC):
             generated_ids[:, model_inputs["input_ids"].shape[1]:],
             skip_special_tokens=True)[0].strip("\n").strip("")
         return generated_text
-
-    @abc.abstractmethod
-    def _get_final_result(self, model_response: str) -> str:
-        """Transform model response"""
-
-    def generate_result(
-            self,
-            data_row: database_entities.BaseEntity,
-            **generation_kwargs
-    ) -> str:
-        prompt = self.get_prompt(data_row)
-        model_response = self._predict(prompt, **generation_kwargs)
-
-        return self._get_final_result(model_response)

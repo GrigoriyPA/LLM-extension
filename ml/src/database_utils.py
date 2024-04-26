@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-import random
 import sqlite3
 import typing as tp
 
