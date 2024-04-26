@@ -1,3 +1,4 @@
+import re
 import torch
 
 from configs import local_model_settings as model_configs
@@ -24,7 +25,8 @@ class TestGenerationApiModel(base_model_module.BaseApiModel):
         )
 
     def _get_final_result(self, model_response: str) -> str:
-        return model_response
+        regexp_result = re.search('```python(.*?)```', model_response, re.DOTALL)
+        return regexp_result.group(1) if regexp_result else model_response
 
     def get_prompt(
             self,
@@ -56,7 +58,8 @@ class TestGenerationLocalModel(base_model_module.BaseLocalModel):
         )
 
     def _get_final_result(self, model_response: str) -> str:
-        return model_response
+        regexp_result = re.search('```python(.*?)```', model_response, re.DOTALL)
+        return regexp_result.group(1) if regexp_result else model_response
 
     def get_prompt(
             self,
