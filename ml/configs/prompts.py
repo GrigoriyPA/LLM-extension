@@ -112,6 +112,68 @@ Function:
 Docstring:
 """
 
-TEST_GENERATION_PROMPT = ""
+TEST_GENERATION_PROMPT = """Write unit-tests for the given function
 
-SEMANTIC_SENSE_PROMPT = ""
+Examples:
+Function:
+def pow(a, b):
+    return a ** b
+Unittests:
+class TestPowFunction(unittest.TestCase):
+
+    def test_positive_numbers(self):
+        self.assertEqual(pow(2, 3), 8)
+        self.assertEqual(pow(3, 2), 9)
+        self.assertEqual(pow(5, 3), 125)
+
+    def test_negative_exponent(self):
+        self.assertEqual(pow(2, -2), 0.25)
+        self.assertEqual(pow(4, -1), 0.25)
+        
+    def test_zero_exponent(self):
+        self.assertEqual(pow(10, 0), 1)
+        self.assertEqual(pow(0, 0), 1)  # Обычно 0**0 рассматривается как 1
+
+    def test_zero_base(self):
+        self.assertEqual(pow(0, 2), 0)
+        self.assertEqual(pow(0, 10), 0)
+
+    def test_fractional_exponent(self):
+        self.assertAlmostEqual(pow(4, 0.5), 2)
+        self.assertAlmostEqual(pow(9, 0.5), 3)
+        self.assertAlmostEqual(pow(27, 1/3), 3)
+
+    def test_type_error(self):
+        with self.assertRaises(TypeError):
+            pow('two', 'five')
+
+
+Function:
+{code}
+Unittests:
+"""
+
+SEMANTIC_SENSE_PROMPT = """Write semantic sense for the given variable names and it's usages
+Examples:
+
+Variable name:
+user_age
+Usages:
+user_age = int(input())
+if user_age < 18:
+if user_age > 100:
+print(f"You are only {user_age} years old, so you are not allowed to proceed")
+Semantic Sense:
+The variable user_age represents the age of a user. It is used to:
+
+• Store the user's age as an integer.
+• Check if the user is under 18 years old.
+• Check if the user is over 100 years old.
+• Print a message to the user based on their age.
+
+Variable name:
+{variable_name}
+Usages:
+{context}
+Semantic Sense:
+"""
