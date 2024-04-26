@@ -38,9 +38,5 @@ class DocstringModel(base_model_module.BaseModel):
             f" usages of such function:\n{data_row.context[:model_configs.CONTEXT_MAX_LENGTH]}"
             if data_row.context else ""
         )
-        full_prompt = dedent(f'''
-        {self.prompt}
-        {data_row.code}{context}
-        Docstring for that function:''')
-
+        full_prompt = self.prompt.format(code=data_row.code, context_info=context)
         return full_prompt

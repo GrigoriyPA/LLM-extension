@@ -32,14 +32,5 @@ class SemanticSenseModel(base_model_module.BaseModel):
             self,
             data_row: database_entities.SemanticSense,
     ) -> str:
-        context = (
-            f"\nHere you can see context of"
-            f" usages of variable '{data_row.variable_name}':\n"
-            f"{data_row.context[:model_configs.CONTEXT_MAX_LENGTH]}"
-        )
-        full_prompt = dedent(f'''
-        {self.prompt}
-        {context}
-        Semantic sense for variable:''')
-
+        full_prompt = self.prompt.format(variable_name=data_row.variable_name, context=data_row.context)
         return full_prompt

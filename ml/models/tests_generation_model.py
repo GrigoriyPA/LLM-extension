@@ -31,17 +31,7 @@ class TestGenerationModel(base_model_module.BaseModel):
 
     def get_prompt(
             self,
-            function: database_entities.Function,
+            unittest: database_entities.UnitTest,
     ) -> str:
-        context = (
-            f"\nHere you can see examples of"
-            f" usages of such function:\n"
-            f"{function.context[:model_configs.CONTEXT_MAX_LENGTH]}"
-            if function.context else ""
-        )
-        full_prompt = dedent(f'''
-        {self.prompt}
-        {function.code}{context}
-        Unit test for that function:''')
-
+        full_prompt = self.prompt.format(code=unittest.code)
         return full_prompt
