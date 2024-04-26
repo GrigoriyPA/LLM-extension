@@ -12,36 +12,27 @@ class TestGenerationModel(base_model_module.BaseModel):
             self,
             model_name: str,
             model_description: str,
+            model_type: str = 'test_generation',
             prompt: str = prompts.TEST_GENERATION_PROMPT,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         super().__init__(
             model_name=model_name,
+            model_type=model_type,
             model_description=model_description,
             device=device,
             weight_type=weight_type,
             prompt=prompt
-
         )
-        self._prompt = prompt
+        self.prompt = prompt
 
     def _get_final_result(self, model_response: str) -> str:
         return model_response
 
     def get_prompt(
             self,
-            function: database_entities.Function,
+            unittest: database_entities.UnitTest,
     ) -> str:
-        context = (
-            f"\nHere you can see examples of"
-            f" usages of such function:\n"
-            f"{function.context[:model_configs.CONTEXT_MAX_LENGTH]}"
-            if function.context else ""
-        )
-        full_prompt = dedent(f'''
-        {self.prompt}
-        {function.code}{context}
-        Unit test for that function:''')
-
+        full_prompt = self.prompt.format(code=unittest.code)
         return full_prompt

@@ -16,32 +16,41 @@ class BaseModel(abc.ABC):
     def __init__(
             self,
             model_name: str,
+            model_type: str,
             model_description: str,
             prompt: str,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         self.model_name: str = model_name
+        self.model_type = model_type
         self.model_description = model_description
         self.prompt = prompt
         self._model = None
         self._tokenizer = None
-        self._generation_config = transformers.GenerationConfig.from_pretrained(
-            self.model_name,
-            max_new_tokens=256
-        )
+        self._generation_config = None
         self.device = device
         self.weight_type = weight_type
 
     @property
     def database_name(self) -> str:
-        return self.model_name.replace('/', '_').replace('-', '_')
+        return (
+            self.model_name.replace('/', '_').replace('-', '_')
+            + '_' +
+            self.model_type
+        )
 
     def _load_model(self) -> None:
         start = time.time()
         colourful_cmd.print_cyan(
             f'Starting to load model {self.model_name}'
         )
+
+        self._generation_config = transformers.GenerationConfig.from_pretrained(
+            self.model_name,
+            max_new_tokens=256
+        )
+
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=self.model_name,
             device_map=self.device,

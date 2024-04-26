@@ -108,6 +108,9 @@ class ScoreFunction:
         self.prompt: str = prompt
         self.scored_entity_type = scored_entity_type
 
+    def __str__(self) -> str:
+        return f"Scoring {self.scored_entity_type.__name__} with prompt {self.prompt[:10]}..."
+
     def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
         return self.prompt.format(**entity.__dict__)
 
@@ -116,7 +119,7 @@ class ScoreFunction:
             user_input: str,
             use_history: bool,
     ) -> str:
-        return self.__model.get_model_response(user_input, use_history)
+        return await self.__model.get_model_response(user_input, use_history)
 
     @staticmethod
     def extract_score(answer: str) -> tp.Optional[float]:
