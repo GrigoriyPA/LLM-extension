@@ -5,6 +5,8 @@ import * as vscodelc from "vscode-languageclient/node";
 import { FromVscodelc, SymbolKind } from "../utils/lsp/lsp_helpers";
 import { getSymbolsInformation, getReferences } from "../utils/lsp/lsp_methods";
 
+import { extensionConfig } from "../config";
+
 function findSymbolDescription(
     documentSymbols: vscodelc.DocumentSymbol[] | undefined,
     wordRange: vscode.Range
@@ -113,14 +115,44 @@ export async function findSymbolContentRange(
     });
 }
 
+function extractLineContext(
+    document: vscode.TextDocument,
+    topLine: number,
+    bottomLine: number
+): vscode.Range {
+    let lineDelta = 0;
+    while (lineDelta < extensionConfig.symbolContentRangeSize && topLine > 0) {
+        topLine -= 1;
+        if (!document.lineAt(topLine).isEmptyOrWhitespace) {
+            lineDelta += 1;
+        }
+    }
+
+    lineDelta = 0;
+    while (
+        lineDelta < extensionConfig.symbolContentRangeSize &&
+        bottomLine + 1 < document.lineCount
+    ) {
+        bottomLine += 1;
+        if (!document.lineAt(bottomLine).isEmptyOrWhitespace) {
+            lineDelta += 1;
+        }
+    }
+
+    return new vscode.Range(
+        new vscode.Position(topLine, 0),
+        document.lineAt(bottomLine).rangeIncludingLineBreak.end
+    );
+}
+
 export function getContextForPosition(
     document: vscode.TextDocument,
     position: vscode.Position
 ): string {
-    // TODO: @GrigoriyPA | @ZenMan123 extract larger range with context
-    const contextRange = new vscode.Range(
-        position.with(undefined, 0),
-        document.lineAt(position.line).rangeIncludingLineBreak.end
+    const contextRange = extractLineContext(
+        document,
+        position.line,
+        position.line
     );
 
     return document.getText(contextRange);
@@ -146,12 +178,10 @@ function computeReferencesContent(
             continue;
         }
 
-        // TODO: @GrigoriyPA | @ZenMan123 extract larger range with context
-        const referenceContentRange = new vscode.Range(
-            referenceRange.start.with(undefined, 0),
-            referenceDocument.lineAt(
-                referenceRange.end.line
-            ).rangeIncludingLineBreak.end
+        const referenceContentRange = extractLineContext(
+            referenceDocument,
+            referenceRange.start.line,
+            referenceRange.end.line
         );
 
         referencesContent.push(

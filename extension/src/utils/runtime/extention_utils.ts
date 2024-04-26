@@ -43,7 +43,6 @@ export function initializeExtention(context: vscode.ExtensionContext) {
         "Initialization of LLM python extension"
     );
 
-    // TODO: @GrigoriyPA add hotkeys
     for (const [functionName, functionImpl] of supportedFunctions) {
         context.subscriptions.push(
             vscode.commands.registerTextEditorCommand(

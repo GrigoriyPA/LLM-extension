@@ -18,6 +18,8 @@ class ExtensionConfig {
     componentsLogLevel = new Map<Components, LogLevel>();
 
     llmServerUrl: string = "http://84.201.172.146";
+
+    symbolContentRangeSize: number = 5;
 }
 
 export const extensionConfig = new ExtensionConfig();
