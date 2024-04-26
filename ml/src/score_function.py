@@ -89,7 +89,7 @@ class GenerativeModel:
                 model_response = await self.get_answer(history)
   
             except Exception as e:
-                print(f"{self.__model.get_provider_name()}:", e)
+                print(f"{self.get_provider_name()}:", e)
                 model_response = None
                 time.sleep(score_functions_constants.SLEEP_TIME_SEC)
 
