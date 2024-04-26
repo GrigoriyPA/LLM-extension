@@ -28,23 +28,6 @@ DOCSTRING_EXPERIMENT_V1: base_experiment.Experiment[
     )
 )
 
-DOCSTRING_EXPERIMENT_V2: base_experiment.Experiment[
-    database_entities.Function,
-    database_entities.ScorerModelDocstringResult
-] = base_experiment.Experiment(
-    exp_name="DOCSTRING_EXPERIMENT_V2",
-    models=[language_models.DocstringModels.docstring_llama_model.value],
-    score_function=score_function_module.ScoreFunction(
-        prompt=score_functions_config.DOCSTRING_PROMPTS[0],
-        scored_entity_type=score_function_module.database_entities.ScorerModelDocstringResult,
-    ),
-    benches=[benchmarks_list.DOCSTRING_BENCHMARK_V1],
-    dst=database_utils.Table(
-        db=database_config.MAIN_DATABASE,
-        table_name="experiment_results",
-        row_type=database_entities.ExperimentResult
-    )
-)
 
 EXPERIMENTS_LIST: tp.List[
     base_experiment.Experiment[
@@ -52,12 +35,4 @@ EXPERIMENTS_LIST: tp.List[
     ]
 ] = [
     DOCSTRING_EXPERIMENT_V1,
-]
-
-EXPERIMENTS_LIST2: tp.List[
-    base_experiment.Experiment[
-        database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE
-    ]
-] = [
-    DOCSTRING_EXPERIMENT_V2,
 ]

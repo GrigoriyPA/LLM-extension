@@ -13,11 +13,13 @@ class DocstringLLamaModel(base_model_module.BaseModel):
     def __init__(
             self,
             model_name: str = "synthetic",
+            model_type: str = "docstring",
             model_description: str = "llama70b api",
             prompt: str = prompts.DOCSTRING_PROMPT
     ):
         super().__init__(
             model_name=model_name,
+            model_type=model_type,
             model_description=model_description,
             prompt=prompt,
         )

@@ -16,12 +16,14 @@ class BaseModel(abc.ABC):
     def __init__(
             self,
             model_name: str,
+            model_type: str,
             model_description: str,
             prompt: str,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         self.model_name: str = model_name
+        self.model_type = model_type
         self.model_description = model_description
         self.prompt = prompt
         self._model = None
@@ -32,7 +34,11 @@ class BaseModel(abc.ABC):
 
     @property
     def database_name(self) -> str:
-        return self.model_name.replace('/', '_').replace('-', '_')
+        return (
+            self.model_name.replace('/', '_').replace('-', '_')
+            + '_' +
+            self.model_type
+        )
 
     def _load_model(self) -> None:
         start = time.time()

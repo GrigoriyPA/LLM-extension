@@ -13,12 +13,14 @@ class DocstringModel(base_model_module.BaseModel):
             self,
             model_name: str,
             model_description: str,
+            model_type: str = "docstring",
             prompt: str = prompts.DOCSTRING_PROMPT,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
     ):
         super().__init__(
             model_name=model_name,
+            model_type=model_type,
             model_description=model_description,
             device=device,
             weight_type=weight_type,
