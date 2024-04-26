@@ -149,7 +149,7 @@ class TestPowFunction(unittest.TestCase):
             pow('two', 'five')
 Analysis:
 1) These unit-tests is a correct Python code 
-2) There unit-tests check all corner cases, to they are quite good
+2) These unit-tests check all corner cases, to they are quite good
 Score: 1.0
 
 Function: 
@@ -164,5 +164,40 @@ Analysis:
 
 SEMANTIC_PROMPTS = [
     """
-    """
+Imagine, that you are my code assistant.    
+I had a variable or a function and wrote description of what it's semantic sense is. 
+I need you to score it by the following criteria.
+1) Semantic sense must be accurate
+2) Semantic sense must mention all possible usages of a variable or a function based on the examples of usages
+You must write score in format "Score: "value - float from 0 to 1"".
+
+Examples:
+Variable name:
+user_age
+Usages:
+user_age = int(input())
+if user_age < 18:
+if user_age > 100:
+print(f"You are only {user_age} years old, so you are not allowed to proceed")
+Semantic Sense:
+The variable user_age represents the age of a user. It is used to:
+• Store the user's age as an integer.
+• Check if the user is under 18 years old.
+• Check if the user is over 100 years old.
+• Print a message to the user based on their age.
+Analysis:
+1) Semantic sense is accurate, it is absolutely true
+2) Semantic sense mentions all usages
+Score: 1.0
+
+Variable name: 
+{variable_name}
+Usages:
+{context}
+Semantic Sense:
+{semantic_sense}
+
+Now write your analysis and a score in format "Analysis: "your analysis"\nScore: "float from 0 to 1""
+Analysis:
+    """,
 ]
