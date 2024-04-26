@@ -25,7 +25,7 @@ class TestGenerationApiModel(base_model_module.BaseApiModel):
         )
 
     def _get_final_result(self, model_response: str) -> str:
-        regexp_result = re.search('```python(.*?)```', model_response, re.DOTALL)
+        regexp_result = re.search('```(?:python)?(.*?)```', model_response, re.DOTALL)
         return regexp_result.group(1) if regexp_result else model_response
 
     def get_prompt(
@@ -58,7 +58,7 @@ class TestGenerationLocalModel(base_model_module.BaseLocalModel):
         )
 
     def _get_final_result(self, model_response: str) -> str:
-        regexp_result = re.search('```python(.*?)```', model_response, re.DOTALL)
+        regexp_result = re.search('```(?:python)?(.*?)```', model_response, re.DOTALL)
         return regexp_result.group(1) if regexp_result else model_response
 
     def get_prompt(
