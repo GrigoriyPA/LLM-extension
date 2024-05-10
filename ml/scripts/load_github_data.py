@@ -3,12 +3,10 @@ from os.path import expanduser
 
 from tqdm import tqdm
 
-from configs import database as database_config
-from src import colourful_cmd
-from src import database_entities
-from src import database_utils
-from src import github_searcher
-
+from src.constants import database as database_config
+from src.utils import colourful_cmd
+from src.database import database_entities, database_utils
+from src.data_utils import github_searcher
 
 # token generation: https://github.com/settings/tokens
 

@@ -15,7 +15,12 @@ class CmdModes(enum.Enum):
 
 
 def _print(*args, color: str, **kwargs) -> None:
-    print(color, ' '.join(map(str, args)) + CmdModes.endc.value, sep='', **kwargs)
+    print(
+        color,
+        ' '.join(map(str, args)) + CmdModes.endc.value,
+        sep='',
+        **kwargs
+    )
 
 
 def print_green(*args, **kwargs) -> None:

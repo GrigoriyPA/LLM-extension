@@ -4,9 +4,6 @@ import datetime
 import sqlite3
 import typing as tp
 
-from configs import database as database_config
-
-
 T = tp.TypeVar('T', bound=tp.NamedTuple)
 
 
@@ -22,24 +19,39 @@ class Database:
     }
     EL_TYPES = tp.Union[str, float, int, datetime.datetime]
 
-    def __init__(self, database_name: str):
+    def __init__(self, database_name: str) -> None:
         self.database_name = database_name
         self.connection = sqlite3.connect(self.database_name)
         self.cursor = self.connection.cursor()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.connection.close()
 
-    def create_table(self, table_name: str, columns: tp.List[tp.Tuple[str, type]]) -> None:
+    def create_table(
+            self,
+            table_name: str,
+            columns: tp.List[tp.Tuple[str, type]]
+    ) -> None:
         field_text = ", ".join([f"{a} {self.MAPPING[b]}" for a, b in columns])
 
-        request = f"CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY, {field_text})"
+        request = (
+            f"CREATE TABLE IF NOT EXISTS {table_name}"
+            f" (id INTEGER PRIMARY KEY, {field_text})"
+        )
         self.cursor.execute(request)
         self.connection.commit()
 
-    def write(self, table_name: str, columns: tp.List[EL_TYPES], data: tp.List[EL_TYPES]) -> None:
+    def write(
+            self,
+            table_name:
+            str, columns: tp.List[EL_TYPES],
+            data: tp.List[EL_TYPES]
+    ) -> None:
         tmp = ', '.join(['?' for _ in range(len(data))])
-        request = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({tmp})"
+        request = (
+            f"INSERT INTO {table_name}"
+            f" ({', '.join(columns)}) VALUES ({tmp})"
+        )
         self.cursor.execute(request, data)
         self.connection.commit()
 
@@ -61,7 +73,13 @@ class Database:
 
 
 class Table(tp.Generic[T]):
-    def __init__(self, db: Database, table_name: str, row_type: tp.Type[T], temporary: bool = False):
+    def __init__(
+            self,
+            db: Database,
+            table_name: str,
+            row_type: tp.Type[T],
+            temporary: bool = False
+    ) -> None:
         self.db: Database = db
         self.table_name: str = table_name
         self.row_type: tp.Type[T] = row_type
@@ -92,14 +110,18 @@ class Table(tp.Generic[T]):
     def clear(self) -> None:
         self.db.clear(self.table_name)
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self.temporary:
             self.db.drop(self.table_name)
 
 
-def create_new_table(row_type: tp.Type[T], table_name) -> Table[T]:
+def create_new_table(
+        db: Database,
+        row_type: tp.Type[T],
+        table_name: str
+) -> Table[T]:
     table = Table(
-        db=database_config.MAIN_DATABASE,
+        db=db,
         table_name=table_name,
         row_type=row_type,
     )

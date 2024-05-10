@@ -1,6 +1,7 @@
 API_TRY_COUNT = 3
 DELAY_TIME_SECONDS = 5
 
+SEARCH_URL = 'https://api.github.com/search/code'
 
 DEFAULT_HEADERS = {
     "Accept": "application/vnd.github.text-match+json",

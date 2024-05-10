@@ -1,8 +1,6 @@
-from configs import database as database_config
-from src import base_benchmark
-from src import database_entities
-from src import database_utils
-
+from src.constants import database as database_config
+from src.benchmarks import base_benchmark
+from src.database import database_entities, database_utils
 
 DOCSTRING_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
     base_benchmark.Benchmark[database_entities.Function](

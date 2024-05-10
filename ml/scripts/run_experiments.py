@@ -1,6 +1,5 @@
-from configs.experiments_list import EXPERIMENTS_LIST
-import configs.experiments_list
+from configs import experiments_list
 
 
-for experiment in EXPERIMENTS_LIST:
+for experiment in experiments_list.EXPERIMENTS_LIST:
     experiment.launch()

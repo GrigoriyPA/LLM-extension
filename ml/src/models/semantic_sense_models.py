@@ -1,13 +1,29 @@
-from textwrap import dedent
+import abc
 import torch
 
 from configs import local_model_settings as model_configs
 from configs import prompts
-from models import base_model as base_model_module
-from src import database_entities
+from src.models import base_models as base_models_module
+from src.database import database_entities
 
 
-class SemanticSenseModel(base_model_module.BaseModel):
+class BaseSemanticSenseModel(base_models_module.BaseModel, abc.ABC):
+    def _get_final_result(self, model_response: str) -> str:
+        return model_response
+
+    def get_prompt(
+            self,
+            data_row: database_entities.SemanticSense,
+    ) -> str:
+        full_prompt = self.prompt.format(variable_name=data_row.variable_name,
+                                         context=data_row.context)
+        return full_prompt
+
+
+class SemanticSenseLocalModel(
+    base_models_module.BaseModel,
+    BaseSemanticSenseModel
+):
     def __init__(
             self,
             model_name: str,
@@ -28,12 +44,3 @@ class SemanticSenseModel(base_model_module.BaseModel):
         self.device = device
         self.weight_type = weight_type
 
-    def _get_final_result(self, model_response: str) -> str:
-        return model_response
-
-    def get_prompt(
-            self,
-            data_row: database_entities.SemanticSense,
-    ) -> str:
-        full_prompt = self.prompt.format(variable_name=data_row.variable_name, context=data_row.context)
-        return full_prompt

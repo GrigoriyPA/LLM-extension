@@ -4,17 +4,18 @@ import g4f.client
 from tqdm import tqdm
 import g4f
 
-from constants import score_functions as score_functions_constants
-from models import base_model as base_model_module
-from src import database_entities
-from src import database_utils
+from configs import score_functions as score_function_configs
+
+from src.constants import database as database_constants
+from src.models import base_models as base_models_module
+from src.database import database_entities, database_utils
 import time
 
 
 class SessionInfo:
     def __init__(
             self,
-            max_length: int = score_functions_constants.DEFAULT_CONTEXT_LENGTH
+            max_length: int = score_function_configs.DEFAULT_CONTEXT_LENGTH
     ):
         self.history: tp.List[tp.Dict[str, str]] = []
         self.max_length: int = max_length
@@ -23,7 +24,11 @@ class SessionInfo:
     def trim_history(self) -> None:
         while len(self.history) > 1 and self.current_length > self.max_length:
             removed_message = self.history.pop(0)
-            self.current_length -= len(removed_message["content"]) if removed_message["content"] is not None else 0
+            self.current_length -= (
+                len(removed_message["content"])
+                if removed_message["content"] is not None
+                else 0
+            )
 
     def add_content(self, action: tp.Dict[str, str]) -> None:
         self.history.append(action)
@@ -41,12 +46,12 @@ class GenerativeModel:
             self,
             model: tp.Union[g4f.models.Model, str] = getattr(
                 g4f.models,
-                score_functions_constants.DEFAULT_FUNCTION.value
+                score_function_configs.DEFAULT_FUNCTION.value
             ),
             provider: tp.Union[g4f.providers.types.ProviderType, str, None] = (
                     getattr(
                         g4f.Provider,
-                        score_functions_constants.DEFAULT_PROVIDER.value
+                        score_function_configs.DEFAULT_PROVIDER.value
                     )
             )
     ):
@@ -81,7 +86,7 @@ class GenerativeModel:
                 if ind > 0:
                     self.__model = getattr(
                         g4f.models,
-                        score_functions_constants.DEFAULT_FUNCTION.value
+                        score_function_configs.DEFAULT_FUNCTION.value
                     )
                 ind += 1
                 history = self.__session_info.get_history() \
@@ -91,9 +96,11 @@ class GenerativeModel:
             except Exception as e:
                 print(f"{self.get_provider_name()}:", e)
                 model_response = None
-                time.sleep(score_functions_constants.SLEEP_TIME_SEC)
+                time.sleep(score_function_configs.SLEEP_TIME_SEC)
 
-        self.__session_info.add_content({"role": "assistant", "content": model_response})
+        self.__session_info.add_content(
+            {"role": "assistant", "content": model_response}
+        )
         return model_response
 
 
@@ -109,9 +116,15 @@ class ScoreFunction:
         self.scored_entity_type = scored_entity_type
 
     def __str__(self) -> str:
-        return f"Scoring {self.scored_entity_type.__name__} with prompt {self.prompt[:10]}..."
+        return (
+            f"Scoring {self.scored_entity_type.__name__}"
+            f" with prompt {self.prompt[:10]}..."
+        )
 
-    def prepare_prompt(self, entity: tp.Optional[database_entities.ENTITY_TYPE]) -> tp.Optional[str]:
+    def prepare_prompt(
+            self,
+            entity: tp.Optional[database_entities.ENTITY_TYPE]
+    ) -> tp.Optional[str]:
         return self.prompt.format(**entity.__dict__)
 
     async def get_model_response(
@@ -162,10 +175,13 @@ class ScoreFunction:
     async def exec_one(
             self,
             entity: database_entities.ENTITY_TYPE,
-            model: tp.Optional[base_model_module.BaseModel] = None,
+            model: tp.Optional[base_models_module.BaseModel] = None,
             use_history: bool = False
     ) -> database_entities.SCORED_ENTITY_TYPE:
-        text, score, output = await self.get_text_score_and_output(entity, use_history)
+        text, score, output = await self.get_text_score_and_output(
+            entity=entity,
+            use_history=use_history
+        )
         result = self.scored_entity_type(
             **entity.__dict__,
             model_name=model.model_name if model is not None else "-",
@@ -179,7 +195,7 @@ class ScoreFunction:
     async def exec(
             self,
             src: database_utils.Table[database_entities.ENTITY_TYPE],
-            model: tp.Optional[base_model_module.BaseModel] = None,
+            model: tp.Optional[base_models_module.BaseModel] = None,
             dst: tp.Optional[
                 database_utils.Table[database_entities.SCORED_ENTITY_TYPE]
             ] = None,
@@ -199,8 +215,13 @@ class ScoreFunction:
         """
         if not dst:
             dst = database_utils.create_new_table(
+                db=database_constants.MAIN_DATABASE,
                 row_type=self.scored_entity_type,
-                table_name=f'scorer_{(model.database_name if model is not None else "default")}_results'
+                table_name=(
+                    f'scorer_'
+                    f'{(model.database_name if model is not None else "default")}'
+                    f'_results'
+                )
             )
         index = 0
         for row in src.read() if not debug else tqdm(src.read()):

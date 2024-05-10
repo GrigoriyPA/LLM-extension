@@ -116,7 +116,16 @@ class ScorerModelDocstringResult(Function, BaseScoredEntity):
             *args,
             **kwargs
     ):
-        self = super(ScorerModelDocstringResult, cls).__new__(cls, function_name, code, docstring, context)
+        self = super(
+            ScorerModelDocstringResult,
+            cls
+        ).__new__(
+            cls,
+            function_name=function_name,
+            code=code,
+            docstring=docstring,
+            context=context
+        )
         self.model_name = model_name
         self.prompt = prompt
         self.scorer_prompt = scorer_prompt
@@ -151,8 +160,17 @@ class ScorerModelUnitTestResult(UnitTest, BaseScoredEntity):
             *args,
             **kwargs
     ):
-        self = super(ScorerModelUnitTestResult, cls).__new__(cls, function_name, code, context,
-                                                             unit_test, previous_test, previous_stacktrace)
+        self = super(
+            ScorerModelUnitTestResult, cls
+        ).__new__(
+            cls,
+            function_name=function_name,
+            code=code,
+            context=context,
+            unit_test=unit_test,
+            previous_test=previous_test,
+            previous_stacktrace=previous_stacktrace
+        )
         self.model_name = model_name
         self.prompt = prompt
         self.scorer_prompt = scorer_prompt
@@ -184,7 +202,14 @@ class ScorerModelSemanticSenseResult(SemanticSense, BaseScoredEntity):
             *args,
             **kwargs
     ):
-        self = super(ScorerModelSemanticSenseResult, cls).__new__(cls, variable_name, context, semantic_sense)
+        self = super(
+            ScorerModelSemanticSenseResult, cls
+        ).__new__(
+            cls,
+            variable_name=variable_name,
+            context=context,
+            semantic_sense=semantic_sense
+        )
         self.model_name = model_name
         self.prompt = prompt
         self.scorer_prompt = scorer_prompt

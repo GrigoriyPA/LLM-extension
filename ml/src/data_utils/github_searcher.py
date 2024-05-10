@@ -7,12 +7,17 @@ import json
 import requests
 from tqdm import tqdm
 
-from src import code_reader
-from src import colourful_cmd
-from src import database_entities
-from constants import github_searcher as github_searcher_constants
+from src.data_utils import code_reader
+from src.utils import colourful_cmd
+from src.database import database_entities
+from src.constants import github_searcher as github_searcher_constants
 
-SEARCH_URL = 'https://api.github.com/search/code'
+
+def get_headers(token):
+    return {
+            **github_searcher_constants.DEFAULT_HEADERS,
+            "Authorization": f'Bearer {token}',
+        }
 
 
 def call_github_api(
@@ -35,28 +40,6 @@ def call_github_api(
     return None
 
 
-def search_files_with_definitions(
-        author: str,
-        repo: str,
-        token: str,
-) -> tp.List[str]:
-    res = call_github_api(
-        url=(
-            SEARCH_URL
-            + f'?q=def+in:file+language:python+repo:{author}/{repo}&type=code'
-        ),
-        headers={
-            **github_searcher_constants.DEFAULT_HEADERS,
-            "Authorization": f'Bearer {token}',
-        }
-    )
-    if not res:
-        return []
-    res = res.json()
-    paths = {item['path']: item['git_url'] for item in res['items']}
-    return list(paths.values())
-
-
 def get_all_python_files(
         author: str,
         repo: str,
@@ -65,10 +48,7 @@ def get_all_python_files(
     res = call_github_api(
         url=f'https://api.github.com/repos/'
             f'{author}/{repo}/git/trees/main?recursive=1',
-        headers={
-            **github_searcher_constants.DEFAULT_HEADERS,
-            "Authorization": f'Bearer {token}',
-        }
+        headers=get_headers(token=token)
     )
     if not res:
         return []
@@ -83,10 +63,7 @@ def get_file_content(
 ) -> str:
     res = call_github_api(
         url=get_url,
-        headers={
-            **github_searcher_constants.DEFAULT_HEADERS,
-            "Authorization": f'Bearer {token}',
-        }
+        headers=get_headers(token=token)
     )
     if not res:
         return ''
@@ -145,7 +122,10 @@ def get_functions_in_repo(
 
     for url in tqdm(urls):
         content = get_file_content(get_url=url, token=token)
-        for name, usage in code_reader.get_functions_calls(content, context_wide=context_wide):
+        for name, usage in code_reader.get_functions_calls(
+                source_code=content,
+                context_wide=context_wide
+        ):
             if name in functions:
                 function_usages[name].append(usage)
     for name in function_usages:
