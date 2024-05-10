@@ -6,10 +6,9 @@ import time
 import torch
 import transformers
 
-
-from src import colourful_cmd
-from src import database_entities
-from src import score_function
+from src.utils import colourful_cmd
+from src.database import database_entities
+from src.scorers import score_function
 from configs import local_model_settings as model_configs
 import asyncio
 

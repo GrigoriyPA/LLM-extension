@@ -1,13 +1,30 @@
+import abc
 import re
 import torch
 
 from configs import local_model_settings as model_configs
 from configs import prompts
-from models import base_model as base_model_module
-from src import database_entities
+from src.models import base_models as base_models_module
+from src.database import database_entities
 
 
-class TestGenerationApiModel(base_model_module.BaseApiModel):
+class TestGenerationModel(base_models_module.BaseModel, abc.ABC):
+    def _get_final_result(self, model_response: str) -> str:
+        regexp_result = re.search('```(?:python)?(.*?)```', model_response,
+                                  re.DOTALL)
+        return regexp_result.group(1) if regexp_result else model_response
+
+    def get_prompt(
+            self,
+            data_row: database_entities.UnitTest,
+    ) -> str:
+        full_prompt = self.prompt.format(code=data_row.code)
+        return full_prompt
+
+
+class TestGenerationApiModel(
+    base_models_module.BaseApiModel, TestGenerationModel
+):
     def __init__(
             self,
             model_name: str = "synthetic",
@@ -24,19 +41,11 @@ class TestGenerationApiModel(base_model_module.BaseApiModel):
             prompt_desc=prompt_desc,
         )
 
-    def _get_final_result(self, model_response: str) -> str:
-        regexp_result = re.search('```(?:python)?(.*?)```', model_response, re.DOTALL)
-        return regexp_result.group(1) if regexp_result else model_response
 
-    def get_prompt(
-            self,
-            data_row: database_entities.UnitTest,
-    ) -> str:
-        full_prompt = self.prompt.format(code=data_row.code)
-        return full_prompt
-
-
-class TestGenerationLocalModel(base_model_module.BaseLocalModel):
+class TestGenerationLocalModel(
+    base_models_module.BaseLocalModel,
+    TestGenerationModel
+):
     def __init__(
             self,
             model_name: str,
@@ -56,14 +65,3 @@ class TestGenerationLocalModel(base_model_module.BaseLocalModel):
             prompt=prompt,
             prompt_desc=prompt_desc,
         )
-
-    def _get_final_result(self, model_response: str) -> str:
-        regexp_result = re.search('```(?:python)?(.*?)```', model_response, re.DOTALL)
-        return regexp_result.group(1) if regexp_result else model_response
-
-    def get_prompt(
-            self,
-            data_row: database_entities.UnitTest,
-    ) -> str:
-        full_prompt = self.prompt.format(code=data_row.code)
-        return full_prompt

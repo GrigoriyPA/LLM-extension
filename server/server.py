@@ -2,8 +2,8 @@ from flask import Flask, request
 from server_config import REQUIRED_FIELDS
 import json
 
-from src.database_entities import Function
-from constants.language_models import LanguageModel
+from src.database.database_entities import Function
+from src.constants.language_models import LanguageModel
 from waitress import serve
 
 app = Flask(__name__)

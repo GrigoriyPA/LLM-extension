@@ -1,14 +1,15 @@
 import asyncio
 
 from tqdm import tqdm
-
-from constants import score_functions as score_function_constants
-from src import database_entities, score_function as score_function_module
-from src.database_entities import ENTITY_TYPE
 import typing as tp
 
-from src import database_utils
-from models import base_model as base_model_module
+from configs import score_functions as score_function_configs
+
+from src.constants import database as database_constants
+from src.scorers import score_function as score_function_module
+from src.database import database_entities, database_utils
+from src.database.database_entities import ENTITY_TYPE
+from src.models import base_models as base_models_module
 
 
 class Benchmark(tp.Generic[ENTITY_TYPE]):
@@ -22,14 +23,25 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
 
     def launch_models(
             self,
-            models: tp.List[base_model_module.BaseModel]
-    ) -> tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]]:
-        result: tp.List[tp.Tuple[base_model_module.BaseModel, database_utils.Table[ENTITY_TYPE]]] = []
+            models: tp.List[base_models_module.BaseModel]
+    ) -> tp.List[
+        tp.Tuple[
+            base_models_module.BaseModel, database_utils.Table[ENTITY_TYPE]
+        ]
+    ]:
+        result: tp.List[
+            tp.Tuple[
+                base_models_module.BaseModel, database_utils.Table[ENTITY_TYPE]
+            ]
+        ] = []
 
         for model in tqdm(models):
-            labelled_elements: database_utils.Table[ENTITY_TYPE] = database_utils.create_new_table(
-                row_type=self.tables[0].row_type,
-                table_name=f'model_{model.database_name}_results'
+            labelled_elements: database_utils.Table[ENTITY_TYPE] = (
+                database_utils.create_new_table(
+                    db=database_constants.MAIN_DATABASE,
+                    row_type=self.tables[0].row_type,
+                    table_name=f'model_{model.database_name}_results'
+                )
             )
 
             progress_bar = tqdm(self.tables)
@@ -41,7 +53,8 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                     )
                     labelled_elements.write(element)
                 progress_bar.set_description(
-                    f"Processing model {model.model_name} on table {table.table_name}"
+                    f"Processing model {model.model_name}"
+                    f" on table {table.table_name}"
                 )
             result.append((model, labelled_elements))
             model.clear_model()
@@ -50,22 +63,30 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
 
     def score_models(
             self,
-            models: tp.List[base_model_module.BaseModel],
+            models: tp.List[base_models_module.BaseModel],
             score_function: score_function_module.ScoreFunction,
-            dst: tp.Optional[database_utils.Table[database_entities.BenchmarkResult]] = None
+            dst: tp.Optional[
+                database_utils.Table[database_entities.BenchmarkResult]
+            ] = None
     ) -> tp.Dict[str, float]:
         models_predictions = self.launch_models(models)
 
         if not dst:
             dst = database_utils.create_new_table(
+                db=database_constants.MAIN_DATABASE,
                 row_type=database_entities.BenchmarkResult,
                 table_name=f'benchmark_{self.benchmark_name}_results'
             )
 
         results: tp.Dict[str, float] = dict()
         for model, predictions in models_predictions:
-            scored_predictions = asyncio.run(score_function.exec(src=predictions, model=model)).read()
-            tmp = [element.get_prediction_score() for element in scored_predictions]
+            scored_predictions = asyncio.run(
+                score_function.exec(src=predictions, model=model)
+            ).read()
+            tmp = [
+                element.get_prediction_score()
+                for element in scored_predictions
+            ]
             init_length = len(tmp)
             tmp = [element for element in tmp if element is not None]
             if len(tmp) != init_length:
@@ -76,7 +97,9 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 database_entities.BenchmarkResult(
                     model_name=model.model_name,
                     model_prompt=model.prompt,
-                    score_model_name=score_function_constants.DEFAULT_FUNCTION.value,
+                    score_model_name=(
+                        score_function_configs.DEFAULT_FUNCTION.value
+                    ),
                     score_model_prompt=score_function.prompt,
                     benchmark_name=self.benchmark_name,
                     score=results[model.model_name],

@@ -1,6 +1,6 @@
 import os
 
-from src import database_utils
+from src.database import database_utils
 
 MAIN_DATABASE = database_utils.Database(os.getcwd() + "/data/main_database.db")
 SCORER_RESULTS_ON_DATASET_TABLE_NAME = "score_last_result"

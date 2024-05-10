@@ -2,18 +2,19 @@ import json
 from datetime import datetime
 import typing as tp
 
-from models import base_model
-from src import base_benchmark, score_function as score_function_module
-from src import database_entities
-from src.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE
-from src import database_utils
+from src.benchmarks import base_benchmark
+from src.database import database_entities
+from src.database import database_utils
+from src.database.database_entities import ENTITY_TYPE, SCORED_ENTITY_TYPE
+from src.models import base_models as base_models_module
+from src.scorers import score_function as score_function_module
 
 
 class Experiment(tp.Generic[ENTITY_TYPE, SCORED_ENTITY_TYPE]):
     def __init__(
             self,
             exp_name: str,
-            models: tp.List[base_model.BaseModel],
+            models: tp.List[base_models_module.BaseModel],
             score_function: score_function_module.ScoreFunction,
             benches: tp.List[base_benchmark.Benchmark],
             dst: database_utils.Table[database_entities.ExperimentResult]

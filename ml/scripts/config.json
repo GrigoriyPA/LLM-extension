@@ -3,9 +3,6 @@
     "ignore_comments": true,
     "ignore_tests": true,
     "repos": [
-      "TheAlgorithms/Python",
-      "langchain-ai/langchain",
-      "django/django",
       "tiangolo/fastapi",
       "openai/whisper",
       "pallets/flask",
@@ -13,7 +10,10 @@
       "pygame/pygame",
       "gitpython-developers/GitPython",
       "stitionai/devika",
-      "OpenInterpreter/open-interpreter"
+      "OpenInterpreter/open-interpreter",
+      "TheAlgorithms/Python",
+      "langchain-ai/langchain",
+      "django/django"
     ],
     "github_token_path": "~/.llm_hse/github_token"
 }
