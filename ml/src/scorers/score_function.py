@@ -75,15 +75,16 @@ class GenerativeModel:
     async def get_model_response(
             self,
             user_input: str,
-            use_history: bool,
+            use_history: bool = False,
     ) -> str:
         content = {"role": "user", "content": user_input}
         self.__session_info.add_content(content)
         model_response = None
         ind = 0
-        while model_response is None:
+        while model_response is None or model_response.find('流量异常') != -1 or model_response.find("I'm sorry") != -1 or model_response == "":
             try:
                 if ind > 0:
+                    print(f'Try: {ind + 1}')
                     self.__model = getattr(
                         g4f.models,
                         score_function_configs.DEFAULT_FUNCTION.value
@@ -130,7 +131,7 @@ class ScoreFunction:
     async def get_model_response(
             self,
             user_input: str,
-            use_history: bool,
+            use_history: bool = False,
     ) -> str:
         return await self.__model.get_model_response(user_input, use_history)
 
