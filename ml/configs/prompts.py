@@ -1,5 +1,5 @@
-DOCSTRING_PROMPT = """Generate a docstring by the given declaration, 
-definition (optional) and context (optional) of the function. 
+DOCSTRING_PROMPT = """Generate only a docstring by the given declaration, 
+definition (optional) and context (optional) of the function. Start your docstring with \"\"\" and end with \"\"\".
 Docstring must include detailed and extensive description of the function,
 it's parameters and return value. 
 Docstring must follow accurate format:
@@ -9,8 +9,7 @@ Docstring must follow accurate format:
 Here is the body of the function, 
 for which you will have to write a docstring: 
 {code}
-{context_info}
-Docstring for that function:"""
+Write only docstring for that function:"""
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
 SHORT_DOCSTRING_PROMPT = """Write docstring for a function. 
