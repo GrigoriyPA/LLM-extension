@@ -26,7 +26,7 @@ class GPTProviderName(enum.Enum):
     Bing = "Bing"
 
 
-DEFAULT_FUNCTION = GPTModelName.default
+DEFAULT_FUNCTION = GPTModelName.default # for provider You it is gpt-3.5-turbo
 DEFAULT_PROVIDER = GPTProviderName.You
 
 
