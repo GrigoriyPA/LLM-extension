@@ -3,7 +3,7 @@ import g4f
 
 @enum.unique
 class GPTModelName(enum.Enum):
-    gpt_35_turbo = "gpt_4_turbo"
+    gpt_35_turbo = "gpt_35_turbo"
     command_r_plus = "command_r_plus"
     llama3_70b_instruct = "llama3_70b_instruct"
     llama2_70b = "llama2_70b"
