@@ -1,41 +1,45 @@
 import ast
 import typing as tp
 
+from tqdm import tqdm
+
 
 def get_functions_sources(
         source_code: str,
         ignore_comments: bool = False
 ) -> tp.List[tp.Tuple[str, str, str]]:
-    tree = ast.parse(source_code)
-    code_by_lines = source_code.splitlines(True)
-    if ignore_comments:
-        code_by_lines = [
-            code_line.split('#')[0]
-            for code_line in code_by_lines
-        ]
-    function_sources = []
+    try:
+        tree = ast.parse(source_code)
+        code_by_lines = source_code.splitlines(True)
+        if ignore_comments:
+            code_by_lines = [
+                code_line.split('#')[0]
+                for code_line in code_by_lines
+            ]
+        function_sources = []
 
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef):
-            docstring = ast.get_docstring(node)
-            start_lineno = node.lineno
-            end_lineno = node.end_lineno
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                docstring = ast.get_docstring(node)
+                start_lineno = node.lineno
+                end_lineno = node.end_lineno
 
-            if docstring:
-                doc_node = node.body[0].value
-                func_source = "".join(
-                    code_by_lines[start_lineno - 1: doc_node.lineno - 1] +
-                    code_by_lines[doc_node.end_lineno: end_lineno]
+                if docstring:
+                    doc_node = node.body[0].value
+                    func_source = "".join(
+                        code_by_lines[start_lineno - 1: doc_node.lineno - 1] +
+                        code_by_lines[doc_node.end_lineno: end_lineno]
+                    )
+                else:
+                    func_source = "".join(
+                        code_by_lines[start_lineno - 1: end_lineno]
+                    )
+
+                function_sources.append(
+                    (node.name, func_source, docstring)
                 )
-            else:
-                func_source = "".join(
-                    code_by_lines[start_lineno - 1: end_lineno]
-                )
-
-            function_sources.append(
-                (node.name, func_source, docstring)
-            )
-
+    except:
+        return []
     return function_sources
 
 
