@@ -29,7 +29,7 @@ def call_github_api(
             res = requests.get(
                 url=url,
                 headers=headers,
-                timeout=2,
+                timeout=github_searcher_constants.GITHUB_API_TIMEOUT,
             )
         except Exception as ex:
             colourful_cmd.print_red(
