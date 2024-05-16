@@ -6,6 +6,7 @@ from configs import local_model_settings as model_configs
 from configs import prompts
 from src.database import database_entities
 from src.models import base_models as base_models_module
+from src.models import base_api_models as base_api_models_module
 
 
 class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
@@ -31,7 +32,7 @@ class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
         return full_prompt
 
 
-class DocstringApiModel(base_models_module.BaseApiModel, BaseDocstringModel):
+class DocstringApiModel(base_api_models_module.BaseApiModel, BaseDocstringModel):
     def __init__(
             self,
             model_name: str = "synthetic",

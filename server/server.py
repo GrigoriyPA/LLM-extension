@@ -3,14 +3,14 @@ from server_config import REQUIRED_FIELDS
 import json
 
 from src.database.database_entities import Function
-from src.constants.language_models import LanguageModel
+from src.constants.language_models import DocstringModels
 from waitress import serve
 
 app = Flask(__name__)
 
 def document_function(function: Function):
     print("Getting document of function...")
-    return LanguageModel.codellama_python_7b.value.generate_docstring(function)
+    return DocstringModels.codellama_python_7b.value.generate_result(function)
 
 
 def semantic_analysis_of_symbol(some_args=None):

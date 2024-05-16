@@ -5,6 +5,7 @@ import torch
 from configs import local_model_settings as model_configs
 from configs import prompts
 from src.models import base_models as base_models_module
+from src.models import base_api_models as base_api_models
 from src.database import database_entities
 
 
@@ -23,7 +24,7 @@ class TestGenerationModel(base_models_module.BaseModel, abc.ABC):
 
 
 class TestGenerationApiModel(
-    base_models_module.BaseApiModel, TestGenerationModel
+    base_api_models.BaseApiModel, TestGenerationModel
 ):
     def __init__(
             self,
