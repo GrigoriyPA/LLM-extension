@@ -30,7 +30,8 @@ dst_dataset = database_utils.Table(
     row_type=database_entities.Function
 )
 
-for repo in tqdm(config['repos']):
+for repo in (pbar := tqdm(config['repos'])):
+    pbar.set_description(repo)
     author, repo_name = repo.split('/')
     data = github_searcher.get_functions_in_repo(
         author=author,

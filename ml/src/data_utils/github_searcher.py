@@ -28,7 +28,8 @@ def call_github_api(
         try:
             res = requests.get(
                 url=url,
-                headers=headers
+                headers=headers,
+                timeout=github_searcher_constants.GITHUB_API_TIMEOUT,
             )
         except Exception as ex:
             colourful_cmd.print_red(
@@ -91,7 +92,8 @@ def get_functions_in_repo(
     function_usages = collections.defaultdict(list)
     functions: tp.Dict[str, database_entities.Function] = {}
     tests: tp.Dict[str, database_entities.Function] = {}
-    for url in tqdm(urls):
+    for url in (pbar := tqdm(urls)):
+        pbar.set_description(f"Processing {url}")
         content = get_file_content(get_url=url, token=token)
         for name, code, docstring in code_reader.get_functions_sources(
                 content,

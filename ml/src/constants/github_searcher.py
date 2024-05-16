@@ -7,3 +7,5 @@ DEFAULT_HEADERS = {
     "Accept": "application/vnd.github.text-match+json",
     "X-GitHub-Api-Version": "2022-11-28"
 }
+
+GITHUB_API_TIMEOUT = 2

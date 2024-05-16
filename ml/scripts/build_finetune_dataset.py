@@ -1,38 +1,24 @@
-import asyncio
-from tqdm import tqdm
+import json
 
-from configs import prompts
-from src.constants import database as database_config
-from src.database import database_entities, database_utils
-from src.scorers.score_function import GenerativeModel
-import time
-import re
-async def build_finetune_dataset():
-    src_dataset = database_utils.Table(
-        db=database_config.MAIN_DATABASE,
-        table_name=database_config.GITHUB_DATA_TABLE,
-        row_type=database_entities.Function
-    )
+from src.constants import database as database_constants
+from src.database import database_entities
+from src.database import database_utils
 
-    dst_dataset = database_utils.Table(
-        db=database_config.MAIN_DATABASE,
-        table_name=database_config.FINETUNE_DOCSTRING_DATASET,
-        row_type=database_entities.Function,
-    )
+finetune_dataset_table = database_utils.Table(database_constants.MAIN_DATABASE,
+                                              "finetune_docstring_dataset_clear",
+                                              database_entities.Function)
 
-    funcs = src_dataset.read()
-    model = GenerativeModel()
+arr = []
+for row in finetune_dataset_table.read():
+    if row.docstring is None:
+        continue
+    prompt = f"Function:\n{row.code}\nDocstring:\n{row.docstring}"
+    arr.append({"text": prompt})
 
-    for i, func in enumerate(tqdm(funcs)):
-        if i >= 0:
-            func.docstring = await model.get_model_response(prompts.DOCSTRING_PROMPT.format(**func.__dict__))
-            match = re.search(r'"""\s*(.*?)\s*"""', func.docstring, re.DOTALL)
-            if match is not None:
-                func.docstring = match.group(1)
-            else:
-                func.docstring = None
-            dst_dataset.write(func)
-            time.sleep(3)
+with open("train.jsonl", 'w') as f:
+    for item in arr:
+        f.write(json.dumps(item) + "\n")
 
-
-asyncio.run(build_finetune_dataset())
+"""
+autotrain llm --train --model microsoft/Phi-3-mini-128k-instruct --data-path . --lr 2e-4 --batch-size 3 --epochs 1 --trainer sft --peft --project-name finetune-phi3-docstring
+"""
