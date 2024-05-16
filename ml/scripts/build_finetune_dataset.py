@@ -1,10 +1,10 @@
 import json
 
-from src.constants import database
+from src.constants import database as database_constants
 from src.database import database_entities
 from src.database import database_utils
 
-finetune_dataset_table = database_utils.Table(database.MAIN_DATABASE,
+finetune_dataset_table = database_utils.Table(database_constants.MAIN_DATABASE,
                                               "finetune_docstring_dataset_clear",
                                               database_entities.Function)
 
