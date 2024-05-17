@@ -96,9 +96,9 @@ class SemanticSense(BaseEntity):
 
 class AutoComplete(BaseEntity):
     code: str
-    autocomplete: str
+    autocomplete: tp.Optional[str]
 
-    def __new__(cls, code: str, autocomplete: str):
+    def __new__(cls, code: str, autocomplete: tp.Optional[str] = None):
         self = super(BaseEntity, cls).__new__(cls)
         self.code = code
         self.autocomplete = autocomplete

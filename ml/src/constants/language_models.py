@@ -1,8 +1,12 @@
 import enum
+import transformers
 
 from src.models import docstring_models
 from src.models import tests_generation_models
+from src.models import autocomplete_models
+
 from configs import prompts
+from configs import local_model_settings as model_configs
 
 
 @enum.unique
@@ -54,4 +58,17 @@ class TestGenerationModels(enum.Enum):
     stable_code_3b = tests_generation_models.TestGenerationLocalModel(
         model_name="stabilityai/stable-code-3b",
         model_description="3B params"
+    )
+
+
+@enum.unique
+class AutoCompleteModels(enum.Enum):
+    microsoft_phi3 = autocomplete_models.AutoCompleteLocalModel(
+        model_name="microsoft/Phi-3-mini-128k-instruct",
+        model_description="3.6B params",
+        prompt=prompts.EMPTY_AUTOCOMPLETE_PROMPT,
+        generation_config=transformers.GenerationConfig.from_pretrained(
+            "microsoft/Phi-3-mini-128k-instruct",
+            max_new_tokens=model_configs.AUTOCOMPLETE_MAX_NEW_TOKENS,
+        )
     )

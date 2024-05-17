@@ -1,5 +1,7 @@
 import abc
 import torch
+import typing as tp
+import transformers
 
 from configs import local_model_settings as model_configs
 from configs import prompts
@@ -20,18 +22,19 @@ class BaseAutoCompleteModel(base_models_module.BaseModel, abc.ABC):
 
 
 class AutoCompleteLocalModel(
-    base_models_module.BaseModel,
+    base_models_module.BaseLocalModel,
     BaseAutoCompleteModel
 ):
     def __init__(
-            self,
-            model_name: str,
-            model_description: str,
-            model_type: str = "autocomplete",
-            prompt: str = prompts.EMPTY_AUTOCOMPLETE_PROMPT,
-            prompt_desc: str = "",
-            device: torch.device = model_configs.DEVICE,
-            weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+        self,
+        model_name: str,
+        model_description: str,
+        model_type: str = "autocomplete",
+        prompt: str = prompts.EMPTY_AUTOCOMPLETE_PROMPT,
+        prompt_desc: str = "",
+        device: torch.device = model_configs.DEVICE,
+        weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+        generation_config: tp.Optional[transformers.GenerationConfig] = None,
     ):
         super().__init__(
             model_name=model_name,
@@ -39,7 +42,7 @@ class AutoCompleteLocalModel(
             model_description=model_description,
             prompt=prompt,
             prompt_desc=prompt_desc,
+            generation_config=generation_config,
         )
         self.device = device
         self.weight_type = weight_type
-
