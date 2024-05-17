@@ -29,6 +29,20 @@ DOCSTRING_EXPERIMENT_V1: base_experiment.Experiment[
     dst=EXP_RESULT_TABLE,
 )
 
+DOCSTRING_EXPERIMENT_V1_100_FUNCS: base_experiment.Experiment[
+    database_entities.Function,
+    database_entities.ScorerModelDocstringResult
+] = base_experiment.Experiment(
+    exp_name="DOCSTRING_EXPERIMENT_V1_100_FUNCS",
+    models=[language_models_constants.DocstringModels.finetuned_microsoft_phi3.value],
+    score_function=score_function_module.ScoreFunction(
+        prompt=prompts.SCORER_DOCSTRING_PROMPTS[0],
+        scored_entity_type=database_entities.ScorerModelDocstringResult,
+    ),
+    benches=[benchmarks_list.DOCSTRING_BENCHMARK_V2_100_FUNCS],
+    dst=EXP_RESULT_TABLE,
+)
+
 TEST_GENERATION_EXPERIMENT_V1: base_experiment.Experiment[
     database_entities.UnitTest,
     database_entities.ScorerModelUnitTestResult
@@ -65,6 +79,8 @@ EXPERIMENTS_LIST: tp.List[
         database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE
     ]
 ] = [
-    # TEST_GENERATION_EXPERIMENT_V1,
+    TEST_GENERATION_EXPERIMENT_V1,
     DOCSTRING_EXPERIMENT_V1,
+    DOCSTRING_EXPERIMENT_V1_100_FUNCS,
+    DOCSTRING_EXPERIMENT_V1_CodeLlamas,
 ]
