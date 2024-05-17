@@ -97,7 +97,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
 
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
-            max_new_tokens=1024,
+            max_new_tokens=model_configs.MAX_NEW_TOKENS,
         )
 
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
@@ -116,18 +116,18 @@ class BaseLocalModel(BaseModel, abc.ABC):
         )
 
         if self.lora_part_path:
-            NUM_EMBEDDINGS = 32011
-            EMBEDDING_DIM = 3072
-
-            self._model.config.vocab_size = NUM_EMBEDDINGS
+            self._model.config.vocab_size = model_configs.NUM_EMBEDDINGS
 
             tmp = self._model.model.embed_tokens.weight
-            self._model.model.embed_tokens = torch.nn.Embedding(NUM_EMBEDDINGS, EMBEDDING_DIM)
-            self._model.model.embed_tokens.weight.data = tmp[:NUM_EMBEDDINGS, :]
+            self._model.model.embed_tokens = torch.nn.Embedding(
+                model_configs.NUM_EMBEDDINGS,
+                model_configs.EMBEDDING_DIM
+            )
+            self._model.model.embed_tokens.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
 
             tmp = self._model.lm_head.weight
-            self._model.lm_head = torch.nn.Linear(EMBEDDING_DIM, NUM_EMBEDDINGS)
-            self._model.lm_head.weight.data = tmp[:NUM_EMBEDDINGS, :]
+            self._model.lm_head = torch.nn.Linear(model_configs.EMBEDDING_DIM, model_configs.NUM_EMBEDDINGS)
+            self._model.lm_head.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
 
             self._model = peft.PeftModel.from_pretrained(
                 self._model,
