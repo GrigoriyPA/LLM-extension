@@ -12,6 +12,8 @@ for which you will have to write a docstring:
 Write only docstring for that function:"""
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
+FINETUNE_PROMPT = "Function:\n{code}\nDocstring:"
+
 SHORT_DOCSTRING_PROMPT = """Write docstring for a function. 
 Function:
 {code}

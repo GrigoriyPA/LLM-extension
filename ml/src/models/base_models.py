@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import abc
 import time
+import typing as tp
 
 import torch
 import transformers
+import peft
 
 from src.utils import colourful_cmd
 from src.database import database_entities
@@ -71,6 +73,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
             prompt_desc: str,
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+            lora_part_path: tp.Optional[str] = None,
     ):
         super().__init__(
             model_name=model_name,
@@ -84,6 +87,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
         self._generation_config = None
         self.device = device
         self.weight_type = weight_type
+        self.lora_part_path = lora_part_path
 
     def _load_model(self) -> None:
         start = time.time()
@@ -93,7 +97,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
 
         self._generation_config = transformers.GenerationConfig.from_pretrained(
             self.model_name,
-            max_new_tokens=256,
+            max_new_tokens=model_configs.MAX_NEW_TOKENS,
         )
 
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
@@ -105,11 +109,34 @@ class BaseLocalModel(BaseModel, abc.ABC):
             transformers.AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=self.model_name,
                 low_cpu_mem_usage=True,
-                torch_dtype=self.weight_type,
+                torch_dtype=self.weight_type if self.lora_part_path is None else None,
                 device_map=self.device,
                 trust_remote_code=True,
             )
         )
+
+        if self.lora_part_path:
+            self._model.config.vocab_size = model_configs.NUM_EMBEDDINGS
+
+            tmp = self._model.model.embed_tokens.weight
+            self._model.model.embed_tokens = torch.nn.Embedding(
+                model_configs.NUM_EMBEDDINGS,
+                model_configs.EMBEDDING_DIM
+            )
+            self._model.model.embed_tokens.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
+
+            tmp = self._model.lm_head.weight
+            self._model.lm_head = torch.nn.Linear(model_configs.EMBEDDING_DIM, model_configs.NUM_EMBEDDINGS)
+            self._model.lm_head.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
+
+            self._model = peft.PeftModel.from_pretrained(
+                self._model,
+                self.lora_part_path,
+                ignore_mismatched_sizes=True,
+            )
+
+            self._model = self._model.to(self.device)
+
         finish = time.time()
         colourful_cmd.print_green(
             f'Finished loading model {self.model_name},'

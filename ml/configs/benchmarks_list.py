@@ -15,6 +15,19 @@ DOCSTRING_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
     )
 )
 
+DOCSTRING_BENCHMARK_V2_100_FUNCS: base_benchmark.Benchmark[database_entities.Function] = (
+    base_benchmark.Benchmark[database_entities.Function](
+        tables=[
+            database_utils.Table(
+                db=database_config.MAIN_DATABASE,
+                table_name="benchmark_best_100_functions",
+                row_type=database_entities.Function
+            )
+        ],
+        benchmark_name="docstring_100_funcs",
+    )
+)
+
 TEST_GENERATION_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
     base_benchmark.Benchmark[database_entities.Function](
         tables=[
