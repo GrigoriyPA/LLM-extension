@@ -23,7 +23,7 @@ class DocstringModels(enum.Enum):
         model_name="microsoft/Phi-3-mini-128k-instruct",
         model_description="3.6B params",
         lora_part_path="finetuned_models/finetune-phi3-docstring",
-        prompt=prompts.FINETUNE_PROMPT,
+        prompt=prompts.FINETUNE_DOCSTRING_PROMPT,
     )
     stable_code_3b = docstring_models.DocstringLocalModel(
         model_name="stabilityai/stable-code-3b",
