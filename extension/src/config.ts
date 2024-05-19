@@ -17,7 +17,7 @@ class ExtensionConfig {
     defaultLogLevel = LogLevel.TRACE;
     componentsLogLevel = new Map<Components, LogLevel>();
 
-    llmServerUrl: string = "http://84.201.172.146";
+    llmServerUrl: string = "http://51.250.77.98";
 
     symbolContentRangeSize: number = 5;
 }
