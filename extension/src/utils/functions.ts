@@ -11,7 +11,11 @@ export function applyIndent(
 
     let resultText = "";
     for (const textLine of text.split("\n")) {
-        resultText += textIndent + prefix + textLine + "\n";
+        if (textLine !== "") {
+            resultText += textIndent + prefix + textLine + "\n";
+        } else {
+            resultText += textIndent + textLine + "\n";
+        }
     }
 
     return resultText;

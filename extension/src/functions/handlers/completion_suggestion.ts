@@ -20,18 +20,19 @@ function logMessage(logLevel: LogLevel, message: string) {
     );
 }
 
-async function completionSuggestion(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    token: vscode.CancellationToken,
-    context: vscode.CompletionContext
-): Promise<vscode.CompletionItem[]> {
+export const completionSuggestion = async (
+    textEditor: vscode.TextEditor,
+    edit: vscode.TextEditorEdit
+) => {
     logMessage(LogLevel.TRACE, "Compute request");
+
+    const document = textEditor.document;
+    const position = textEditor.selection.active;
 
     // TODO: @ZenMan123 | @GrigoriyPA pass more info for suggestion
     const request = new RequestsBase.RequestWithSymbolContextBase(
         getContextForPosition(document, position),
-        []
+        [getContextForPosition(document, position)]
     );
 
     const requestPromise = sendRequest(
@@ -40,20 +41,24 @@ async function completionSuggestion(
 
     return requestPromise.then((response) => {
         return computeResponse(
-            CompletionSuggestion.Response.deserialize(response)
+            CompletionSuggestion.Response.deserialize(response),
+            textEditor,
+            position
         );
     });
-}
+};
 
-function computeResponse(
-    response: CompletionSuggestion.Response
-): vscode.CompletionItem[] {
+async function computeResponse(
+    response: CompletionSuggestion.Response,
+    textEditor: vscode.TextEditor,
+    position: vscode.Position
+) {
     if (!response.isSuccess()) {
         logMessage(
             LogLevel.ERROR,
             `Failed to compute request: ${response.getError()}`
         );
-        return [];
+        return;
     }
 
     // TODO: @ZenMan123 | @GrigoriyPA provide symbol completion continuously
@@ -63,14 +68,10 @@ function computeResponse(
         `Completion suggestions:\n${response.getDescription()}`
     );
 
-    const completionItems: vscode.CompletionItem[] = [];
-    for (const suggestion of response.contents) {
-        completionItems.push(new vscode.CompletionItem(suggestion));
-    }
+    let snippet = new vscode.SnippetString();
+    snippet.appendChoice(response.contents);
 
-    return completionItems;
+    return textEditor.insertSnippet(snippet, position).then((response) => {
+        return;
+    });
 }
-
-export const completionSuggestionProvider: vscode.CompletionItemProvider = {
-    provideCompletionItems: completionSuggestion,
-};

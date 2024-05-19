@@ -7,7 +7,6 @@ import { SemanticAnalysisOfSymbol } from "../../utils/http_server/requests_struc
 
 import { SymbolKind } from "../../utils/lsp/lsp_helpers";
 
-import { applyIndent } from "../../utils/functions";
 import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
@@ -31,13 +30,13 @@ export const semanticAnalysisOfSymbol = async (
     const buildRequestPromise = buildRequestWithSymbolContex(
         textEditor.document,
         position,
-        SymbolKind.VARIABLE
+        SymbolKind.UNKNOWN
     );
 
     return buildRequestPromise.then((request) => {
         if (request === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a variable defenition");
+            logMessage(LogLevel.DEBUG, "Is not a symbol definition");
             return;
         }
 

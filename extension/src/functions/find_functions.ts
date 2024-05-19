@@ -103,6 +103,9 @@ export async function findSymbolContentRange(
 
     return symbolDescriptionPromise.then((symbolDescription) => {
         if (symbolDescription === undefined) {
+            if (targetSymbol === SymbolKind.UNKNOWN) {
+                return document.getWordRangeAtPosition(position);
+            }
             return undefined;
         }
 

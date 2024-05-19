@@ -26,7 +26,11 @@ export async function buildRequestWithSymbolContex(
 
     return Promise.all([symbolContentRange, symbolReferencesContent]).then(
         (result) => {
-            if (result[0] === undefined || result[1] === undefined) {
+            if (
+                result[0] === undefined ||
+                result[1] === undefined ||
+                result[1].length === 0
+            ) {
                 return undefined;
             }
 

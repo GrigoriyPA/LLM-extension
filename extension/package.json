@@ -20,16 +20,16 @@
   "contributes": {
     "commands": [
       {
+        "command": "llm-extension.completionSuggestion",
+        "title": "Completion suggestion"
+      },
+      {
         "command": "llm-extension.documentFunction",
         "title": "Document function"
       },
       {
         "command": "llm-extension.generateTests",
         "title": "Generate tests"
-      },
-      {
-        "command": "llm-extension.nameSuggestion",
-        "title": "Name suggestion"
       },
       {
         "command": "llm-extension.semanticAnalysisOfSymbol",
@@ -39,15 +39,15 @@
     "menus": {
       "editor/context": [
         {
+          "command": "llm-extension.completionSuggestion",
+          "when": "editorTextFocus && textInputFocus && editorLangId == python"
+        },
+        {
           "command": "llm-extension.documentFunction",
           "when": "editorTextFocus && textInputFocus && editorLangId == python"
         },
         {
           "command": "llm-extension.generateTests",
-          "when": "editorTextFocus && textInputFocus && editorLangId == python"
-        },
-        {
-          "command": "llm-extension.nameSuggestion",
           "when": "editorTextFocus && textInputFocus && editorLangId == python"
         },
         {

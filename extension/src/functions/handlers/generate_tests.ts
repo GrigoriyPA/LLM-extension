@@ -96,7 +96,11 @@ async function insertTests(
             position.line
         ).firstNonWhitespaceCharacterIndex;
 
-        const testsContent = applyIndent(indentSize, "\n\n" + tests.trimEnd());
+        const testsContent = applyIndent(
+            indentSize,
+            "\n\n" + tests.trimEnd(),
+            "# "
+        );
 
         textEditor.edit((edit: vscode.TextEditorEdit) => {
             edit.insert(functionContentRange.end, testsContent);

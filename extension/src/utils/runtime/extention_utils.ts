@@ -2,8 +2,6 @@ import * as vscode from "vscode";
 
 import { logEntry } from "../logger";
 
-import { completionSuggestionProvider } from "../../functions/handlers/completion_suggestion";
-
 import { supportedFunctions } from "../../functions/functions_description";
 
 import { LogLevel, Components } from "../../config";
@@ -51,9 +49,4 @@ export function initializeExtention(context: vscode.ExtensionContext) {
             )
         );
     }
-
-    vscode.languages.registerCompletionItemProvider(
-        "python",
-        completionSuggestionProvider
-    );
 }
