@@ -112,6 +112,8 @@ Function:
 Docstring:
 """
 
+FINETUNE_TEST_GENERATION_PROMPT = "Function:\n{code}\nTests:"
+
 TEST_GENERATION_PROMPT = """Write unit-tests for the given function
 
 Examples:
