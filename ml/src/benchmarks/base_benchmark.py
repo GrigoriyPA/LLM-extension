@@ -86,8 +86,7 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 score_function.exec(src=predictions, model=model)
             ).read()
             tmp = [
-                element.get_prediction_score()
-                for element in scored_predictions
+                element.score for element in scored_predictions
             ]
             init_length = len(tmp)
             tmp = [element for element in tmp if element is not None]

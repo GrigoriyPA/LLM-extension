@@ -10,6 +10,7 @@ from tqdm import tqdm
 from src.data_utils import code_reader
 from src.utils import colourful_cmd
 from src.database import database_entities
+from src.database import database_utils
 from src.constants import github_searcher as github_searcher_constants
 
 
@@ -76,14 +77,16 @@ def get_file_content(
     return decoded
 
 
-def get_functions_in_repo(
+def load_data_in_repo(
         author: str,
         repo: str,
         context_wide: int,
         token: str,
         ignore_comments: bool,
-        ignore_tests: bool
-) -> tp.Dict[str, database_entities.Function]:
+        ignore_tests: bool,
+        functions_table: database_utils.Table,
+        semantic_sense_table: database_utils.Table
+) -> None:
     urls = get_all_python_files(
         author=author,
         repo=repo,
@@ -95,7 +98,7 @@ def get_functions_in_repo(
     for url in (pbar := tqdm(urls)):
         pbar.set_description(f"Processing {url}")
         content = get_file_content(get_url=url, token=token)
-        for name, code, docstring in code_reader.get_functions_sources(
+        for name, code, docstring, variable in code_reader.get_functions_sources(
                 content,
                 ignore_comments=ignore_comments
         ):
@@ -110,6 +113,13 @@ def get_functions_in_repo(
                     function_name=name,
                     docstring=docstring,
                     code=code,
+                )
+            if variable:
+                semantic_sense_table.write(
+                    database_entities.SemanticSense(
+                        variable_name=variable,
+                        context=code,
+                    )
                 )
 
     for test in tests.values():
@@ -132,4 +142,6 @@ def get_functions_in_repo(
                 function_usages[name].append(usage)
     for name in function_usages:
         functions[name].context = json.dumps(function_usages[name])
-    return functions
+        functions_table.write(
+            functions[name]
+        )

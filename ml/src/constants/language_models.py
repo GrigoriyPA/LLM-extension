@@ -5,6 +5,7 @@ from src.models import docstring_models
 from src.models import tests_generation_models
 from src.models import autocomplete_models
 
+from src.models import semantic_sense_models
 from configs import prompts
 from configs import local_model_settings as model_configs
 
@@ -61,7 +62,6 @@ class TestGenerationModels(enum.Enum):
     )
 
 
-@enum.unique
 class AutoCompleteModels(enum.Enum):
     microsoft_phi3 = autocomplete_models.AutoCompleteLocalModel(
         model_name="microsoft/Phi-3-mini-128k-instruct",
@@ -71,4 +71,11 @@ class AutoCompleteModels(enum.Enum):
             "microsoft/Phi-3-mini-128k-instruct",
             max_new_tokens=model_configs.AUTOCOMPLETE_MAX_NEW_TOKENS,
         )
+    )
+
+
+class SemanticSenseModels(enum.Enum):
+    microsoft_phi3 = semantic_sense_models.SemanticSenseLocalModel(
+        model_name="microsoft/Phi-3-mini-128k-instruct",
+        model_description="3.6B params"
     )

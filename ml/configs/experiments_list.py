@@ -57,6 +57,21 @@ TEST_GENERATION_EXPERIMENT_V1: base_experiment.Experiment[
     dst=EXP_RESULT_TABLE,
 )
 
+SEMANTIC_SENSE_EXPERIMENT_V1: base_experiment.Experiment[
+    database_entities.Function,
+    database_entities.ScorerModelDocstringResult
+] = base_experiment.Experiment(
+    exp_name="SEMANTIC_SENSE_EXPERIMENT_V1",
+    models=[el.value for el in language_models_constants.SemanticSenseModels],
+    score_function=score_function_module.ScoreFunction(
+        prompt=prompts.SCORER_SEMANTIC_SENSE_PROMPTS[0],
+        scored_entity_type=database_entities.ScorerModelSemanticSenseResult,
+    ),
+    benches=[benchmarks_list.SEMANTIC_SENSE_BENCHMARK_V1],
+    dst=EXP_RESULT_TABLE,
+)
+
+
 DOCSTRING_EXPERIMENT_V1_CodeLlamas: base_experiment.Experiment[
     database_entities.Function,
     database_entities.ScorerModelDocstringResult
@@ -73,14 +88,3 @@ DOCSTRING_EXPERIMENT_V1_CodeLlamas: base_experiment.Experiment[
     benches=[benchmarks_list.DOCSTRING_BENCHMARK_V1],
     dst=EXP_RESULT_TABLE,
 )
-
-EXPERIMENTS_LIST: tp.List[
-    base_experiment.Experiment[
-        database_entities.ENTITY_TYPE, database_entities.SCORED_ENTITY_TYPE
-    ]
-] = [
-    TEST_GENERATION_EXPERIMENT_V1,
-    DOCSTRING_EXPERIMENT_V1,
-    DOCSTRING_EXPERIMENT_V1_100_FUNCS,
-    DOCSTRING_EXPERIMENT_V1_CodeLlamas,
-]
