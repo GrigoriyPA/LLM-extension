@@ -94,6 +94,20 @@ class SemanticSense(BaseEntity):
         self.semantic_sense = prediction
 
 
+class AutoComplete(BaseEntity):
+    code: str
+    autocomplete: tp.Optional[str]
+
+    def __new__(cls, code: str, autocomplete: tp.Optional[str] = None):
+        self = super(BaseEntity, cls).__new__(cls)
+        self.code = code
+        self.autocomplete = autocomplete
+        return self
+
+    def set_prediction(self, prediction) -> None:
+        self.autocomplete = prediction
+
+
 class ScorerModelDocstringResult(Function, BaseScoredEntity):
     model_name: str
     prompt: str
@@ -219,6 +233,43 @@ class ScorerModelSemanticSenseResult(SemanticSense, BaseScoredEntity):
 
     def get_prediction_score(self) -> float:
         return self.semantic_sense_score
+
+
+class ScorerModelAutoCompleteResult(AutoComplete, BaseScoredEntity):
+    model_name: str
+    prompt: str
+    scorer_prompt: str
+    autocomplete_score: float
+    scorer_response: str
+
+    def __new__(
+            cls,
+            code: str,
+            autocomplete: str,
+            model_name: str,
+            prompt: str,
+            scorer_prompt: str,
+            autocomplete_score: float,
+            scorer_response: str,
+            *args,
+            **kwargs
+    ):
+        self = super(
+            ScorerModelAutoCompleteResult, cls
+        ).__new__(
+            cls,
+            code=code,
+            autocomplete=autocomplete,
+        )
+        self.model_name = model_name
+        self.prompt = prompt
+        self.scorer_prompt = scorer_prompt
+        self.autocomplete_score = autocomplete_score
+        self.scorer_response = scorer_response
+        return self
+
+    def get_prediction_score(self) -> float:
+        return self.autocomplete_score
 
 
 class BenchmarkResult(tp.NamedTuple):

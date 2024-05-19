@@ -12,7 +12,7 @@ for which you will have to write a docstring:
 Write only docstring for that function:"""
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
-FINETUNE_PROMPT = "Function:\n{code}\nDocstring:"
+FINETUNE_DOCSTRING_PROMPT = "Function:\n{code}\nDocstring:"
 
 SHORT_DOCSTRING_PROMPT = """Write docstring for a function. 
 Function:
@@ -179,8 +179,17 @@ Usages:
 Semantic Sense:
 """
 
-# scorer model prompts:
+EMPTY_AUTOCOMPLETE_PROMPT = "{code}"
 
+SHORT_AUTOCOMPLETE_PROMPT = "Continue that code:\n{code}"
+
+AUTOCOMPLETE_PROMPT = """
+    Imagine, that you are my code assistant. I need you to complete the following code.
+    Be careful, don't use undeclared variables. If you do great, I will pay you 500 dollars.
+    Predict only a few words, that would fit best. Now here is the code: {code}
+""".replace("\n", " ")
+
+# scorer model prompts:
 
 SCORER_DOCSTRING_PROMPTS = [
     """

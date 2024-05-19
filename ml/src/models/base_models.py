@@ -74,6 +74,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
             lora_part_path: tp.Optional[str] = None,
+            generation_config: tp.Optional[transformers.GenerationConfig] = None,
     ):
         super().__init__(
             model_name=model_name,
@@ -88,6 +89,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
         self.device = device
         self.weight_type = weight_type
         self.lora_part_path = lora_part_path
+        self._generation_config = generation_config
 
     def _load_model(self) -> None:
         start = time.time()
@@ -95,10 +97,11 @@ class BaseLocalModel(BaseModel, abc.ABC):
             f'Starting to load model {self.model_name}'
         )
 
-        self._generation_config = transformers.GenerationConfig.from_pretrained(
-            self.model_name,
-            max_new_tokens=model_configs.MAX_NEW_TOKENS,
-        )
+        if self._generation_config is None:
+            self._generation_config = transformers.GenerationConfig.from_pretrained(
+                self.model_name,
+                max_new_tokens=model_configs.MAX_NEW_TOKENS,
+            )
 
         self._tokenizer = transformers.AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=self.model_name,
