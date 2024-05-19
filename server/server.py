@@ -69,4 +69,4 @@ def handle_request():
     return json.dumps(response)
 
 
-serve(app, port=80)
+serve(app, port=80, threads=1)
