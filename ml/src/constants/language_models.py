@@ -56,6 +56,12 @@ class TestGenerationModels(enum.Enum):
         model_name="microsoft/phi-2",
         model_description="2.7B params"
     )
+    finetuned_microsoft_phi3 = tests_generation_models.TestGenerationLocalModel(
+        model_name="microsoft/Phi-3-mini-128k-instruct",
+        model_description="3.6B params",
+        lora_part_path="finetuned_models/finetune-phi3-unit-test",
+        prompt=prompts.FINETUNE_TEST_GENERATION_PROMPT,
+    )
     stable_code_3b = tests_generation_models.TestGenerationLocalModel(
         model_name="stabilityai/stable-code-3b",
         model_description="3B params"
