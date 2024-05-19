@@ -16,7 +16,8 @@ function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
-        `[Document Function] ${message}`
+        `${message}`,
+        `[Document Function]`
     );
 }
 

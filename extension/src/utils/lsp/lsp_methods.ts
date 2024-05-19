@@ -14,7 +14,8 @@ function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
-        `[LSP request] ${message}`
+        `${message}`,
+        `[LSP request]`
     );
 }
 

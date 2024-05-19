@@ -15,7 +15,8 @@ function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
-        `[Semantic Analysis Of Symbol] ${message}`
+        `${message}`,
+        `[Semantic Analysis Of Symbol]`
     );
 }
 
