@@ -12,9 +12,11 @@ class BaseEntity(tp.NamedTuple):
 
 
 class BaseScoredEntity(tp.NamedTuple):
-    @abc.abstractmethod
-    def get_prediction_score(self) -> float:
-        """returns prediction score"""
+    model_name: str
+    prompt: str
+    scorer_prompt: str
+    score: float
+    scorer_response: str
 
 
 ENTITY_TYPE = tp.TypeVar('ENTITY_TYPE', bound=BaseEntity)
@@ -34,9 +36,10 @@ class Function(BaseEntity):
             code: str,
             docstring: tp.Optional[str] = None,
             context: tp.Optional[str] = None,
-            unit_test: tp.Optional[str] = None
+            unit_test: tp.Optional[str] = None,
+            **kwargs
     ):
-        self = super(Function, cls).__new__(cls)
+        self = super(Function, cls).__new__(cls, **kwargs)
         self.function_name = function_name
         self.code = code
         self.docstring = docstring
@@ -64,8 +67,9 @@ class UnitTest(BaseEntity):
             unit_test: tp.Optional[str] = None,
             previous_test: tp.Optional[str] = None,
             previous_stacktrace: tp.Optional[str] = None,
+            **kwargs
     ):
-        self = super(BaseEntity, cls).__new__(cls)
+        self = super(BaseEntity, cls).__new__(cls, **kwargs)
         self.function_name = function_name
         self.code = code
         self.context = context
@@ -87,9 +91,10 @@ class SemanticSense(BaseEntity):
             cls,
             variable_name: str,
             context: str,
-            semantic_sense: tp.Optional[str] = None
+            semantic_sense: tp.Optional[str] = None,
+            **kwargs
     ):
-        self = super(BaseEntity, cls).__new__(cls)
+        self = super(BaseEntity, cls).__new__(cls, **kwargs)
         self.variable_name = variable_name
         self.context = context
         self.semantic_sense = semantic_sense
@@ -103,8 +108,13 @@ class AutoComplete(BaseEntity):
     code: str
     autocomplete: tp.Optional[str]
 
-    def __new__(cls, code: str, autocomplete: tp.Optional[str] = None):
-        self = super(BaseEntity, cls).__new__(cls)
+    def __new__(
+            cls,
+            code: str,
+            autocomplete: tp.Optional[str] = None,
+            **kwargs
+    ):
+        self = super(BaseEntity, cls).__new__(cls, **kwargs)
         self.code = code
         self.autocomplete = autocomplete
         return self
@@ -114,167 +124,35 @@ class AutoComplete(BaseEntity):
 
 
 class ScorerModelDocstringResult(Function, BaseScoredEntity):
-    model_name: str
-    prompt: str
-    scorer_prompt: str
-    docstring_score: float
-    scorer_response: str
-
     def __new__(
             cls,
-            function_name: str,
-            code: str,
-            docstring: str,
-            context: str,
-            unit_test: str,
-            model_name: str,
-            prompt: str,
-            scorer_prompt: str,
-            docstring_score: float,
-            scorer_response: str,
-            *args,
             **kwargs
     ):
-        self = super(
-            ScorerModelDocstringResult,
-            cls
-        ).__new__(
-            cls,
-            function_name=function_name,
-            code=code,
-            docstring=docstring,
-            context=context
-        )
-        self.model_name = model_name
-        self.prompt = prompt
-        self.scorer_prompt = scorer_prompt
-        self.docstring_score = docstring_score
-        self.scorer_response = scorer_response
-        return self
-
-    def get_prediction_score(self) -> float:
-        return self.docstring_score
+        return super().__new__(cls, **kwargs)
 
 
 class ScorerModelUnitTestResult(UnitTest, BaseScoredEntity):
-    model_name: str
-    prompt: str
-    scorer_prompt: str
-    unittest_score: float
-    scorer_response: str
-
     def __new__(
             cls,
-            function_name: str,
-            code: str,
-            context: tp.Optional[str],
-            unit_test: tp.Optional[str],
-            previous_test: tp.Optional[str],
-            previous_stacktrace: tp.Optional[str],
-            model_name: str,
-            prompt: str,
-            scorer_prompt: str,
-            unittest_score: float,
-            scorer_response: str,
-            *args,
             **kwargs
     ):
-        self = super(
-            ScorerModelUnitTestResult, cls
-        ).__new__(
-            cls,
-            function_name=function_name,
-            code=code,
-            context=context,
-            unit_test=unit_test,
-            previous_test=previous_test,
-            previous_stacktrace=previous_stacktrace
-        )
-        self.model_name = model_name
-        self.prompt = prompt
-        self.scorer_prompt = scorer_prompt
-        self.unittest_score = unittest_score
-        self.scorer_response = scorer_response
-        return self
-
-    def get_prediction_score(self) -> float:
-        return self.unittest_score
+        return super().__new__(cls, **kwargs)
 
 
 class ScorerModelSemanticSenseResult(SemanticSense, BaseScoredEntity):
-    model_name: str
-    prompt: str
-    scorer_prompt: str
-    semantic_sense_score: float
-    scorer_response: str
-
     def __new__(
             cls,
-            variable_name: str,
-            context: str,
-            semantic_sense: str,
-            model_name: str,
-            prompt: str,
-            scorer_prompt: str,
-            semantic_sense_score: float,
-            scorer_response: str,
-            *args,
             **kwargs
     ):
-        self = super(
-            ScorerModelSemanticSenseResult, cls
-        ).__new__(
-            cls,
-            variable_name=variable_name,
-            context=context,
-            semantic_sense=semantic_sense
-        )
-        self.model_name = model_name
-        self.prompt = prompt
-        self.scorer_prompt = scorer_prompt
-        self.semantic_sense_score = semantic_sense_score
-        self.scorer_response = scorer_response
-        return self
-
-    def get_prediction_score(self) -> float:
-        return self.semantic_sense_score
+        return super().__new__(cls, **kwargs)
 
 
 class ScorerModelAutoCompleteResult(AutoComplete, BaseScoredEntity):
-    model_name: str
-    prompt: str
-    scorer_prompt: str
-    autocomplete_score: float
-    scorer_response: str
-
     def __new__(
             cls,
-            code: str,
-            autocomplete: str,
-            model_name: str,
-            prompt: str,
-            scorer_prompt: str,
-            autocomplete_score: float,
-            scorer_response: str,
-            *args,
             **kwargs
     ):
-        self = super(
-            ScorerModelAutoCompleteResult, cls
-        ).__new__(
-            cls,
-            code=code,
-            autocomplete=autocomplete,
-        )
-        self.model_name = model_name
-        self.prompt = prompt
-        self.scorer_prompt = scorer_prompt
-        self.autocomplete_score = autocomplete_score
-        self.scorer_response = scorer_response
-        return self
-
-    def get_prediction_score(self) -> float:
-        return self.autocomplete_score
+        return super().__new__(cls, **kwargs)
 
 
 class BenchmarkResult(tp.NamedTuple):
