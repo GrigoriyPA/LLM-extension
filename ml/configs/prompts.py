@@ -9,8 +9,7 @@ Docstring must follow accurate format:
 Here is the body of the function, 
 for which you will have to write a docstring: 
 {code}
-Write only docstring for that function:"""
-DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
+Docstring:"""
 
 FINETUNE_DOCSTRING_PROMPT = "Function:\n{code}\nDocstring:"
 
