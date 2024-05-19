@@ -83,7 +83,12 @@ class SemanticSense(BaseEntity):
     context: str
     semantic_sense: str
 
-    def __new__(cls, variable_name: str, context: str, semantic_sense: str):
+    def __new__(
+            cls,
+            variable_name: str,
+            context: str,
+            semantic_sense: tp.Optional[str] = None
+    ):
         self = super(BaseEntity, cls).__new__(cls)
         self.variable_name = variable_name
         self.context = context
