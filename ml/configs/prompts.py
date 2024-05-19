@@ -12,6 +12,8 @@ for which you will have to write a docstring:
 Write only docstring for that function:"""
 DOCSTRING_PROMPT = DOCSTRING_PROMPT.replace("\n", " ")
 
+FINETUNE_DOCSTRING_PROMPT = "Function:\n{code}\nDocstring:"
+
 SHORT_DOCSTRING_PROMPT = """Write docstring for a function. 
 Function:
 {code}
@@ -152,7 +154,9 @@ Function:
 Unittests:
 """
 
-SEMANTIC_SENSE_PROMPT = """Write semantic sense for the given variable names and it's usages
+SEMANTIC_SENSE_PROMPT = """Write semantic sense for the given variable
+names and it's usages, at the end of your answer write end_of_answer
+
 Examples:
 
 Variable name:
@@ -161,7 +165,7 @@ Usages:
 user_age = int(input())
 if user_age < 18:
 if user_age > 100:
-print(f"You are only {user_age} years old, so you are not allowed to proceed")
+print(f"You are only user_age years old, so you are not allowed to proceed")
 Semantic Sense:
 The variable user_age represents the age of a user. It is used to:
 
@@ -169,6 +173,9 @@ The variable user_age represents the age of a user. It is used to:
 • Check if the user is under 18 years old.
 • Check if the user is over 100 years old.
 • Print a message to the user based on their age.
+end_of_answer
+
+End of examples.
 
 Variable name:
 {variable_name}
@@ -177,8 +184,17 @@ Usages:
 Semantic Sense:
 """
 
-# scorer model prompts:
+EMPTY_AUTOCOMPLETE_PROMPT = "{code}"
 
+SHORT_AUTOCOMPLETE_PROMPT = "Continue that code:\n{code}"
+
+AUTOCOMPLETE_PROMPT = """
+    Imagine, that you are my code assistant. I need you to complete the following code.
+    Be careful, don't use undeclared variables. If you do great, I will pay you 500 dollars.
+    Predict only a few words, that would fit best. Now here is the code: {code}
+""".replace("\n", " ")
+
+# scorer model prompts:
 
 SCORER_DOCSTRING_PROMPTS = [
     """
@@ -318,7 +334,7 @@ Analysis:
     """,
 ]
 
-SEMANTIC_PROMPTS = [
+SCORER_SEMANTIC_SENSE_PROMPTS = [
     """
 Imagine, that you are my code assistant.    
 I had a variable or a function and wrote description of what it's semantic sense is. 
@@ -334,7 +350,7 @@ Usages:
 user_age = int(input())
 if user_age < 18:
 if user_age > 100:
-print(f"You are only {user_age} years old, so you are not allowed to proceed")
+print(f"You are only user_age years old, so you are not allowed to proceed")
 Semantic Sense:
 The variable user_age represents the age of a user. It is used to:
 • Store the user's age as an integer.
@@ -345,6 +361,9 @@ Analysis:
 1) Semantic sense is accurate, it is absolutely true
 2) Semantic sense mentions all usages
 Score: 1.0
+--end of examples
+
+Now write your analysis for this:
 
 Variable name: 
 {variable_name}

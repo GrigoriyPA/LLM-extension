@@ -44,18 +44,20 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 )
             )
 
-            progress_bar = tqdm(self.tables)
-            for table in progress_bar:
-                elements = table.read()
-                for element in tqdm(elements):
-                    element.set_prediction(
-                        model.generate_result(element)
+            if not labelled_elements.read():
+                progress_bar = tqdm(self.tables)
+                for table in progress_bar:
+                    elements = table.read()
+                    for element in tqdm(elements):
+                        element.set_prediction(
+                            model.generate_result(element)
+                        )
+                        labelled_elements.write(element)
+                    progress_bar.set_description(
+                        f"Processing model {model.model_name}"
+                        f" on table {table.table_name}"
                     )
-                    labelled_elements.write(element)
-                progress_bar.set_description(
-                    f"Processing model {model.model_name}"
-                    f" on table {table.table_name}"
-                )
+
             result.append((model, labelled_elements))
             model.clear_model()
 
@@ -84,8 +86,7 @@ class Benchmark(tp.Generic[ENTITY_TYPE]):
                 score_function.exec(src=predictions, model=model)
             ).read()
             tmp = [
-                element.get_prediction_score()
-                for element in scored_predictions
+                element.score for element in scored_predictions
             ]
             init_length = len(tmp)
             tmp = [element for element in tmp if element is not None]

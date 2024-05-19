@@ -24,22 +24,29 @@ except FileNotFoundError:
     )
     raise
 
-dst_dataset = database_utils.Table(
+functions_table = database_utils.Table(
     db=database_config.MAIN_DATABASE,
     table_name=database_config.GITHUB_DATA_TABLE,
     row_type=database_entities.Function
 )
 
-for repo in tqdm(config['repos']):
+
+semantic_sense_table = database_utils.Table(
+    db=database_config.MAIN_DATABASE,
+    table_name=database_config.GITHUB_DATA_VARIABLES_TABLE,
+    row_type=database_entities.SemanticSense
+)
+
+for repo in (pbar := tqdm(config['repos'])):
+    pbar.set_description(repo)
     author, repo_name = repo.split('/')
-    data = github_searcher.get_functions_in_repo(
+    github_searcher.load_data_in_repo(
         author=author,
         repo=repo_name,
         context_wide=config['context_wide'],
         token=AUTHORIZATION_TOKEN,
         ignore_comments=config['ignore_comments'],
-        ignore_tests=config['ignore_tests']
+        ignore_tests=config['ignore_tests'],
+        functions_table=functions_table,
+        semantic_sense_table=semantic_sense_table
     )
-
-    for row in data.values():
-        dst_dataset.write(row)

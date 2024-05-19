@@ -188,7 +188,7 @@ class ScoreFunction:
             model_name=model.model_name if model is not None else "-",
             prompt=model.get_prompt(entity) if model is not None else "-",
             scorer_prompt=text,
-            docstring_score=score,
+            score=score,
             scorer_response=output,
         )
         return result

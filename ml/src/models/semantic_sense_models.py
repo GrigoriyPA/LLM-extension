@@ -9,7 +9,7 @@ from src.database import database_entities
 
 class BaseSemanticSenseModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
-        return model_response
+        return model_response.split('Variable name')[0].split('end_of_answer')[0]
 
     def get_prompt(
             self,
@@ -21,7 +21,7 @@ class BaseSemanticSenseModel(base_models_module.BaseModel, abc.ABC):
 
 
 class SemanticSenseLocalModel(
-    base_models_module.BaseModel,
+    base_models_module.BaseLocalModel,
     BaseSemanticSenseModel
 ):
     def __init__(

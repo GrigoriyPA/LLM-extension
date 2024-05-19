@@ -1,5 +1,3 @@
 from configs import experiments_list
 
-
-for experiment in experiments_list.EXPERIMENTS_LIST:
-    experiment.launch()
+experiments_list.SEMANTIC_SENSE_EXPERIMENT_V1.launch()

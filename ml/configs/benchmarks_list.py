@@ -15,6 +15,19 @@ DOCSTRING_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
     )
 )
 
+DOCSTRING_BENCHMARK_V2_100_FUNCS: base_benchmark.Benchmark[database_entities.Function] = (
+    base_benchmark.Benchmark[database_entities.Function](
+        tables=[
+            database_utils.Table(
+                db=database_config.MAIN_DATABASE,
+                table_name="benchmark_best_100_functions",
+                row_type=database_entities.Function
+            )
+        ],
+        benchmark_name="docstring_100_funcs",
+    )
+)
+
 TEST_GENERATION_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Function] = (
     base_benchmark.Benchmark[database_entities.Function](
         tables=[
@@ -25,5 +38,21 @@ TEST_GENERATION_BENCHMARK_V1: base_benchmark.Benchmark[database_entities.Functio
             )
         ],
         benchmark_name="test_generation",
+    )
+)
+
+
+SEMANTIC_SENSE_BENCHMARK_V1: base_benchmark.Benchmark[
+    database_entities.SemanticSense
+] = (
+    base_benchmark.Benchmark[database_entities.SemanticSense](
+        tables=[
+            database_utils.Table(
+                db=database_config.MAIN_DATABASE,
+                table_name=database_config.GITHUB_DATA_VARIABLES_TABLE,
+                row_type=database_entities.SemanticSense
+            )
+        ],
+        benchmark_name="semantic_sense",
     )
 )

@@ -1,11 +1,13 @@
 import abc
 import re
 import torch
+import typing as tp
 
 from configs import local_model_settings as model_configs
 from configs import prompts
 from src.database import database_entities
 from src.models import base_models as base_models_module
+from src.models import base_api_models as base_api_models_module
 
 
 class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
@@ -31,7 +33,7 @@ class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
         return full_prompt
 
 
-class DocstringApiModel(base_models_module.BaseApiModel, BaseDocstringModel):
+class DocstringApiModel(base_api_models_module.BaseApiModel, BaseDocstringModel):
     def __init__(
             self,
             model_name: str = "synthetic",
@@ -62,6 +64,7 @@ class DocstringLocalModel(
             prompt_desc: str = "",
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+            lora_part_path: tp.Optional[str] = None,
     ):
         super().__init__(
             model_name=model_name,
@@ -71,4 +74,5 @@ class DocstringLocalModel(
             weight_type=weight_type,
             prompt=prompt,
             prompt_desc=prompt_desc,
+            lora_part_path=lora_part_path,
         )
