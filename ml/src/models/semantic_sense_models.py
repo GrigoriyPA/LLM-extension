@@ -21,7 +21,7 @@ class BaseSemanticSenseModel(base_models_module.BaseModel, abc.ABC):
 
 
 class SemanticSenseLocalModel(
-    base_models_module.BaseModel,
+    base_models_module.BaseLocalModel,
     BaseSemanticSenseModel
 ):
     def __init__(

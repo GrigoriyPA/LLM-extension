@@ -1,3 +1,3 @@
 from configs import experiments_list
 
-experiments_list.DOCSTRING_EXPERIMENT_V1_100_FUNCS.launch()
+experiments_list.SEMANTIC_SENSE_EXPERIMENT_V1.launch()

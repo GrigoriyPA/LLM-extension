@@ -49,7 +49,7 @@ class VariableCollector(ast.NodeVisitor):
             self.visit(item.optional_vars)
         self.generic_visit(node)
 
-    def is_builtin(self, name) -> None:
+    def is_builtin(self, name) -> bool:
         return name in dir(builtins)
 
 

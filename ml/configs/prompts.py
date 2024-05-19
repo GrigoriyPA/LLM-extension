@@ -163,7 +163,7 @@ Usages:
 user_age = int(input())
 if user_age < 18:
 if user_age > 100:
-print(f"You are only {user_age} years old, so you are not allowed to proceed")
+print(f"You are only user_age years old, so you are not allowed to proceed")
 Semantic Sense:
 The variable user_age represents the age of a user. It is used to:
 
