@@ -26,9 +26,8 @@ class GPTProviderName(enum.Enum):
     Bing = "Bing"
 
 
-
-DEFAULT_FUNCTION = GPTModelName.default # for provider You it is gpt-3.5-turbo
-DEFAULT_PROVIDER = GPTProviderName.You
+DEFAULT_FUNCTION = GPTModelName.llama3_70b_instruct  # for provider You it is gpt-3.5-turbo
+DEFAULT_PROVIDER = GPTProviderName.FreeGpt
 
 
 DEFAULT_CONTEXT_LENGTH = 4096

@@ -59,7 +59,11 @@ def get_variable_name(function_code: str) -> tp.Optional[str]:
     collector.visit(function_tree)
     variables = [
         var for var in collector.variables
-        if len(var) >= github_searcher_constants.VARIABLE_MIN_LENGTH
+        if (
+                len(var) >= github_searcher_constants.VARIABLE_MIN_LENGTH
+                and var[0] == var[0].lower()
+        )
+
     ]
     if not variables:
         return None

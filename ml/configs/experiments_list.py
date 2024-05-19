@@ -64,8 +64,8 @@ SEMANTIC_SENSE_EXPERIMENT_V1: base_experiment.Experiment[
     exp_name="SEMANTIC_SENSE_EXPERIMENT_V1",
     models=[el.value for el in language_models_constants.SemanticSenseModels],
     score_function=score_function_module.ScoreFunction(
-        prompt=prompts.SCORER_DOCSTRING_PROMPTS[0],
-        scored_entity_type=database_entities.ScorerModelDocstringResult,
+        prompt=prompts.SCORER_SEMANTIC_SENSE_PROMPTS[0],
+        scored_entity_type=database_entities.ScorerModelSemanticSenseResult,
     ),
     benches=[benchmarks_list.SEMANTIC_SENSE_BENCHMARK_V1],
     dst=EXP_RESULT_TABLE,

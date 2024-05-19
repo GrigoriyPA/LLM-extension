@@ -329,7 +329,7 @@ Analysis:
     """,
 ]
 
-SEMANTIC_PROMPTS = [
+SCORER_SEMANTIC_SENSE_PROMPTS = [
     """
 Imagine, that you are my code assistant.    
 I had a variable or a function and wrote description of what it's semantic sense is. 
@@ -345,7 +345,7 @@ Usages:
 user_age = int(input())
 if user_age < 18:
 if user_age > 100:
-print(f"You are only {user_age} years old, so you are not allowed to proceed")
+print(f"You are only user_age years old, so you are not allowed to proceed")
 Semantic Sense:
 The variable user_age represents the age of a user. It is used to:
 • Store the user's age as an integer.
@@ -356,6 +356,9 @@ Analysis:
 1) Semantic sense is accurate, it is absolutely true
 2) Semantic sense mentions all usages
 Score: 1.0
+--end of examples
+
+Now write your analysis for this:
 
 Variable name: 
 {variable_name}
