@@ -154,7 +154,9 @@ Function:
 Unittests:
 """
 
-SEMANTIC_SENSE_PROMPT = """Write semantic sense for the given variable names and it's usages
+SEMANTIC_SENSE_PROMPT = """Write semantic sense for the given variable
+names and it's usages, at the end of your answer write end_of_answer
+
 Examples:
 
 Variable name:
@@ -171,6 +173,9 @@ The variable user_age represents the age of a user. It is used to:
 • Check if the user is under 18 years old.
 • Check if the user is over 100 years old.
 • Print a message to the user based on their age.
+end_of_answer
+
+End of examples.
 
 Variable name:
 {variable_name}
