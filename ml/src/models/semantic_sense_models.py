@@ -9,6 +9,7 @@ from src.database import database_entities
 
 class BaseSemanticSenseModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
+        model_response = model_response.strip("\n ")
         return model_response.split('Variable name')[0].split('end_of_answer')[0]
 
     def get_prompt(
