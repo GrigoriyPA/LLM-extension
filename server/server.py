@@ -51,13 +51,13 @@ def handle_request():
     try:
         match request_type:
             case "DocumentFunction":
-                f = Function(function_name="", code=symbol_content, context=references_content[0])
+                f = Function(function_name="", code=symbol_content)
                 response["single_string"] = document_function(f)
             case "SemanticAnalysisOfSymbol":
-                f = SemanticSense(symbol_content, references_content[0])
+                f = SemanticSense(symbol_content, json.dumps(references_content))
                 response["single_string"] = semantic_analysis_of_symbol(f)
             case "GenerateTests":
-                f = Function(function_name="", code=symbol_content, context=references_content[0])
+                f = Function(function_name="", code=symbol_content, context=json.dumps(references_content))
                 response["single_string"] = generate_tests(f)
             case "CompletionSuggestion":
                 f = AutoComplete(code=symbol_content)
