@@ -121,12 +121,13 @@ export async function findSymbolContentRange(
 function extractLineContext(
     document: vscode.TextDocument,
     topLine: number,
-    bottomLine: number
+    bottomLine: number,
+    rangeSize: number = extensionConfig.symbolContentRangeSize
 ): vscode.Range {
     // TODO: @ZenMan123 | @GrigoriyPA pass smarter line context
 
     let lineDelta = 0;
-    while (lineDelta < extensionConfig.symbolContentRangeSize && topLine > 0) {
+    while (lineDelta < rangeSize && topLine > 0) {
         topLine -= 1;
         if (!document.lineAt(topLine).isEmptyOrWhitespace) {
             lineDelta += 1;
@@ -134,10 +135,7 @@ function extractLineContext(
     }
 
     lineDelta = 0;
-    while (
-        lineDelta < extensionConfig.symbolContentRangeSize &&
-        bottomLine + 1 < document.lineCount
-    ) {
+    while (lineDelta < rangeSize && bottomLine + 1 < document.lineCount) {
         bottomLine += 1;
         if (!document.lineAt(bottomLine).isEmptyOrWhitespace) {
             lineDelta += 1;
@@ -157,10 +155,11 @@ export function getContextForPosition(
     const contextRange = extractLineContext(
         document,
         position.line,
-        position.line
+        position.line,
+        extensionConfig.positionContentRangeSize
     );
 
-    return document.getText(contextRange);
+    return document.getText(contextRange.with(undefined, position));
 }
 
 function computeReferencesContent(

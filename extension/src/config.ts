@@ -20,6 +20,7 @@ class ExtensionConfig {
     llmServerUrl: string = "http://51.250.77.98";
 
     symbolContentRangeSize: number = 5;
+    positionContentRangeSize: number = 50;
 }
 
 export const extensionConfig = new ExtensionConfig();
