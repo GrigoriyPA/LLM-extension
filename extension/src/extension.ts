@@ -10,11 +10,15 @@ import {
 import { initializeExtention } from "./utils/runtime/extention_utils";
 
 export async function activate(context: vscode.ExtensionContext) {
-    initializeExtention(context);
-    const languageClientPromise = initializeLanguageClient();
-    const httpGatewayPromise = initializeHttpGateway();
+    return initializeExtention(context).then((value: boolean) => {
+        if (!value) {
+            return;
+        }
+        const languageClientPromise = initializeLanguageClient();
+        const httpGatewayPromise = initializeHttpGateway();
 
-    return Promise.all([languageClientPromise, httpGatewayPromise]);
+        return Promise.all([languageClientPromise, httpGatewayPromise]);
+    });
 }
 
 export async function deactivate() {

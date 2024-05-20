@@ -16,7 +16,6 @@ function logMessage(logLevel: LogLevel, message: string) {
 }
 
 function isJediInstalled(): Promise<boolean> {
-    logMessage(LogLevel.TRACE, `ABOBA`);
     return exec_promise("pip show jedi-language-server").then(
         (value: { stdout: string; stderr: string }) => {
             logMessage(
@@ -70,13 +69,11 @@ function installJedi(): PromiseLike<boolean> {
 }
 
 export function ensureJediIsInstalled(): Promise<boolean> {
-    logMessage(LogLevel.INFO, `AMOGUS`);
     return isJediInstalled().then((value: boolean) => {
         if (value) {
             logMessage(LogLevel.INFO, "language server already installed");
             return true;
         } else {
-            logMessage(LogLevel.INFO, "TEST1");
             return vscode.window
                 .showErrorMessage(
                     "Python Jedi Server is not intalled. Do you want to install it now?",
@@ -85,7 +82,6 @@ export function ensureJediIsInstalled(): Promise<boolean> {
                 )
                 .then(
                     (value) => {
-                        logMessage(LogLevel.INFO, "TEST2");
                         if (value === "Yes") {
                             return installJedi();
                         } else {
