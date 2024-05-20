@@ -13,12 +13,17 @@ import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
 
-function logMessage(logLevel: LogLevel, message: string) {
+function logMessage(
+    logLevel: LogLevel,
+    message: string,
+    showInline: boolean = false
+) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
         `${message}`,
-        `[Generate Tests]`
+        `[Generate Tests]`,
+        showInline
     );
 }
 
@@ -39,7 +44,7 @@ export const generateTests = async (
     return buildRequestPromise.then((request) => {
         if (request === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a function defenition");
+            logMessage(LogLevel.DEBUG, "Is not a function defenition", true);
             return;
         }
 
@@ -89,7 +94,7 @@ async function insertTests(
 
     return functionContentRangePromise.then((functionContentRange) => {
         if (functionContentRange === undefined) {
-            logMessage(LogLevel.ERROR, "Failed to find function content");
+            logMessage(LogLevel.ERROR, "Failed to find function content", true);
             return;
         }
 

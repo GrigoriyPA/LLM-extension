@@ -12,12 +12,17 @@ import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
 
-function logMessage(logLevel: LogLevel, message: string) {
+function logMessage(
+    logLevel: LogLevel,
+    message: string,
+    showInline: boolean = false
+) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
         `${message}`,
-        `[Completion Suggestion]`
+        `[Completion Suggestion]`,
+        showInline
     );
 }
 

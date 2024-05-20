@@ -12,12 +12,17 @@ import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
 
-function logMessage(logLevel: LogLevel, message: string) {
+function logMessage(
+    logLevel: LogLevel,
+    message: string,
+    showInline: boolean = false
+) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
         `${message}`,
-        `[Document Function]`
+        `[Document Function]`,
+        showInline
     );
 }
 
@@ -38,7 +43,7 @@ export const documentFunction = async (
     return buildRequestPromise.then((request) => {
         if (request === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a function defenition");
+            logMessage(LogLevel.DEBUG, "Is not a function defenition", true);
             return;
         }
 

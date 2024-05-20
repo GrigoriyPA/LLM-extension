@@ -11,12 +11,17 @@ import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
 
-function logMessage(logLevel: LogLevel, message: string) {
+function logMessage(
+    logLevel: LogLevel,
+    message: string,
+    showInline: boolean = false
+) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
         `${message}`,
-        `[Semantic Analysis Of Symbol]`
+        `[Semantic Analysis Of Symbol]`,
+        showInline
     );
 }
 
@@ -37,7 +42,7 @@ export const semanticAnalysisOfSymbol = async (
     return buildRequestPromise.then((request) => {
         if (request === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a symbol definition");
+            logMessage(LogLevel.DEBUG, "Is not a symbol definition", true);
             return;
         }
 

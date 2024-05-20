@@ -15,12 +15,17 @@ import { logEntry } from "../../utils/logger";
 
 import { LogLevel, Components } from "../../config";
 
-function logMessage(logLevel: LogLevel, message: string) {
+function logMessage(
+    logLevel: LogLevel,
+    message: string,
+    showInline: boolean = false
+) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
         `${message}`,
-        `[Name Suggestion]`
+        `[Name Suggestion]`,
+        showInline
     );
 }
 
@@ -41,7 +46,7 @@ export const nameSuggestion = async (
     return symbolDescriptionPromise.then((symbolDescription) => {
         if (symbolDescription === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a named symbol");
+            logMessage(LogLevel.DEBUG, "Is not a named symbol", true);
             return;
         }
 
@@ -59,7 +64,8 @@ async function doNameSuggestion(
         // TODO: @ganvas show this information in pretty window
         logMessage(
             LogLevel.DEBUG,
-            "Name suggestion is not supported for this symbol"
+            "Name suggestion is not supported for this symbol",
+            true
         );
         return;
     }
@@ -75,7 +81,7 @@ async function doNameSuggestion(
     return buildRequestPromise.then((request) => {
         if (request === undefined) {
             // TODO: @ganvas show this information in pretty window
-            logMessage(LogLevel.DEBUG, "Is not a named symbol");
+            logMessage(LogLevel.DEBUG, "Is not a named symbol", true);
             return;
         }
 
@@ -153,7 +159,7 @@ async function insertNameSuggestion(
         return vscode.workspace.applyEdit(renameSymbolEdit).then((response) => {
             if (!response) {
                 // TODO: @ganvas show this information in pretty window
-                logMessage(LogLevel.DEBUG, "Failed to rename symbol");
+                logMessage(LogLevel.DEBUG, "Failed to rename symbol", true);
                 return;
             }
         });

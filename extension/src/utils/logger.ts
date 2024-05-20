@@ -8,7 +8,8 @@ export function logEntry(
     logLevel: LogLevel,
     component: Components,
     message: string,
-    logPrefix: string = ""
+    logPrefix: string = "",
+    showInline: boolean = false,
 ) {
     let componentLogLevel = extensionConfig.componentsLogLevel.get(component);
     if (componentLogLevel === undefined) {
@@ -31,7 +32,7 @@ export function logEntry(
         ? vscode.window.activeTextEditor?.document.lineAt(hintPos.line).range
         : undefined;
 
-    if (hintLine && logLevel == LogLevel.DEBUG) {
+    if (hintLine && showInline) {
         const decorationType = vscode.window.createTextEditorDecorationType({
             after: {
                 contentText: message,
