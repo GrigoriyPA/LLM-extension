@@ -16,7 +16,8 @@ class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
         regexp_result = re.search(
             '([\'\"]{3})(.*?)([\'\"]{3})', model_response, re.DOTALL
         )
-        return regexp_result.group(2) if regexp_result else model_response
+        answer = regexp_result.group(2) if regexp_result else model_response
+        return answer.replace('\n    ', '\n')
 
     def get_prompt(
             self,
