@@ -110,7 +110,10 @@ export async function findSymbolContentRange(
         }
 
         const symbolKind = symbolDescription.kind;
-        if (!FromVscodelc.isSameSymboKind(targetSymbol, symbolKind)) {
+        if (
+            !FromVscodelc.isSameSymboKind(targetSymbol, symbolKind) &&
+            targetSymbol !== SymbolKind.UNKNOWN
+        ) {
             return undefined;
         }
 
