@@ -6,6 +6,8 @@ import { supportedFunctions } from "../../functions/functions_description";
 
 import { LogLevel, Components } from "../../config";
 
+import { ensureJediIsInstalled } from "../lsp/installation";
+
 let outputChannel: vscode.OutputChannel;
 
 export function printToExtentionChannel(
@@ -32,21 +34,32 @@ export async function createProgressIndicator<T>(
     });
 }
 
-export function initializeExtention(context: vscode.ExtensionContext) {
+export function initializeExtention(context: vscode.ExtensionContext): Promise<boolean> {
     outputChannel = vscode.window.createOutputChannel("LLM python extension");
 
-    logEntry(
-        LogLevel.INFO,
-        Components.EXTENSION,
-        "Initialization of LLM python extension"
-    );
-
-    for (const [functionName, functionImpl] of supportedFunctions) {
-        context.subscriptions.push(
-            vscode.commands.registerTextEditorCommand(
-                `llm-extension.${functionName}`,
-                functionImpl
-            )
+    return ensureJediIsInstalled().then((value: boolean) => {
+        if (!value) {
+            logEntry(
+                LogLevel.CRIT,
+                Components.EXTENSION,
+                "Jedi is not installed"
+            );
+            return false;
+        }
+        logEntry(
+            LogLevel.INFO,
+            Components.EXTENSION,
+            "Initialization of LLM python extension"
         );
-    }
+
+        for (const [functionName, functionImpl] of supportedFunctions) {
+            context.subscriptions.push(
+                vscode.commands.registerTextEditorCommand(
+                    `llm-extension.${functionName}`,
+                    functionImpl
+                )
+            );
+        }
+        return true;
+    });
 }
