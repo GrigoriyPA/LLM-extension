@@ -5,14 +5,14 @@ from src.database import database_entities
 from src.database import database_utils
 
 finetune_dataset_table = database_utils.Table(database_constants.MAIN_DATABASE,
-                                              "finetune_docstring_dataset_clear",
+                                              "finetune_unit_test_dataset_clear",
                                               database_entities.Function)
 
 arr = []
 for row in finetune_dataset_table.read():
-    if row.docstring is None:
+    if row.unit_test is None:
         continue
-    prompt = f"Function:\n{row.code}\nDocstring:\n{row.docstring}"
+    prompt = f"Function:\n{row.code}\nTests:\n{row.unit_test}"
     arr.append({"text": prompt})
 
 with open("train.jsonl", 'w') as f:

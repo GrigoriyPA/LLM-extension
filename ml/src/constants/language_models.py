@@ -56,6 +56,12 @@ class TestGenerationModels(enum.Enum):
         model_name="microsoft/phi-2",
         model_description="2.7B params"
     )
+    finetuned_microsoft_phi3 = tests_generation_models.TestGenerationLocalModel(
+        model_name="microsoft/Phi-3-mini-128k-instruct",
+        model_description="3.6B params",
+        lora_part_path="finetuned_models/finetune-phi3-unit-test",
+        prompt=prompts.FINETUNE_TEST_GENERATION_PROMPT,
+    )
     stable_code_3b = tests_generation_models.TestGenerationLocalModel(
         model_name="stabilityai/stable-code-3b",
         model_description="3B params"
@@ -69,7 +75,8 @@ class AutoCompleteModels(enum.Enum):
         prompt=prompts.EMPTY_AUTOCOMPLETE_PROMPT,
         generation_config=transformers.GenerationConfig.from_pretrained(
             "microsoft/Phi-3-mini-128k-instruct",
-            max_new_tokens=model_configs.AUTOCOMPLETE_MAX_NEW_TOKENS,
+            max_new_tokens=model_configs.MAX_NEW_TOKENS,
+            exponential_decay_length_penalty=model_configs.EXPONENTIAL_DECAY_LENGTH_PENALTY,
         )
     )
 

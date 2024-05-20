@@ -19,7 +19,8 @@ function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
-        `[Name Suggestion] ${message}`
+        `${message}`,
+        `[Name Suggestion]`
     );
 }
 

@@ -11,7 +11,7 @@ from src.database import database_entities
 
 class BaseAutoCompleteModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
-        return model_response
+        return model_response.rstrip("\n")
 
     def get_prompt(
             self,

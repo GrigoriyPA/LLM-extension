@@ -17,7 +17,8 @@ function logMessage(logLevel: LogLevel, message: string) {
     logEntry(
         logLevel,
         Components.REQUESTS_PROCESSOR,
-        `[Generate Tests] ${message}`
+        `${message}`,
+        `[Generate Tests]`
     );
 }
 

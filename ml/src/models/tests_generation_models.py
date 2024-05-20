@@ -1,6 +1,7 @@
 import abc
 import re
 import torch
+import typing as tp
 
 from configs import local_model_settings as model_configs
 from configs import prompts
@@ -11,6 +12,7 @@ from src.database import database_entities
 
 class TestGenerationModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
+        model_response = model_response.strip("\n ")
         regexp_result = re.search('```(?:python)?(.*?)```', model_response,
                                   re.DOTALL)
         return regexp_result.group(1) if regexp_result else model_response
@@ -56,6 +58,7 @@ class TestGenerationLocalModel(
             prompt_desc: str = "",
             device: torch.device = model_configs.DEVICE,
             weight_type: torch.dtype = model_configs.WEIGHT_TYPE,
+            lora_part_path: tp.Optional[str] = None,
     ):
         super().__init__(
             model_name=model_name,
@@ -65,4 +68,5 @@ class TestGenerationLocalModel(
             weight_type=weight_type,
             prompt=prompt,
             prompt_desc=prompt_desc,
+            lora_part_path=lora_part_path,
         )

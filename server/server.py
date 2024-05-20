@@ -2,35 +2,31 @@ from flask import Flask, request
 from server_config import REQUIRED_FIELDS
 import json
 
-from src.database.database_entities import Function
-from src.constants.language_models import DocstringModels
+from src.database.database_entities import Function, SemanticSense, AutoComplete
+from src.constants.language_models import DocstringModels, TestGenerationModels, AutoCompleteModels, SemanticSenseModels
 from waitress import serve
 
 app = Flask(__name__)
 
 def document_function(function: Function):
     print("Getting document of function...")
-    return DocstringModels.codellama_python_7b.value.generate_result(function)
+    return DocstringModels.finetuned_microsoft_phi3.value.generate_result(function)
 
 
-def semantic_analysis_of_symbol(some_args=None):
+def semantic_analysis_of_symbol(variable: SemanticSense):
     print("Getting semantic_analysis_of_symbol...")
-    return "Some analysis"
+    result = SemanticSenseModels.microsoft_phi3.value.generate_result(variable).replace('\n', '<br />')
+    return "<p>" + result + "</p>"
 
 
-def name_suggestion(some_args=None):
-    print("Getting name suggestion...")
-    return ["Suggestion_1", "Suggestion_2"]
-
-
-def generate_tests(some_args=None):
+def generate_tests(function: Function):
     print("Generating tests for function...")
-    return "Some tests"
+    return TestGenerationModels.finetuned_microsoft_phi3.value.generate_result(function)
 
 
-def completion_suggestion(some_args=None):
+def completion_suggestion(variable: AutoComplete):
     print("Getting completion suggestions...")
-    return ["Suggestion 1", "Suggestion 2"]
+    return [AutoCompleteModels.microsoft_phi3.value.generate_result(variable)]
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -55,16 +51,17 @@ def handle_request():
     try:
         match request_type:
             case "DocumentFunction":
-                f = Function("", symbol_content, references_content[0], "")
+                f = Function(function_name="", code=symbol_content, context=references_content[0])
                 response["single_string"] = document_function(f)
             case "SemanticAnalysisOfSymbol":
-                response["single_string"] = semantic_analysis_of_symbol(symbol_content)
-            case "NameSuggestion":
-                response["multiple_strings"] = name_suggestion(symbol_content)
+                f = SemanticSense(symbol_content, references_content[0])
+                response["single_string"] = semantic_analysis_of_symbol(f)
             case "GenerateTests":
-                response["single_string"] = generate_tests(symbol_content)
+                f = Function(function_name="", code=symbol_content, context=references_content[0])
+                response["single_string"] = generate_tests(f)
             case "CompletionSuggestion":
-                response["multiple_strings"] = completion_suggestion(symbol_content)
+                f = AutoComplete(code=symbol_content)
+                response["multiple_strings"] = completion_suggestion(f)
             case _:
                 response["error_message"] = f"Unknown request type: {request_type}."
     except Exception as error:
@@ -72,4 +69,4 @@ def handle_request():
     return json.dumps(response)
 
 
-serve(app, port=80)
+serve(app, port=80, threads=1)
