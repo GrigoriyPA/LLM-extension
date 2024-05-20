@@ -12,6 +12,7 @@ from src.models import base_api_models as base_api_models_module
 
 class BaseDocstringModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
+        model_response = model_response.strip("\n ")
         regexp_result = re.search(
             '([\'\"]{3})(.*?)([\'\"]{3})', model_response, re.DOTALL
         )

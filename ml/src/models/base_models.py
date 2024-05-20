@@ -167,5 +167,5 @@ class BaseLocalModel(BaseModel, abc.ABC):
         )
         generated_text = self._tokenizer.batch_decode(
             generated_ids[:, model_inputs["input_ids"].shape[1]:],
-            skip_special_tokens=True)[0].strip("\n").strip("")
+            skip_special_tokens=True)[0]
         return generated_text

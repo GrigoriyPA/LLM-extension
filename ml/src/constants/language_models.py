@@ -75,7 +75,8 @@ class AutoCompleteModels(enum.Enum):
         prompt=prompts.EMPTY_AUTOCOMPLETE_PROMPT,
         generation_config=transformers.GenerationConfig.from_pretrained(
             "microsoft/Phi-3-mini-128k-instruct",
-            max_new_tokens=model_configs.AUTOCOMPLETE_MAX_NEW_TOKENS,
+            max_new_tokens=model_configs.MAX_NEW_TOKENS,
+            exponential_decay_length_penalty=model_configs.EXPONENTIAL_DECAY_LENGTH_PENALTY,
         )
     )
 

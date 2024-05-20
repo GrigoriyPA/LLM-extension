@@ -21,7 +21,7 @@ def semantic_analysis_of_symbol(variable: SemanticSense):
 
 def generate_tests(function: Function):
     print("Generating tests for function...")
-    return TestGenerationModels.microsoft_phi3.value.generate_result(function)
+    return TestGenerationModels.finetuned_microsoft_phi3.value.generate_result(function)
 
 
 def completion_suggestion(function: Function):

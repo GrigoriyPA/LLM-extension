@@ -12,6 +12,7 @@ from src.database import database_entities
 
 class TestGenerationModel(base_models_module.BaseModel, abc.ABC):
     def _get_final_result(self, model_response: str) -> str:
+        model_response = model_response.strip("\n ")
         regexp_result = re.search('```(?:python)?(.*?)```', model_response,
                                   re.DOTALL)
         return regexp_result.group(1) if regexp_result else model_response
