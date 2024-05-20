@@ -2,7 +2,7 @@ from flask import Flask, request
 from server_config import REQUIRED_FIELDS
 import json
 
-from src.database.database_entities import Function, SemanticSense
+from src.database.database_entities import Function, SemanticSense, AutoComplete
 from src.constants.language_models import DocstringModels, TestGenerationModels, AutoCompleteModels, SemanticSenseModels
 from waitress import serve
 
@@ -24,9 +24,9 @@ def generate_tests(function: Function):
     return TestGenerationModels.finetuned_microsoft_phi3.value.generate_result(function)
 
 
-def completion_suggestion(function: Function):
+def completion_suggestion(variable: AutoComplete):
     print("Getting completion suggestions...")
-    return [AutoCompleteModels.microsoft_phi3.value.generate_result(function)]
+    return [AutoCompleteModels.microsoft_phi3.value.generate_result(variable)]
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -60,7 +60,7 @@ def handle_request():
                 f = Function(function_name="", code=symbol_content, context=references_content[0])
                 response["single_string"] = generate_tests(f)
             case "CompletionSuggestion":
-                f = Function(function_name="", code=symbol_content, context=references_content[0])
+                f = AutoComplete(code=symbol_content)
                 response["multiple_strings"] = completion_suggestion(f)
             case _:
                 response["error_message"] = f"Unknown request type: {request_type}."
