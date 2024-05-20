@@ -112,7 +112,7 @@ class BaseLocalModel(BaseModel, abc.ABC):
             transformers.AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=self.model_name,
                 low_cpu_mem_usage=True,
-                torch_dtype=self.weight_type if self.lora_part_path is None else None,
+                torch_dtype=self.weight_type,
                 device_map=self.device,
                 trust_remote_code=True,
             )
@@ -129,13 +129,18 @@ class BaseLocalModel(BaseModel, abc.ABC):
             self._model.model.embed_tokens.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
 
             tmp = self._model.lm_head.weight
-            self._model.lm_head = torch.nn.Linear(model_configs.EMBEDDING_DIM, model_configs.NUM_EMBEDDINGS)
+            self._model.lm_head = torch.nn.Linear(
+                model_configs.EMBEDDING_DIM,
+                model_configs.NUM_EMBEDDINGS,
+                dtype=self.weight_type,
+            )
             self._model.lm_head.weight.data = tmp[:model_configs.NUM_EMBEDDINGS, :]
 
             self._model = peft.PeftModel.from_pretrained(
                 self._model,
                 self.lora_part_path,
                 ignore_mismatched_sizes=True,
+                dtype=self.weight_type,
             )
 
             self._model = self._model.to(self.device)
@@ -167,5 +172,5 @@ class BaseLocalModel(BaseModel, abc.ABC):
         )
         generated_text = self._tokenizer.batch_decode(
             generated_ids[:, model_inputs["input_ids"].shape[1]:],
-            skip_special_tokens=True)[0]
+            skip_special_tokens=True)[0].strip("\n").strip("")
         return generated_text
