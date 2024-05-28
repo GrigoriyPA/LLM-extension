@@ -48,4 +48,4 @@ score response by criterion with few shot examples.
 
 # Demo:
 
-![](https://github.com/GrigoriyPA/LLM-extension/demo.gif)
+![Demonstration](https://github.com/GrigoriyPA/LLM-extension/blob/main/demo.gif)
