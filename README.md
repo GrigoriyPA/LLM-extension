@@ -1,40 +1,51 @@
-# Курсовой проект "LLM+IDE"
+# Course project "LLM for IDE Plugins"
 
-Суть курсовой работы заключается в разработке плагина для IDE [Visual Studio Code](https://code.visualstudio.com/). 
-Плагин создается с целью автоматизации написания некоторых частей кода.
-В частности, на текущий момент мы собираемся реализовывать следующий функционал:
-* Генерация документации для функций
-* Генерация тестов для функций
-* Анализ семантического смысла переменной по некоторым отрывкам кода
+The main purpose of that work was to create a plugin for [Visual Studio Code](https://code.visualstudio.com/).
 
-## Планы и детали реализации по отдельным частям курсовой работы
-* [ML](#ml)
-* [VS Code Extension](#vs-code-extension)
-* [Server](#server)
+The plugin was created to automate the writing of certain parts of code. 
+Specifically, we highlighted the following challenges:
 
-# ML
+* Function docstring generation.
+* UnitTest generation
+* Semantic analysis of variables based on certain code snippets.
+* AI code autocomplete 
 
-В качестве бейзлайна были выбраны две модели: [CodeLlama 7B Instruct](https://huggingface.co/codellama/CodeLlama-7b-Instruct-hf) 
-и [Stable Code 3B](https://hf.dongsiqie.me/stabilityai/stable-code-3b). Генерация осуществляется при помощи специально 
-подобранного промпта, это бейзлайн.
-В первую очередь мы решили заняться генерацией документации для функций.
+# LLM part
 
-Планы:
-1. Написать скрипт для автоматической загрузки моделей, запуска генерации на произвольных бенчмарках, 
-сохранение этих результатов (сделано)
-1. Подобрать нужный промпт, чтобы получить какой-либо бейзлайн (сделано)
-1. Научиться автоматически оценивать качество документации. Один из
-способов это делать - скорить ответы при помощи ChatGPT. 
-Для более качественного скоринга нужно собрать небольшой набор собственноручно размеченных данных 
-и затем использовать few-shot
-1. Подготовить датасет функций, на котором можно замерять качество. Один из вариантов сбора датасета - 
-спарсить с гитхаба "хорошие" питоновские функции и при помощи ChatGPT написать к ним документацию
-1. После того как мы научимся скорить ответы и найдем нужные бенчи можно запускать серии экспериментов
-1. Если будет достаточно вычислительных ресурсов, то можно будет зафайнтюнить небольшие модельки
-на нашем синтетическом датасете
-1. Переходить к реализации других фичей с примерным сохранением вышеописанного пайплайна
+Our main goal was a creation and fine-tuning a model for the IDE plugin.
 
-# VS Code Extension
+## Dataset:
 
-# Server
+We created a dataset with 10000 function examples based on data from open GitHub 
+repos. Also, we used CodeLLama 3 70b Instruct for the generation synthetic data(docstrings, UnitTests, semantic senses)
+that we used for fine-tune and scoring results.
 
+## Baselines:
+
+As a baseline, we choose two models: CodeLlama2 7B Instruct and Microsoft Phi-3 mini with 
+general prompts.
+
+
+## Scoring methods:
+
+We used CodeLLama 3 70b Instruct for scoring responses in our models - we asked model to 
+score response by criterion with few shot examples.
+
+
+## Results:
+
+
+| Model                          | Docstring | Test generation | Semantic sense |
+|--------------------------------|-----------|-----------------|----------------|
+| Average Human                  | 0.46      | -               | -              |
+| CodeLlama3 Instruct 70b        | 0.995     | 0.82            | 0.992          |
+| microsoft/phi-3-mini finetuned | 0.87      | 0.69            | 0.91           |
+| microsoft/phi-3-mini           | 0.75      | 0.55            | 0.77           |
+| microsoft/phi-2                | 0.55      | 0.42            | 0.63           |
+| CodeLlama-Python-7B            | 0.56      | 0.47            | 0.67           |
+| Stable Code 3b                 | 0.34      | 0.52            | 0.41           |
+
+
+# Demo:
+
+![](https://github.com/GrigoriyPA/LLM-extension/demo.gif)
